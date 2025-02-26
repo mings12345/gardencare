@@ -13,6 +13,7 @@ Route::get('/update-app', function () {
 
 Route::get('/reset-app', function () {
     Artisan::call('migrate:fresh --seed');
+    Artisan::call('optimize');
     return "Successfully Reseted";
 });
 
