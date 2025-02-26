@@ -14,6 +14,8 @@ class RecordSeeder extends Seeder
      */
     public function run(): void
     {
+
+        
         User::create([
             'name' => 'Admin User',
             'email' => 'admin@gardencare.com',
