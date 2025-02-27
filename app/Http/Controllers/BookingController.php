@@ -87,4 +87,13 @@ class BookingController extends Controller
             'bookings' => $bookings,
         ]);
     }
+    // Add this method to your BookingController
+public function index()
+{
+    // Fetch all bookings with their related services
+    $bookings = Booking::with('services')->get();
+
+    // Pass the bookings to the view
+    return view('bookings.index', compact('bookings'));
+}
 }
