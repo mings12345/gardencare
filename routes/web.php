@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookingController;
 
-Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+Route::get('/bookings', [BookingController::class, 'index']);
 
 Route::get('/', function () {
     return ['Laravel' => app()->version()];

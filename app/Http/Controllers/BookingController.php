@@ -42,8 +42,8 @@ class BookingController extends Controller
         $booking = Booking::create([
             'type' => $request->get('type'),
             'homeowner_id' => $request->get('homeowner_id'),
-            'gardener_id' => $request->get('gardener_id'),
-            'serviceprovider_id' => $request->get('serviceprovider_id'),
+            'gardener_id' => $request->get('gardener_id') ?? null,
+            'serviceprovider_id' => $request->get('serviceprovider_id') ?? null,
             'address' => $request->get('address'),
             'date' => $request->get('date'),
             'time' => $request->get('time'),
@@ -62,38 +62,41 @@ class BookingController extends Controller
         return response()->json([
             'message' => 'Booking created successfully',
             'type' => 'success',
-            'booking' => $booking,
+            'booking' => $booking->load('services'), // Load services to return in response
         ], 201);
     }
 
     // Get bookings for a specific gardener
     public function getGardenerBookings($gardenerId)
     {
-        $bookings = Booking::where('gardener_id', $gardenerId)->with('services')->get();
+        $bookings = Booking::where('gardener_id', $gardenerId)
+            ->with(['services', 'homeowner', 'gardener'])
+            ->get();
 
-        return response()->json([
-            'bookings' => $bookings,
-        ]);
+        return response()->json(['bookings' => $bookings]);
     }
 
     // Get bookings for a specific service provider
     public function getServiceProviderBookings($serviceProviderId)
     {
         $bookings = Booking::where('serviceprovider_id', $serviceProviderId)
-            ->with('services')
+            ->with(['services', 'homeowner', 'serviceProvider'])
             ->get();
 
-        return response()->json([
-            'bookings' => $bookings,
-        ]);
+        return response()->json(['bookings' => $bookings]);
     }
-    // Add this method to your BookingController
-public function index()
-{
-    // Fetch all bookings with their related services
-    $bookings = Booking::with('services')->get();
 
-    // Pass the bookings to the view
-    return view('bookings.index', compact('bookings'));
-}
+    // Display all bookings in the view
+    public function index()
+    {
+        // Fetch bookings with related data
+        $bookings = Booking::with([
+            'services.service', // Load the service details
+            'homeowner',
+            'gardener',
+            'serviceProvider'
+        ])->get();
+
+        return view('bookings.index', compact('bookings'));
+    }
 }
