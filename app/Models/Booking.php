@@ -32,6 +32,8 @@ class Booking extends Model
     // Define the relationship with BookingService
     public function services()
     {
-        return $this->hasMany(BookingService::class, 'booking_id', 'id');
+        return $this->hasMany(BookingService::class, 'booking_id', 'id')
+        ->select('booking_services.*','services.name','services.price')
+        ->join('services', 'services.id', '=', 'booking_services.service_id');
     }
 }

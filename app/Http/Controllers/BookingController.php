@@ -91,7 +91,7 @@ class BookingController extends Controller
     {
         // Fetch bookings with related data
         $bookings = Booking::with([
-            'services.service', // Load the service details
+            'services', // Load the service details
             'homeowner',
             'gardener',
             'serviceProvider'
