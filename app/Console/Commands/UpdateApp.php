@@ -136,7 +136,7 @@ class UpdateApp extends Command
    private function runComposer()
    {
 
-       $process = new Process('composer install');
+       $process = new Process(['composer', 'install']);
        $this->info("Running 'composer install'");
 
        $process->run(function($type, $buffer) {
