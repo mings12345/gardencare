@@ -26,6 +26,7 @@
                         <th>Time</th>
                         <th>Total Price</th>
                         <th>Special Instructions</th>
+                        <th>Datetime Submitted</th>
                         <th>Services</th>
                     </tr>
                 </thead>
