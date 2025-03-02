@@ -42,6 +42,7 @@
                             <td>{{ $booking->time }}</td>
                             <td>{{ $booking->total_price }}</td>
                             <td>{{ $booking->special_instructions ?? 'None' }}</td>
+                            <td>{{ $booking->created_at->format("M d, Y g:i A") }}</td>
                             <td>
                                 <ul>
                                     @foreach($booking->services as $service)
