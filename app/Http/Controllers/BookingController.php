@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\BookingService;
 use Illuminate\Http\Request;
+use App\Events\GardenerBookingEvent;
 use Validator;
 
 class BookingController extends Controller
@@ -27,8 +28,10 @@ class BookingController extends Controller
         // Add conditional validation rules based on the booking type
         if ($request->get('type') === 'Gardening') {
             $rules['gardener_id'] = 'required|exists:users,id';
+            event(new GardenerBookingEvent($booking));
         } elseif ($request->get('type') === 'Landscaping') {
             $rules['serviceprovider_id'] = 'required|exists:users,id';
+            event(new ServiceProviderBookingEvent($booking));
         }
 
         // Validate the request
