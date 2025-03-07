@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ServiceProviderBookingEvent; // Import the ServiceProviderBookingEvent
 use App\Models\Booking;
 use App\Models\BookingService;
 use Illuminate\Http\Request;
@@ -28,10 +29,8 @@ class BookingController extends Controller
         // Add conditional validation rules based on the booking type
         if ($request->get('type') === 'Gardening') {
             $rules['gardener_id'] = 'required|exists:users,id';
-            event(new GardenerBookingEvent($booking));
         } elseif ($request->get('type') === 'Landscaping') {
             $rules['serviceprovider_id'] = 'required|exists:users,id';
-            event(new ServiceProviderBookingEvent($booking));
         }
 
         // Validate the request
@@ -60,6 +59,13 @@ class BookingController extends Controller
                 'booking_id' => $booking->id,
                 'service_id' => $service_id,
             ]);
+        }
+
+        // Trigger the appropriate event based on the booking type
+        if ($request->get('type') === 'Gardening') {
+            event(new GardenerBookingEvent($booking));
+        } elseif ($request->get('type') === 'Landscaping') {
+            event(new ServiceProviderBookingEvent($booking));
         }
 
         return response()->json([
