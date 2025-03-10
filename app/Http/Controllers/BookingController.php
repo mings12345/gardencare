@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ServiceProviderBookingEvent; // Import the ServiceProviderBookingEvent
+use App\Events\GardenerBookingEvent;
+use App\Events\ServiceProviderBookingEvent;
 use App\Models\Booking;
 use App\Models\BookingService;
 use Illuminate\Http\Request;
-use App\Events\GardenerBookingEvent;
 use Validator;
 
 class BookingController extends Controller
@@ -63,8 +63,10 @@ class BookingController extends Controller
 
         // Trigger the appropriate event based on the booking type
         if ($request->get('type') === 'Gardening') {
+            \Log::info("Triggering GardenerBookingEvent for gardener_id: " . $booking->gardener_id);
             event(new GardenerBookingEvent($booking));
         } elseif ($request->get('type') === 'Landscaping') {
+            \Log::info("Triggering ServiceProviderBookingEvent for serviceprovider_id: " . $booking->serviceprovider_id);
             event(new ServiceProviderBookingEvent($booking));
         }
 
@@ -73,39 +75,5 @@ class BookingController extends Controller
             'type' => 'success',
             'booking' => $booking->load('services'), // Load services to return in response
         ], 201);
-    }
-
-    // Get bookings for a specific gardener
-    public function getGardenerBookings($gardenerId)
-    {
-        $bookings = Booking::where('gardener_id', $gardenerId)
-            ->with(['services', 'homeowner', 'gardener'])
-            ->get();
-
-        return response()->json(['bookings' => $bookings]);
-    }
-
-    // Get bookings for a specific service provider
-    public function getServiceProviderBookings($serviceProviderId)
-    {
-        $bookings = Booking::where('serviceprovider_id', $serviceProviderId)
-            ->with(['services', 'homeowner', 'serviceProvider'])
-            ->get();
-
-        return response()->json(['bookings' => $bookings]);
-    }
-
-    // Display all bookings in the view
-    public function index()
-    {
-        // Fetch bookings with related data
-        $bookings = Booking::with([
-            'services', // Load the service details
-            'homeowner',
-            'gardener',
-            'serviceProvider'
-        ])->get();
-
-        return view('bookings.index', compact('bookings'));
     }
 }

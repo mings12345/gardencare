@@ -5,6 +5,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Pusher\Pusher;
 
 // Authentication Routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -14,15 +15,45 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/test', function () {
     return response()->json(['message' => 'API is working']);
 });
- // Services Routes
- Route::get('/services', [ServiceController::class, 'getServices']); // Get all services
+
+// Services Routes
+Route::get('/services', [ServiceController::class, 'getServices']); // Get all services
+
 // Bookings Routes
 Route::post('/create_booking', [BookingController::class, 'store']); // Create a booking
 Route::get('/gardeners/{gardenerId}/bookings', [BookingController::class, 'getGardenerBookings']); // Get bookings for a gardener
 Route::get('/service_providers/{serviceProviderId}/bookings', [BookingController::class, 'getServiceProviderBookings']); // Get bookings for a service provider
 Route::get('/service_providers', [AuthController::class, 'getServiceProviders']); // Fetch only users with user_type = service provider
-// ✅ Add route to fetch all gardeners
+
+// Fetch all gardeners
 Route::get('/gardeners', [AuthController::class, 'getGardeners']); // Fetch only users with user_type = gardener
+
+// Pusher Authentication Endpoint
+Route::post('/pusher/auth', function (Request $request) {
+    // Initialize Pusher
+    $pusher = new Pusher(
+        env('30c5136a5ba9d5617c54'), // Your Pusher App Key
+        env('6e705867285ce08f6d09'), // Your Pusher App Secret
+        env('1951216'), // Your Pusher App ID
+        [
+            'cluster' => env('ap1'), // Your Pusher Cluster
+            'useTLS' => true, // Use TLS for secure connection
+        ]
+    );
+
+    // Get the socket ID and channel name from the request
+    $socketId = $request->input('socket_id');
+    $channelName = $request->input('channel_name');
+
+    // Perform any necessary checks to ensure the user is authorized
+    // For example, check if the user is logged in or has the correct permissions
+    // You can use Sanctum or any other authentication method here
+
+    // Return the authentication token
+    return response()->json(
+        $pusher->socket_auth($channelName, $socketId)
+    );
+});
 
 // Protected Routes (Require Authentication)
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -33,5 +64,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Fetch profile data
     Route::get('/profile/{userId}', [AuthController::class, 'getProfileData']);
-
 });
