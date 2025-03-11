@@ -11,6 +11,16 @@ use Validator;
 
 class BookingController extends Controller
 {
+    // Display a list of bookings
+    public function index()
+    {
+        // Fetch all bookings with related data (e.g., homeowner, gardener, services)
+        $bookings = Booking::with(['homeowner', 'gardener', 'serviceProvider', 'services'])->get();
+
+        // Pass the bookings to the view
+        return view('bookings.index', compact('bookings'));
+    }
+
     // Create a new booking
     public function store(Request $request)
     {
