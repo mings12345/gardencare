@@ -8,7 +8,7 @@ use App\Http\Controllers\AuthController;
 
 Route::get('/bookings', [BookingController::class, 'index']);
 Route::get('admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
-Route::post('admin/login', [AuthController::class, 'adminLogin']);
+Route::post('admin/login', [AuthController::class, 'adminLogin'])->name('admin.login.submit');
 
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');

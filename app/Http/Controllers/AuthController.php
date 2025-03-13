@@ -127,7 +127,7 @@ class AuthController extends Controller
 
 public function showAdminLoginForm()
 {
-    return view('auth.admin-login');
+    return view('auth.login');
 }
 
 public function adminLogin(Request $request)
