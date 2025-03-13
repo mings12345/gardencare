@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -155,4 +156,17 @@ public function adminLogin(Request $request)
 
     return redirect()->back()->with('error', 'Invalid credentials');
 }
+
+public function index()
+    {
+        $totalHomeowners = User::where('user_type', 'homeowner')->count();
+        $totalGardeners = User::where('user_type', 'gardener')->count();
+        $totalServiceProviders = User::where('user_type', 'service_provider')->count();
+
+        return view('admin.manage-users', compact(
+            'totalHomeowners',
+            'totalGardeners',
+            'totalServiceProviders'
+        ));
+    }
 }

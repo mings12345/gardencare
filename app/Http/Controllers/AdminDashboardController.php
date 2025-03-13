@@ -1,21 +1,48 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\Booking;
-use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\Booking;
+use App\Models\Feedback;
+use App\Models\User;
+use App\Models\Service;
 
-class DashboardController extends Controller
+class AdminDashboardController extends Controller
 {
     public function index()
     {
+        // Get total bookings
         $totalBookings = Booking::count();
+
+        // Get booking statuses
         $pendingBookings = Booking::where('status', 'pending')->count();
         $completedBookings = Booking::where('status', 'completed')->count();
-        $bookings = Booking::with(['homeowner', 'gardener', 'serviceProvider'])->get();
 
-        return view('admin.dashboard', compact('totalBookings', 'pendingBookings', 'completedBookings', 'bookings'));
+        // Calculate total earnings (sum of all booking prices)
+        $totalEarnings = Booking::where('status', 'completed')->sum('total_price');
+
+        // Count total users
+        $totalHomeowners = User::where('user_type', 'homeowner')->count();
+        $totalGardeners = User::where('user_type', 'gardener')->count();
+        $totalServiceProviders = User::where('user_type', 'service_provider')->count();
+
+        // Get services and feedbacks
+        $services = Service::all();
+        $feedbacks = Feedback::all();
+        $bookings = Booking::all();
+
+        return view('admin.dashboard', compact(
+            'totalBookings', 
+            'pendingBookings', 
+            'completedBookings', 
+            'totalEarnings',
+            'totalHomeowners',
+            'totalGardeners',
+            'totalServiceProviders',
+            'services',
+            'feedbacks',
+            'bookings'
+        ));
     }
 }

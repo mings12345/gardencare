@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login | GardenCare</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
 </head>
 <body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-200 to-green-100">
 
@@ -44,16 +45,21 @@
                 >
             </div>
 
-            <!-- Password Field -->
+            <!-- Password Field with Eye Icon -->
             <div class="mb-4">
                 <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                <input 
-                    id="password"
-                    type="password"
-                    name="password"
-                    class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-400 focus:border-green-600 transition"
-                    required
-                >
+                <div class="relative">
+                    <input 
+                        id="password"
+                        type="password"
+                        name="password"
+                        class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-400 focus:border-green-600 transition pr-10"
+                        required
+                    >
+                    <button type="button" onclick="togglePassword()" class="absolute right-3 top-3 text-gray-500 focus:outline-none">
+                        <i id="eyeIcon" class="fas fa-eye"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Remember Me -->
@@ -71,6 +77,22 @@
             </button>
         </form>
     </div>
+
+    <!-- Password Toggle Script -->
+    <script>
+        function togglePassword() {
+            const passwordField = document.getElementById("password");
+            const eyeIcon = document.getElementById("eyeIcon");
+
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                eyeIcon.classList.replace("fa-eye", "fa-eye-slash");
+            } else {
+                passwordField.type = "password";
+                eyeIcon.classList.replace("fa-eye-slash", "fa-eye");
+            }
+        }
+    </script>
 
 </body>
 </html>
