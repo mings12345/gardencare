@@ -115,11 +115,44 @@ class AuthController extends Controller
     return response()->json($gardeners);
     }
     
-    public function getServiceProviders()
-{
-    $serviceProviders = User::where('user_type', 'service_provider')->get();
+        public function getServiceProviders()
+    {
+        $serviceProviders = User::where('user_type', 'service_provider')->get();
 
-    return response()->json($serviceProviders);
+        return response()->json($serviceProviders);
+    }
+
+
+   
+
+public function showAdminLoginForm()
+{
+    return view('auth.admin-login');
 }
 
+public function adminLogin(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|string|email',
+        'password' => 'required|string',
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()->back()->withErrors($validator)->withInput();
+    }
+
+    $credentials = $request->only('email', 'password');
+
+    if (auth()->attempt($credentials)) {
+        $user = auth()->user();
+        if ($user->user_type === 'admin') {
+            return redirect()->route('admin.dashboard');
+        } else {
+            auth()->logout();
+            return redirect()->back()->with('error', 'You do not have access to this page.');
+        }
+    }
+
+    return redirect()->back()->with('error', 'Invalid credentials');
+}
 }

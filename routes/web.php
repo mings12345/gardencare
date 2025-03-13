@@ -3,11 +3,16 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\AuthController;
+
 
 Route::get('/bookings', [BookingController::class, 'index']);
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    Route::get('/users', [DashboardController::class, 'users'])->name('admin.users');
+Route::get('admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
+Route::post('admin/login', [AuthController::class, 'adminLogin']);
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    // Add more admin routes here
 });
 
 Route::get('/', function () {
