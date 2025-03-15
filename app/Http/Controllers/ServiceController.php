@@ -66,4 +66,13 @@ class ServiceController extends Controller
 
         return redirect()->route('admin.manageServices')->with('success', 'Service deleted successfully.');
     }
+
+     // Fetch all services for API
+     public function getServices()
+     {
+         $services = Service::all(); // Fetch all services from the database
+         return response()->json([
+             'services' => $services, // Return services as JSON
+         ]);
+     }
 }
