@@ -7,62 +7,63 @@ use Illuminate\Http\Request;
 
 class ServiceController extends Controller
 {
-    // Get all services
-    public function getServices()
-    {
-        $services = Service::all();
-
-        return response()->json([
-            'services' => $services,
-        ]);
-    }
-    
+    // Display all services
     public function index()
     {
         $services = Service::all();
         return view('admin.manage-services', compact('services'));
     }
+
+    // Show the form to add a new service
+    public function create()
+    {
+        return view('admin.add-service');
+    }
+
+    // Store a new service
+    public function store(Request $request)
+    {
+        // Validate the request data
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+        ]);
+
+        // Create a new service
+        Service::create($request->all());
+
+        return redirect()->route('admin.manageServices')->with('success', 'Service added successfully.');
+    }
+
     // Show the form to edit a service
     public function edit($id)
     {
-        $service = Service::findOrFail($id); // Find the service by ID
-        return view('admin.edit-service', compact('service')); // Pass the service to the view
+        $service = Service::findOrFail($id);
+        return view('admin.edit-service', compact('service'));
     }
 
-    // Update the service in the database
+    // Update a service
     public function update(Request $request, $id)
     {
-        // Validate the request
+        // Validate the request data
         $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric',
+            'price' => 'required|numeric|min:0',
         ]);
-
-        // Find the service by ID
-        $service = Service::findOrFail($id);
 
         // Update the service
-        $service->update([
-            'name' => $request->name,
-            'description' => $request->description,
-            'price' => $request->price,
-        ]);
+        $service = Service::findOrFail($id);
+        $service->update($request->all());
 
-        // Redirect with a success message
-        return redirect()->route('admin.dashboard')->with('success', 'Service updated successfully.');
+        return redirect()->route('admin.manageServices')->with('success', 'Service updated successfully.');
     }
-    
+
     // Delete a service
     public function destroy($id)
     {
-        // Find the service by ID
         $service = Service::findOrFail($id);
-
-        // Delete the service
         $service->delete();
 
-        // Redirect with a success message
-        return redirect()->route('admin.dashboard')->with('success', 'Service deleted successfully.');
+        return redirect()->route('admin.manageServices')->with('success', 'Service deleted successfully.');
     }
 }

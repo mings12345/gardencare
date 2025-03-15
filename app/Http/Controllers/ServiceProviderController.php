@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class ServiceProviderController extends Controller
 {
-    // List all service providers
+    // Display a list of service providers
     public function index()
     {
         $serviceProviders = User::where('user_type', 'service_provider')->get();
@@ -20,47 +21,57 @@ class ServiceProviderController extends Controller
         return view('admin.add-service-provider');
     }
 
-    // Store the new service provider in the database
+    // Store a new service provider in the database
     public function store(Request $request)
     {
+        // Validate the request data
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users|max:255',
-            'password' => 'required|string|min:6|confirmed',
-            'phone' => 'required|string|max:15',
-            'address' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
         ]);
 
+        // Create a new service provider
         User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => bcrypt($request->password),
             'phone' => $request->phone,
             'address' => $request->address,
-            'user_type' => 'service_provider',
+            'user_type' => 'service_provider', // Set the user type to 'service_provider'
         ]);
 
-        return redirect()->route('admin.manageServiceProviders')->with('success', 'Service provider added successfully.');
+        return redirect()->route('admin.manageServiceProviders')->with('success', 'Service Provider added successfully.');
     }
 
-    // Show the form to edit a service provider
+    // Show the details of a specific service provider
+    public function show($id)
+    {
+        $serviceProvider = User::findOrFail($id);
+        return view('admin.view-service-provider', compact('serviceProvider'));
+    }
+
+    // Show the form to edit a specific service provider
     public function edit($id)
     {
         $serviceProvider = User::findOrFail($id);
         return view('admin.edit-service-provider', compact('serviceProvider'));
     }
 
-    // Update the service provider in the database
+    // Update the specified service provider in the database
     public function update(Request $request, $id)
     {
+        $serviceProvider = User::findOrFail($id);
+
+        // Validate the request data
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-            'phone' => 'required|string|max:15',
-            'address' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $serviceProvider->id,
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
         ]);
 
-        $serviceProvider = User::findOrFail($id);
+        // Update the service provider's details
         $serviceProvider->update([
             'name' => $request->name,
             'email' => $request->email,
@@ -68,15 +79,15 @@ class ServiceProviderController extends Controller
             'address' => $request->address,
         ]);
 
-        return redirect()->route('admin.manageServiceProviders')->with('success', 'Service provider updated successfully.');
+        return redirect()->route('admin.manageServiceProviders')->with('success', 'Service Provider updated successfully.');
     }
 
-    // Delete a service provider
+    // Delete the specified service provider from the database
     public function destroy($id)
     {
         $serviceProvider = User::findOrFail($id);
         $serviceProvider->delete();
 
-        return redirect()->route('admin.manageServiceProviders')->with('success', 'Service provider deleted successfully.');
+        return redirect()->route('admin.manageServiceProviders')->with('success', 'Service Provider deleted successfully.');
     }
 }
