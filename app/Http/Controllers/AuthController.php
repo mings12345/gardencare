@@ -109,6 +109,43 @@ class AuthController extends Controller
             ]);
         }
 
+                public function updateProfile(Request $request)
+        {
+            $user = auth()->user(); // Get the authenticated user
+
+            $validator = Validator::make($request->all(), [
+                'name' => 'sometimes|string|max:50',
+                'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+                'phone' => 'sometimes|string|max:15',
+                'address' => 'sometimes|string|max:255',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Validation Error',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            // Update user profile
+            $user->update($request->only(['name', 'email', 'phone', 'address']));
+
+            return response()->json([
+                'message' => 'Profile updated successfully.',
+                'user' => $user,
+            ], 200);
+        }
+
+                public function logout(Request $request)
+        {
+            // Revoke the current user's token
+            $request->user()->currentAccessToken()->delete();
+
+            return response()->json([
+                'message' => 'Logged out successfully.',
+            ], 200);
+        }
+
         public function getGardeners()
     {
     $gardeners = User::where('user_type', 'gardener')->get();

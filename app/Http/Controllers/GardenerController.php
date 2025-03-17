@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class GardenerController extends Controller
 {
@@ -30,6 +31,7 @@ class GardenerController extends Controller
             'email' => 'required|email|unique:users,email',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
+            'password' => 'required|string|min:8', // Add password validation
         ]);
 
         // Create a new gardener
@@ -38,6 +40,7 @@ class GardenerController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
+            'password' => Hash::make($request->password), // Hash the password
             'user_type' => 'gardener', // Set the user type to 'gardener'
         ]);
 
@@ -69,6 +72,7 @@ class GardenerController extends Controller
             'email' => 'required|email|unique:users,email,' . $gardener->id,
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
+            'password' => 'nullable|string|min:8', // Password is optional during update
         ]);
 
         // Update the gardener's details
@@ -77,6 +81,7 @@ class GardenerController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
+            'password' => $request->password ? Hash::make($request->password) : $gardener->password, // Update password if provided
         ]);
 
         return redirect()->route('admin.manageGardeners')->with('success', 'Gardener updated successfully.');
