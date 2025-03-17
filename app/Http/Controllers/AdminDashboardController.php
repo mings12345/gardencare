@@ -32,6 +32,7 @@ class AdminDashboardController extends Controller
         $feedbacks = Feedback::all();
         $bookings = Booking::all();
 
+        
         return view('admin.dashboard', compact(
             'totalBookings', 
             'pendingBookings', 
