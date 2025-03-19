@@ -5,7 +5,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Pusher\Pusher;
+use Pusher\Pusher; 
 use App\Http\Controllers\ProfileController;
 
 // Authentication Routes
