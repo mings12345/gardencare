@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -41,6 +42,44 @@ class AuthController extends Controller
             'message' => 'User registered successfully.',
             'user' => $user,
         ], 201);
+    }   
+
+        public function uploadProfileImage(Request $request)
+    {
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB max
+            'user_id' => 'required|integer|exists:users,id', // Ensure the user exists
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation Error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        // Find the user
+        $user = User::find($request->input('user_id'));
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
+        }
+
+        // Store the image in the 'public/images' directory
+        $imagePath = $request->file('image')->store('public/images');
+        $imageUrl = Storage::url($imagePath); // Get the public URL of the image
+
+        // Update the user's profile image URL
+        $user->profile_image = $imageUrl;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Profile image uploaded successfully',
+            'image_url' => $imageUrl,
+        ], 200);
     }
 
             public function login(Request $request)
@@ -88,6 +127,20 @@ class AuthController extends Controller
                 return response()->json(['error' => 'An unexpected error occurred.'], 500);
             }
         }
+
+            public function getProfileImage($userId)
+    {
+        $user = User::find($userId);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        return response()->json([
+            'image_url' => $user->profile_image, // Assuming 'profile_image' is the column in your users table
+        ]);
+    }
+
         public function getProfileData($userId)
         {
             \Log::info('Fetching profile data for user ID: ' . $userId); // Debugging line
@@ -106,6 +159,7 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'address' => $user->address,
+                'image_url' => $user->profile_image,
             ]);
         }
 

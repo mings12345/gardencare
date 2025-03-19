@@ -10,7 +10,8 @@ use Pusher\Pusher;
 // Authentication Routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-
+Route::post('/upload-profile-image', [AuthController::class, 'uploadProfileImage']);
+Route::get('/get-profile-image/{userId}', [AuthController::class, 'getProfileImage']);
 // Test Route
 Route::get('/test', function () {
     return response()->json(['message' => 'API is working']);

@@ -10,6 +10,13 @@
     <div class="container mt-5">
         <h1>Edit Homeowner</h1>
 
+        <!-- Success Message Alert -->
+        @if(session('success'))
+            <div class="alert alert-success" role="alert">
+                {{ session('success') }}
+            </div>
+        @endif
+
         <!-- Edit Homeowner Form -->
         <form method="POST" action="{{ route('admin.updateHomeowner', $homeowner->id) }}">
             @csrf
