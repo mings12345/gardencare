@@ -6,12 +6,12 @@ use App\Http\Controllers\ServiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Pusher\Pusher;
+use App\Http\Controllers\ProfileController;
 
 // Authentication Routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/upload-profile-image', [AuthController::class, 'uploadProfileImage']);
-Route::get('/get-profile-image/{userId}', [AuthController::class, 'getProfileImage']);
+Route::post('/update-profile', [ProfileController::class, 'updateProfile']);
 // Test Route
 Route::get('/test', function () {
     return response()->json(['message' => 'API is working']);
