@@ -7,7 +7,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Pusher\Pusher; 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SeasonalTipController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PusherAuthController;
 
+// Notifications
+Route::get('/notifications', [NotificationController::class, 'index']);
+Route::post('/notifications', [NotificationController::class, 'store']);
+// Pusher Auth
+Route::post('/pusher/auth', [PusherAuthController::class, 'authenticate']);
+
+Route::get('/seasonal-tips', [SeasonalTipController::class, 'index']);
+Route::get('/seasonal-tips/{plantId}/{region}/{season}', [SeasonalTipController::class, 'getTipsByPlantRegionAndSeason']);
 // Authentication Routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

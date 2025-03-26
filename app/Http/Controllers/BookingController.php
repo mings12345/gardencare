@@ -70,14 +70,33 @@ class BookingController extends Controller
                 'service_id' => $service_id,
             ]);
         }
+        
+        // Get homeowner name for notification
+        $homeowner = User::find($request->homeowner_id);
 
-        // Trigger the appropriate event based on the booking type
-        if ($request->get('type') === 'Gardening') {
-            \Log::info("Triggering GardenerBookingEvent for gardener_id: " . $booking->gardener_id);
+        // Determine recipient based on booking type
+        $recipientId = $request->type === 'Gardening' 
+            ? $request->gardener_id 
+            : $request->serviceprovider_id;
+
+        $recipientType = $request->type === 'Gardening' ? 'gardener' : 'service_provider';
+
+        // Create and store notification
+        $notification = Notification::create([
+            'user_id' => $recipientId,
+            'user_type' => $recipientType,
+            'booking_id' => $booking->id,
+            'title' => 'New Booking',
+            'message' => "{$homeowner->name} booked a {$request->type} service",
+        ]);
+
+        // Trigger real-time events
+        if ($request->type === 'Gardening') {
             event(new GardenerBookingEvent($booking));
-        } elseif ($request->get('type') === 'Landscaping') {
-            \Log::info("Triggering ServiceProviderBookingEvent for serviceprovider_id: " . $booking->serviceprovider_id);
+            event(new NewBookingNotification($notification)); // Pusher event
+        } else {
             event(new ServiceProviderBookingEvent($booking));
+            event(new NewBookingNotification($notification)); // Pusher event
         }
 
         return response()->json([
