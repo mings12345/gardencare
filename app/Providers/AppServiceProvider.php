@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\ServiceProvider;
-use App\Services\PayPalService;
+use App\Services\PayMongoService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,8 +13,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(PayPalService::class, function ($app) {
-            return new PayPalService();
+        $this->app->singleton(PayMongoService::class, function ($app) {
+            return new PayMongoService();
         });
     }
 

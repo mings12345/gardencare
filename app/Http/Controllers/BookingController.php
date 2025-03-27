@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\GardenerBookingEvent;
-use App\Events\ServiceProviderBookingEvent;
 use App\Models\Booking;
 use App\Models\BookingService;
 use Illuminate\Http\Request;
@@ -70,34 +68,25 @@ class BookingController extends Controller
                 'service_id' => $service_id,
             ]);
         }
+
+        // Send notification to the service provider (gardener or landscaper)
+        $notificationService = app(\App\Services\NotificationService::class);
+        $recipientId = $request->get('type') === 'Gardening' 
+            ? $request->get('gardener_id') 
+            : $request->get('serviceprovider_id');
+            
+        $userType = $request->get('type') === 'Gardening' ? 'gardener' : 'service_provider';
         
-        // Get homeowner name for notification
-        $homeowner = User::find($request->homeowner_id);
-
-        // Determine recipient based on booking type
-        $recipientId = $request->type === 'Gardening' 
-            ? $request->gardener_id 
-            : $request->serviceprovider_id;
-
-        $recipientType = $request->type === 'Gardening' ? 'gardener' : 'service_provider';
-
-        // Create and store notification
-        $notification = Notification::create([
-            'user_id' => $recipientId,
-            'user_type' => $recipientType,
-            'booking_id' => $booking->id,
-            'title' => 'New Booking',
-            'message' => "{$homeowner->name} booked a {$request->type} service",
-        ]);
-
-        // Trigger real-time events
-        if ($request->type === 'Gardening') {
-            event(new GardenerBookingEvent($booking));
-            event(new NewBookingNotification($notification)); // Pusher event
-        } else {
-            event(new ServiceProviderBookingEvent($booking));
-            event(new NewBookingNotification($notification)); // Pusher event
-        }
+        $notificationService->sendToUser(
+            $recipientId,
+            $userType,
+            [
+                'title' => 'New Booking Received',
+                'body' => 'You have a new booking request',
+                'type' => 'new_booking',
+                'booking_id' => $booking->id,
+            ]
+        );
 
         return response()->json([
             'message' => 'Booking created successfully',

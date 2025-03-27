@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notifications', function (Blueprint $table) {
+        Schema::create('fcm_tokens', function (Blueprint $table) {
             $table->id();
-            $table->morphs('notifiable'); // For polymorphic relation
-            $table->string('type');
-            $table->json('data');
-            $table->timestamp('read_at')->nullable();
+            $table->morphs('tokenable'); // Creates tokenable_id and tokenable_type columns
+            $table->text('token');
             $table->timestamps();
-                });
+        });
     }
 
     /**
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notifications');
+        Schema::dropIfExists('fcm_tokens');
     }
 };

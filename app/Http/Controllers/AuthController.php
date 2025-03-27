@@ -20,6 +20,7 @@ class AuthController extends Controller
             'phone' => 'required|string|max:15',
             'address' => 'required|string|max:255',
             'user_type' => 'required|in:homeowner,gardener,service_provider,admin',
+            'fcm_token' => 'nullable|string', // Allow FCM token
         ]);
 
         if ($validator->fails()) {
@@ -38,6 +39,10 @@ class AuthController extends Controller
             'user_type' => $request->user_type,
         ]);
 
+        if ($request->filled('fcm_token')) {
+            $user->fcmTokens()->create(['token' => $request->fcm_token]);
+        }
+
         return response()->json([
             'message' => 'User registered successfully.',
             'user' => $user,
@@ -49,6 +54,7 @@ class AuthController extends Controller
             $validator = Validator::make($request->all(), [
                 'email' => 'required|string|email',
                 'password' => 'required|string',
+                'fcm_token' => 'nullable|string', // Accept FCM token
             ]);
 
             if ($validator->fails()) {
@@ -67,6 +73,13 @@ class AuthController extends Controller
 
                 $user = auth()->user();
                 $token = $user->createToken('Access Token')->plainTextToken;
+
+                            // Store or update FCM token
+                if ($request->filled('fcm_token')) {
+                    $user->fcmTokens()->updateOrCreate(
+                        ['token' => $request->fcm_token]
+                    );
+                }
 
                 // Explicitly include user details with user_type
                 return response()->json([
