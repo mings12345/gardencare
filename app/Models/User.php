@@ -42,4 +42,20 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+        public function conversations()
+    {
+        return Conversation::where(function($query) {
+            $query->where('homeowner_id', $this->id)
+                ->orWhere('gardener_id', $this->id)
+                ->orWhere('service_provider_id', $this->id);
+        });
+    }
+
+    public function hasRole($role)
+    {
+        // Implement your role checking logic here
+        // This might vary based on your authentication setup
+        return $this->role === $role;
+    }
 }

@@ -69,7 +69,24 @@ class BookingController extends Controller
             ]);
         }
 
-       
+        // Send notification to the service provider (gardener or landscaper)
+        $notificationService = app(\App\Services\NotificationService::class);
+        $recipientId = $request->get('type') === 'Gardening' 
+            ? $request->get('gardener_id') 
+            : $request->get('serviceprovider_id');
+            
+        $userType = $request->get('type') === 'Gardening' ? 'gardener' : 'service_provider';
+        
+        $notificationService->sendToUser(
+            $recipientId,
+            $userType,
+            [
+                'title' => 'New Booking Received',
+                'body' => 'You have a new booking request',
+                'type' => 'new_booking',
+                'booking_id' => $booking->id,
+            ]
+        );
 
         return response()->json([
             'message' => 'Booking created successfully',
