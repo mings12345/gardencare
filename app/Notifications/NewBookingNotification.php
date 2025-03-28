@@ -2,42 +2,45 @@
 
 namespace App\Notifications;
 
+use App\Models\Booking;
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class NewBookingNotification extends Notification
+class NewBooking extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $booking;
-    protected $homeownerName;
+    public $booking;
 
-    public function __construct($booking, $homeownerName)
+    public function __construct(Booking $booking)
     {
         $this->booking = $booking;
-        $this->homeownerName = $homeownerName;
     }
 
     public function via($notifiable)
-{
-    return ['database', 'firebase'];
-}
+    {
+        return ['database', 'mail'];
+    }
 
-public function toFirebase($notifiable)
-{
-    $tokens = $notifiable->fcmTokens()->pluck('token')->toArray();
-    
-    return (new FirebaseService)->sendNotification(
-        $tokens[0], // Or loop through all tokens
-        $this->title,
-        $this->body,
-        [
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+            ->subject('New Booking Request')
+            ->line('You have a new booking request from ' . $this->booking->homeowner->name)
+            ->action('View Booking', url('/bookings/' . $this->booking->id))
+            ->line('Please respond within 24 hours');
+    }
+
+    public function toArray($notifiable)
+    {
+        return [
             'type' => 'new_booking',
             'booking_id' => $this->booking->id,
-            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-        ]
-    );
+            'message' => 'New booking request from ' . $this->booking->homeowner->name,
+            'url' => '/provider/bookings/' . $this->booking->id,
+        ];
+    }
 }
-}
+

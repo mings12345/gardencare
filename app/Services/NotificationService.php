@@ -6,19 +6,30 @@ use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
 use App\Models\FcmToken;
-use App\Models\User; // Changed: Only User model needed
-
+use App\Models\User;
+use Illuminate\Support\Facades\Log;
 class NotificationService
 {
     protected $messaging;
 
     public function __construct()
     {
-        $factory = (new Factory)
-            ->withServiceAccount(storage_path('app/firebase-service-account.json'));
+        try {
+        $serviceAccountPath = storage_path('app/firebase-service-account.json');
+        
+        if (!file_exists($serviceAccountPath)) {
+            throw new \RuntimeException('Firebase service account file not found');
+        }
+
+        $this->messaging = (new Factory)
+            ->withServiceAccount($serviceAccountPath)
+            ->createMessaging();
             
-        $this->messaging = $factory->createMessaging();
+    } catch (\Exception $e) {
+        Log::error('Firebase initialization failed: ' . $e->getMessage());
+        throw $e;
     }
+}
 
     public function sendToUser($userId, $userType, $notificationData)
     {

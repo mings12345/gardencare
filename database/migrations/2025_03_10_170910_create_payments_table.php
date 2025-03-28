@@ -13,14 +13,13 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('booking_id');
-            $table->unsignedBigInteger('homeowner_id');
-            $table->unsignedBigInteger('gardener_id')->nullable();
-            $table->unsignedBigInteger('service_provider_id')->nullable();
+            $table->foreignId('booking_id')->constrained();
+            $table->foreignId('user_id')->constrained();
             $table->decimal('amount', 10, 2);
-            $table->decimal('platform_fee', 10, 2)->default(0);
-            $table->decimal('net_amount', 10, 2);
-            $table->string('status')->default('pending');
+            $table->string('payment_method'); // stripe/gcash/etc.
+            $table->string('payment_intent_id')->nullable();
+            $table->string('status'); // pending/succeeded/failed
+            $table->json('metadata')->nullable();
             $table->timestamps();
         });
     }
