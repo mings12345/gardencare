@@ -6,16 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Conversation extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
-        'homeowner_id',
+        'homeowner_id', 
         'gardener_id',
         'service_provider_id',
         'last_message_at'
     ];
-
-    protected $dates = ['last_message_at'];
 
     public function homeowner()
     {
@@ -35,17 +31,6 @@ class Conversation extends Model
     public function messages()
     {
         return $this->hasMany(Message::class)->latest();
-    }
-
-    public function getOtherParticipantAttribute()
-    {
-        $user = auth()->user();
-        
-        if ($this->homeowner_id == $user->id) {
-            return $this->gardener ?? $this->serviceProvider;
-        }
-        
-        return $this->homeowner;
     }
 
     public function scopeForUser($query, $userId)

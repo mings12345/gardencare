@@ -34,7 +34,6 @@ class MessageSent implements ShouldBroadcast
             'sender_type' => $this->message->sender_type,
             'message' => $this->message->message,
             'created_at' => $this->message->created_at->toDateTimeString(),
-            'read_at' => $this->message->read_at,
         ];
     }
 }

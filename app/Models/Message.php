@@ -6,17 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Message extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'conversation_id',
         'sender_id',
         'sender_type',
         'message'
-    ];
-
-    protected $casts = [
-        'read_at' => 'datetime'
     ];
 
     public function conversation()

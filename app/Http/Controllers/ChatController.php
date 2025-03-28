@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum');
+    }
+
     public function index(Request $request)
     {
         $user = $request->user();
@@ -96,23 +101,12 @@ class ChatController extends Controller
         return response()->json($conversation, 201);
     }
 
-    public function markAsRead(Conversation $conversation)
-    {
-        $this->authorize('view', $conversation);
-        
-        $conversation->markAsReadForUser(auth()->id());
-        
-        return response()->json(['success' => true]);
-    }
-
     protected function getUserType(User $user)
     {
-        if ($user->hasRole('homeowner')) {
-            return 'homeowner';
-        } elseif ($user->hasRole('gardener')) {
-            return 'gardener';
-        } else {
-            return 'service_provider';
+        switch($user->user_type) {
+            case 'homeowner': return 'homeowner';
+            case 'gardener': return 'gardener';
+            default: return 'service_provider';
         }
     }
 

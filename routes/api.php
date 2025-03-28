@@ -63,21 +63,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Store FCM token
 Route::post('/store-token', [NotificationController::class, 'storeToken']);
 
-      // Get all conversations for the authenticated user
-      Route::get('/conversations', [ChatController::class, 'index']);
-    
-      // Get a specific conversation
-      Route::get('/conversations/{conversation}', [ChatController::class, 'show']);
-      
-      // Get messages for a conversation
-      Route::get('/conversations/{conversation}/messages', [ChatController::class, 'messages']);
-      
-      // Send a message
-      Route::post('/conversations/{conversation}/messages', [ChatController::class, 'storeMessage']);
-      
-      // Start a new conversation
-      Route::post('/conversations', [ChatController::class, 'startConversation']);
-      
-      // Mark messages as read
-      Route::post('/conversations/{conversation}/read', [ChatController::class, 'markAsRead']);
-  });
+Route::get('/conversations', [ChatController::class, 'index']);
+Route::get('/conversations/{conversation}', [ChatController::class, 'show']);
+Route::get('/conversations/{conversation}/messages', [ChatController::class, 'messages']);
+Route::post('/conversations/{conversation}/messages', [ChatController::class, 'storeMessage']);
+Route::post('/conversations', [ChatController::class, 'startConversation']);
+Route::post('/conversations/{conversation}/read', [ChatController::class, 'markAsRead']);
+});
