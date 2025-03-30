@@ -13,14 +13,16 @@ return new class extends Migration
     {
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('conversation_id');
+            $table->unsignedBigInteger('booking_id');
             $table->unsignedBigInteger('sender_id');
-            $table->enum('sender_type', ['homeowner', 'gardener', 'service_provider']);
+            $table->unsignedBigInteger('receiver_id');
             $table->text('message');
-            $table->timestamp('read_at')->nullable();
+            $table->boolean('is_read')->default(false);
             $table->timestamps();
             
-            $table->foreign('conversation_id')->references('id')->on('conversations')->onDelete('cascade');
+            $table->foreign('booking_id')->references('id')->on('bookings');
+            $table->foreign('sender_id')->references('id')->on('users');
+            $table->foreign('receiver_id')->references('id')->on('users');
         });
     }
 

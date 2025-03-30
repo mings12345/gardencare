@@ -1,64 +1,86 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\GardenerController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceProviderController;
 use App\Http\Controllers\HomeownerController;
+use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ServiceRequestController;
 
-Route::get('/bookings', [BookingController::class, 'index']);
-Route::get('admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
-Route::post('admin/login', [AuthController::class, 'adminLogin'])->name('admin.login.submit');
+// Admin Authentication Routes
+Route::get('/admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
+Route::post('/admin/login', [AuthController::class, 'adminLogin'])->name('admin.login.submit');
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-    Route::get('admin/manage-bookings', [BookingController::class, 'index'])->name('admin.manageBookings');
-    Route::get('admin/manage-users', [AuthController::class, 'index'])->name('admin.manageUsers');
-    Route::get('admin/manage-service-requests', [ServiceRequestController::class, 'index'])->name('admin.manageServiceRequests');
+// Admin Protected Routes
+Route::middleware(['auth:web'])->prefix('admin')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     
-    // Homeowner Routes
-    Route::get('admin/manage-homeowners', [HomeownerController::class, 'index'])->name('admin.manageHomeowners');
-    Route::get('admin/add-homeowner', [HomeownerController::class, 'create'])->name('admin.addHomeowner');
-    Route::post('admin/store-homeowner', [HomeownerController::class, 'store'])->name('admin.storeHomeowner');
-    Route::get('admin/view-homeowner/{id}', [HomeownerController::class, 'show'])->name('admin.viewHomeowner');
-    Route::get('admin/edit-homeowner/{id}', [HomeownerController::class, 'edit'])->name('admin.editHomeowner');
-    Route::put('admin/update-homeowner/{id}', [HomeownerController::class, 'update'])->name('admin.updateHomeowner');
-    Route::delete('admin/delete-homeowner/{id}', [HomeownerController::class, 'destroy'])->name('admin.deleteHomeowner');
+    // Bookings Management
+    Route::get('/manage-bookings', [BookingController::class, 'index'])->name('admin.manageBookings');
     
-    Route::get('admin/manage-services', [ServiceController::class, 'index'])->name('admin.manageServices');
-    Route::get('admin/add-service', [ServiceController::class, 'create'])->name('admin.addService');
-    Route::post('admin/add-service', [ServiceController::class, 'store'])->name('admin.addService.store');
-    Route::get('admin/edit-service/{id}', [ServiceController::class, 'edit'])->name('admin.editService');
-    Route::post('admin/edit-service/{id}', [ServiceController::class, 'update'])->name('admin.editService.update');
-    Route::delete('admin/delete-service/{id}', [ServiceController::class, 'destroy'])->name('admin.deleteService');
+    // Users Management
+    Route::get('/manage-users', [AuthController::class, 'index'])->name('admin.manageUsers');
     
-    Route::get('admin/manage-feedback', [FeedbackController::class, 'index'])->name('admin.manageFeedback');
-
-    // Gardener Routes
-    Route::get('admin/manage-gardeners', [GardenerController::class, 'index'])->name('admin.manageGardeners');
-    Route::get('admin/add-gardener', [GardenerController::class, 'create'])->name('admin.addGardener');
-    Route::post('admin/store-gardener', [GardenerController::class, 'store'])->name('admin.storeGardener');
-    Route::get('admin/view-gardener/{id}', [GardenerController::class, 'show'])->name('admin.viewGardener');
-    Route::get('admin/edit-gardener/{id}', [GardenerController::class, 'edit'])->name('admin.editGardener');
-    Route::put('admin/update-gardener/{id}', [GardenerController::class, 'update'])->name('admin.updateGardener');
-    Route::delete('admin/delete-gardener/{id}', [GardenerController::class, 'destroy'])->name('admin.deleteGardener');
-
-        // Service Provider Routes
-    Route::get('admin/manage-service-providers', [ServiceProviderController::class, 'index'])->name('admin.manageServiceProviders');
-    Route::get('admin/add-service-provider', [ServiceProviderController::class, 'create'])->name('admin.addServiceProvider');
-    Route::post('admin/store-service-provider', [ServiceProviderController::class, 'store'])->name('admin.storeServiceProvider');
-    Route::get('admin/view-service-provider/{id}', [ServiceProviderController::class, 'show'])->name('admin.viewServiceProvider');
-    Route::get('admin/edit-service-provider/{id}', [ServiceProviderController::class, 'edit'])->name('admin.editServiceProvider');
-    Route::put('admin/update-service-provider/{id}', [ServiceProviderController::class, 'update'])->name('admin.updateServiceProvider');
-    Route::delete('admin/delete-service-provider/{id}', [ServiceProviderController::class, 'destroy'])->name('admin.deleteServiceProvider');
+    // Service Requests
+    Route::get('/manage-service-requests', [ServiceRequestController::class, 'index'])->name('admin.manageServiceRequests');
     
+    // Homeowners Management
+    Route::prefix('homeowners')->group(function() {
+        Route::get('/', [HomeownerController::class, 'index'])->name('admin.manageHomeowners');
+        Route::get('/create', [HomeownerController::class, 'create'])->name('admin.addHomeowner');
+        Route::post('/', [HomeownerController::class, 'store'])->name('admin.storeHomeowner');
+        Route::get('/{id}', [HomeownerController::class, 'show'])->name('admin.viewHomeowner');
+        Route::get('/{id}/edit', [HomeownerController::class, 'edit'])->name('admin.editHomeowner');
+        Route::put('/{id}', [HomeownerController::class, 'update'])->name('admin.updateHomeowner');
+        Route::delete('/{id}', [HomeownerController::class, 'destroy'])->name('admin.deleteHomeowner');
+    });
     
-    Route::get('admin/generate-report', [ReportController::class, 'generateReport'])->name('admin.generateReport');
+    // Gardeners Management
+    Route::prefix('gardeners')->group(function() {
+        Route::get('/', [GardenerController::class, 'index'])->name('admin.manageGardeners');
+        Route::get('/create', [GardenerController::class, 'create'])->name('admin.addGardener');
+        Route::post('/', [GardenerController::class, 'store'])->name('admin.storeGardener');
+        Route::get('/{id}', [GardenerController::class, 'show'])->name('admin.viewGardener');
+        Route::get('/{id}/edit', [GardenerController::class, 'edit'])->name('admin.editGardener');
+        Route::put('/{id}', [GardenerController::class, 'update'])->name('admin.updateGardener');
+        Route::delete('/{id}', [GardenerController::class, 'destroy'])->name('admin.deleteGardener');
+    });
+    
+    // Service Providers Management
+    Route::prefix('service-providers')->group(function() {
+        Route::get('/', [ServiceProviderController::class, 'index'])->name('admin.manageServiceProviders');
+        Route::get('/create', [ServiceProviderController::class, 'create'])->name('admin.addServiceProvider');
+        Route::post('/', [ServiceProviderController::class, 'store'])->name('admin.storeServiceProvider');
+        Route::get('/{id}', [ServiceProviderController::class, 'show'])->name('admin.viewServiceProvider');
+        Route::get('/{id}/edit', [ServiceProviderController::class, 'edit'])->name('admin.editServiceProvider');
+        Route::put('/{id}', [ServiceProviderController::class, 'update'])->name('admin.updateServiceProvider');
+        Route::delete('/{id}', [ServiceProviderController::class, 'destroy'])->name('admin.deleteServiceProvider');
+    });
+    
+    // Services Management
+    Route::prefix('services')->group(function() {
+        Route::get('/', [ServiceController::class, 'index'])->name('admin.manageServices');
+        Route::get('/create', [ServiceController::class, 'create'])->name('admin.addService');
+        Route::post('/', [ServiceController::class, 'store'])->name('admin.storeService');
+        Route::get('/{id}/edit', [ServiceController::class, 'edit'])->name('admin.editService');
+        Route::put('/{id}', [ServiceController::class, 'update'])->name('admin.updateService');
+        Route::delete('/{id}', [ServiceController::class, 'destroy'])->name('admin.deleteService');
+    });
+    
+    // Feedback Management
+    Route::get('/manage-feedback', [FeedbackController::class, 'index'])->name('admin.manageFeedback');
+    
+    // Reports
+    Route::get('/generate-report', [ReportController::class, 'generateReport'])->name('admin.generateReport');
 });
 
+// System Routes
 Route::get('/', function () {
     return ['Laravel' => app()->version()];
 });
@@ -71,7 +93,7 @@ Route::get('/update-app', function () {
 Route::get('/reset-app', function () {
     Artisan::call('migrate:fresh --seed');
     Artisan::call('optimize');
-    return "Successfully Reseted";
+    return "Successfully Reset";
 });
 
 require __DIR__.'/auth.php';

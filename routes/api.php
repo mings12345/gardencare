@@ -9,8 +9,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SeasonalTipController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\ChatController;
-
+use App\Http\Controllers\MessageController;
 
 
 
@@ -61,12 +60,23 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Protected Payment Routes
     Route::post('/payment/history', [PaymentController::class, 'paymentHistory']);
     // Store FCM token
-Route::post('/store-token', [NotificationController::class, 'storeToken']);
+    Route::post('/store-token', [NotificationController::class, 'storeToken']);
 
-Route::get('/conversations', [ChatController::class, 'index']);
-Route::get('/conversations/{conversation}', [ChatController::class, 'show']);
-Route::get('/conversations/{conversation}/messages', [ChatController::class, 'messages']);
-Route::post('/conversations/{conversation}/messages', [ChatController::class, 'storeMessage']);
-Route::post('/conversations', [ChatController::class, 'startConversation']);
-Route::post('/conversations/{conversation}/read', [ChatController::class, 'markAsRead']);
+    // Messaging Routes
+    Route::get('/bookings/{booking}/messages', [BookingController::class, 'getMessages']);
+    Route::post('/bookings/{booking}/messages', [BookingController::class, 'sendMessage']);
+    Route::put('/messages/{message}/read', [MessageController::class, 'markAsRead']);
+    Route::get('/conversations', [MessageController::class, 'conversations']);
+    Route::post('/broadcasting/auth', function (Request $request) {
+        $pusher = new Pusher\Pusher(
+            config('broadcasting.connections.pusher.key'),
+            config('broadcasting.connections.pusher.secret'),
+            config('broadcasting.connections.pusher.app_id'),
+            config('broadcasting.connections.pusher.options')
+        );
+        
+        return response()->json(
+            $pusher->socket_auth($request->channel_name, $request->socket_id)
+        );
+    });
 });

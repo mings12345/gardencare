@@ -7,19 +7,25 @@ use Illuminate\Database\Eloquent\Model;
 class Message extends Model
 {
     protected $fillable = [
-        'conversation_id',
-        'sender_id',
-        'sender_type',
-        'message'
+        'booking_id', 
+        'sender_id', 
+        'receiver_id', 
+        'message', 
+        'is_read'
     ];
 
-    public function conversation()
+    public function booking()
     {
-        return $this->belongsTo(Conversation::class);
+        return $this->belongsTo(Booking::class);
     }
 
     public function sender()
     {
-        return $this->morphTo('sender', 'sender_type', 'sender_id');
+        return $this->belongsTo(User::class, 'sender_id');
+    }
+
+    public function receiver()
+    {
+        return $this->belongsTo(User::class, 'receiver_id');
     }
 }
