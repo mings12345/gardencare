@@ -12,7 +12,8 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MessageController;
 
 
-
+Route::post('/messages', [MessageController::class, 'sendMessage']);
+Route::get('/messages/{userId1}/{userId2}', [MessageController::class, 'getMessages']);
 // Send notification
 Route::post('/send_notification', [NotificationController::class, 'sendNotification']);
 
@@ -63,10 +64,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/store-token', [NotificationController::class, 'storeToken']);
 
     // Messaging Routes
-    Route::get('/bookings/{booking}/messages', [BookingController::class, 'getMessages']);
-    Route::post('/bookings/{booking}/messages', [BookingController::class, 'sendMessage']);
-    Route::put('/messages/{message}/read', [MessageController::class, 'markAsRead']);
-    Route::get('/conversations', [MessageController::class, 'conversations']);
+    
     Route::post('/broadcasting/auth', function (Request $request) {
         $pusher = new Pusher\Pusher(
             config('broadcasting.connections.pusher.key'),

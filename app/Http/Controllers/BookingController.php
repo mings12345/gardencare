@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\BookingService;
-use App\Models\Message;
 use Illuminate\Http\Request;
 use Validator;
-use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
@@ -95,60 +93,5 @@ class BookingController extends Controller
             'type' => 'success',
             'booking' => $booking->load('services'), // Load services to return in response
         ], 201);
-    }
-
-    public function getMessages(Booking $booking)
-    {
-        // Verify the authenticated user is part of this booking
-        $user = Auth::user();
-        
-        if (!$user || !in_array($user->id, [$booking->homeowner_id, $booking->gardener_id, $booking->serviceprovider_id])) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        $messages = Message::where('booking_id', $booking->id)
-            ->with(['sender', 'receiver'])
-            ->orderBy('created_at', 'asc')
-            ->get();
-
-        return response()->json($messages);
-    }
-
-    /**
-     * Send a new message for a booking
-     */
-    public function sendMessage(Request $request, Booking $booking)
-    {
-        $user = Auth::user();
-        
-        // Verify user is part of this booking
-        if (!$user || !in_array($user->id, [$booking->homeowner_id, $booking->gardener_id, $booking->serviceprovider_id])) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        $request->validate([
-            'message' => 'required|string|max:1000',
-        ]);
-
-        $message = Message::create([
-            'booking_id' => $booking->id,
-            'sender_id' => $user->id,
-            'receiver_id' => $this->getReceiverId($booking, $user),
-            'message' => $request->message,
-        ]);
-
-        return response()->json($message, 201);
-    }
-
-    /**
-     * Helper method to determine receiver ID
-     */
-    private function getReceiverId(Booking $booking, $user)
-    {
-        if ($user->id === $booking->homeowner_id) {
-            return $booking->gardener_id ?? $booking->serviceprovider_id;
-        }
-        
-        return $booking->homeowner_id;
     }
 }
