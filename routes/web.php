@@ -12,6 +12,9 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceRequestController;
 
+
+Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+
 // Admin Authentication Routes
 Route::get('/admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
 Route::post('/admin/login', [AuthController::class, 'adminLogin'])->name('admin.login.submit');
