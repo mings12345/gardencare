@@ -29,7 +29,7 @@
                         <th>Datetime Submitted</th>
                         <th>Services</th>
                     </tr>
-                </thead>
+                </thead> 
                 <tbody>
                     @foreach($bookings as $booking)
                         <tr>
