@@ -157,7 +157,6 @@ class AuthController extends Controller
         {
             // Revoke the current user's token
             $request->user()->currentAccessToken()->delete();
-
             return response()->json([
                 'message' => 'Logged out successfully.',
             ], 200);
@@ -198,12 +197,13 @@ public function adminLogin(Request $request)
 
     $credentials = $request->only('email', 'password');
 
-    if (auth()->attempt($credentials)) {
-        $user = auth()->user();
+    if (auth()->guard('web')->attempt($credentials)) {
+        $user = Auth::guard('web')->user();
         if ($user->user_type === 'admin') {
             return redirect()->route('admin.dashboard');
         } else {
-            auth()->logout();
+            \Log::warning('Non-admin user attempted to access admin dashboard', ['user' => $user]);
+            //auth()->logout();
             return redirect()->back()->with('error', 'You do not have access to this page.');
         }
     }

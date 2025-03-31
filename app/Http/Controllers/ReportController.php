@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Http\Request;
+namespace App\Http\Controllers;
 use App\Models\Booking; // Assuming you want to generate a report for bookings
-use PDF; // If you're using a package like "barryvdh/laravel-dompdf"
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportController extends Controller
 {
