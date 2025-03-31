@@ -67,7 +67,7 @@ class BookingController extends Controller
                 'booking_id' => $booking->id,
                 'service_id' => $service_id,
             ]);
-        }
+        } 
 
         // Send notification to the service provider (gardener or landscaper)
         $notificationService = app(\App\Services\NotificationService::class);
