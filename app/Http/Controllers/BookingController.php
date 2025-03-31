@@ -63,10 +63,10 @@ class BookingController extends Controller
 
         // Attach services to the booking
         foreach ($request->get('service_ids') as $service_id) {
-            BookingService::create([
+            BookingService::create([ 
                 'booking_id' => $booking->id,
                 'service_id' => $service_id,
-            ]);
+            ]); 
         } 
 
         // Send notification to the service provider (gardener or landscaper)
