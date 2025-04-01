@@ -13,7 +13,7 @@ use App\Http\Controllers\MessageController;
 
 
 Route::post('/messages', [MessageController::class, 'sendMessage']);
-Route::get('/messages/{userId1}/{userId2}', [MessageController::class, 'getMessages']);
+Route::get('/messages/{user1}/{user2}', [MessageController::class, 'getMessages']);
 // Send notification
 Route::post('/send_notification', [NotificationController::class, 'sendNotification']);
 

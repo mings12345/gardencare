@@ -17,3 +17,7 @@ Broadcast::channel('conversation.{conversationId}', function ($user, $conversati
            $conversation->gardener_id == $user->id || 
            $conversation->service_provider_id == $user->id;
 });
+
+Broadcast::channel('user.{userId}', function ($user, $userId) {
+    return (int) $user->id === (int) $userId;
+});
