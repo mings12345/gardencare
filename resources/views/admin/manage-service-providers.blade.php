@@ -10,6 +10,10 @@
 </head>
 <body>
     <div class="container mt-5">
+        <div>
+            <a href="{{ route('admin.manageUsers') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back </a>
+            </div>
         <h1>Manage Service Providers</h1>
 
         <!-- Success Message (if any) -->

@@ -30,11 +30,6 @@
     <div class="container mt-5">
         <!-- Header with Back Button and Title -->
         <div class="header-container">
-            <div>
-                <a href="{{ route('admin.manageServiceProviders') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Back
-                </a>
-            </div>
             <h1>Add Service Provider</h1>
             <div></div> <!-- Empty div for spacing balance -->
         </div>
