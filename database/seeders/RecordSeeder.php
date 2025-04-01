@@ -28,6 +28,7 @@ class RecordSeeder extends Seeder
             'user_type' => 'homeowner'
         ]);
         
+        
         User::create([
             'name' => 'Gardener user',
             'email' => 'gardener@gardencare.com',

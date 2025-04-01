@@ -16,11 +16,12 @@ use App\Http\Controllers\ServiceRequestController;
 Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
 
 // Admin Authentication Routes
+Route::redirect('/login','/admin/login');
 Route::get('/admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
 Route::post('/admin/login', [AuthController::class, 'adminLogin'])->name('admin.login.submit');
 
 // Admin Protected Routes
-Route::middleware(['auth:web'])->prefix('admin')->group(function () {
+Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Dashboard
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     
