@@ -79,11 +79,11 @@
                     @enderror
                 </div>
 
-                <!-- Price Field -->
+                <!-- Price Field - Updated to use ₱ -->
                 <div class="mb-4">
-                    <label for="price" class="form-label required-field">Price ($)</label>
+                    <label for="price" class="form-label required-field">Price (₱)</label>
                     <div class="input-group">
-                        <span class="input-group-text">$</span>
+                        <span class="input-group-text">₱</span>
                         <input type="number" step="0.01" min="0" 
                                class="form-control @error('price') is-invalid @enderror" 
                                id="price" name="price" value="{{ old('price') }}" 
