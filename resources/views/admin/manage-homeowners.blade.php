@@ -27,9 +27,8 @@
         <!-- Header with Back Button and Title -->
         <div class="header-container">
             <div>
-                <a href="{{ url()->previous() }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Back
-                </a>
+                <a href="{{ route('admin.manageUsers') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back </a>
             </div>
             <h1>Manage Homeowners</h1>
             <div>
