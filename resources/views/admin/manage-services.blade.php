@@ -18,11 +18,28 @@
         .table th {
             background-color: #f8f9fa;
         }
+        .action-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Service Management</h1>
+        <!-- Header with Back Button and Title -->
+        <div class="action-header">
+            <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+            </a>
+            <h1>Service Management</h1>
+            <div></div> <!-- Empty div for spacing balance -->
+        </div>
 
         <!-- Success Message (if any) -->
         @if(session('success'))
@@ -31,10 +48,12 @@
             </div>
         @endif
 
-        <!-- Add Service Button -->
-        <a href="{{ route('admin.addService') }}" class="btn btn-success mb-3">
-            <i class="fas fa-plus-circle me-1"></i> Add New Service
-        </a>
+        <!-- Action Buttons -->
+        <div class="action-buttons mb-3">
+            <a href="{{ route('admin.addService') }}" class="btn btn-success">
+                <i class="fas fa-plus-circle me-1"></i> Add New Service
+            </a>
+        </div>
 
         <!-- Services Table -->
         <div class="table-responsive">
