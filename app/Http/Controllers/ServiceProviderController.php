@@ -23,26 +23,29 @@ class ServiceProviderController extends Controller
 
     // Store a new service provider in the database
     public function store(Request $request)
-    {
-        // Validate the request data
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
-        ]);
+{
+    // Validate with password fields
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|string|min:8|confirmed',
+        'phone' => 'nullable|string|max:20',
+        'address' => 'nullable|string|max:255',
+    ]);
 
-        // Create a new service provider
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'user_type' => 'service_provider', // Set the user type to 'service_provider'
-        ]);
+    // Create user with hashed password
+    User::create([
+        'name' => $validated['name'],
+        'email' => $validated['email'],
+        'password' => bcrypt($validated['password']), // Hash password
+        'phone' => $validated['phone'],
+        'address' => $validated['address'],
+        'user_type' => 'service_provider', // Must match your enum/database
+    ]);
 
-        return redirect()->route('admin.manageServiceProviders')->with('success', 'Service Provider added successfully.');
-    }
+    return redirect()->route('admin.manageServiceProviders')
+                   ->with('success', 'Service provider added successfully.');
+}
 
     // Show the details of a specific service provider
     public function show($id)
