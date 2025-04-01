@@ -17,7 +17,7 @@ class ServiceController extends Controller
     // Show the form to add a new service
     public function create()
     {
-        return view('admin.add-service');
+        return view('admin.addService');
     }
 
     // Store a new service
