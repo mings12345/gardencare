@@ -18,13 +18,25 @@
         .password-input-group {
             position: relative;
         }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-5">
-        <div class="header-container mb-4">
-            <h1 class="text-center">Add New Service Provider</h1>
-            <div></div> <!-- Empty div for alignment -->
+        <!-- Header with Back Button and Title -->
+        <div class="header-container">
+            <div>
+                <a href="{{ route('admin.manageServiceProviders') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+            <h1>Add Service Provider</h1>
+            <div></div> <!-- Empty div for spacing balance -->
         </div>
 
         @if($errors->any())
@@ -37,41 +49,38 @@
             </div>
         @endif
 
+        <!-- Add Service Provider Form -->
         <form method="POST" action="{{ route('admin.storeServiceProvider') }}">
             @csrf
             <div class="mb-3">
                 <label for="name" class="form-label">Name</label>
                 <input type="text" class="form-control" id="name" name="name" required>
             </div>
-
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" id="email" name="email" required>
             </div>
-
             <div class="mb-3 password-input-group">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" name="password" required>
                 <i class="fas fa-eye password-toggle" onclick="togglePassword('password')"></i>
             </div>
-
             <div class="mb-3 password-input-group">
                 <label for="password_confirmation" class="form-label">Confirm Password</label>
                 <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
                 <i class="fas fa-eye password-toggle" onclick="togglePassword('password_confirmation')"></i>
             </div>
-
             <div class="mb-3">
-                <label for="phone" class="form-label">Phone Number</label>
+                <label for="phone" class="form-label">Phone</label>
                 <input type="text" class="form-control" id="phone" name="phone">
             </div>
-
             <div class="mb-3">
                 <label for="address" class="form-label">Address</label>
                 <input type="text" class="form-control" id="address" name="address">
             </div>
-
-            <button type="submit" class="btn btn-primary w-100">Add Service Provider</button>
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add Service Provider
+            </button>
         </form>
     </div>
 
