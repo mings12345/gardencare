@@ -15,23 +15,23 @@ class HomeownerController extends Controller
     }
 
     // Store a new homeowner in the database
-    public function store(Request $request)
+        public function store(Request $request)
     {
-        // Validate the request data
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
         ]);
 
-        // Create a new homeowner
         User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'password' => bcrypt($request->password),
             'phone' => $request->phone,
             'address' => $request->address,
-            'user_type' => 'homeowner', // Set the user type to 'homeowner'
+            'user_type' => 'homeowner',
         ]);
 
         return redirect()->route('admin.manageHomeowners')->with('success', 'Homeowner added successfully.');
