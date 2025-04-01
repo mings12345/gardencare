@@ -54,17 +54,13 @@
                         <td>{{ $service->id }}</td>
                         <td>{{ $service->name }}</td>
                         <td>
-                            @if($service->type == 'gardening')
+                            @if($service->type == 'Gardening')
                                 <span class="badge badge-gardening rounded-pill">
                                     <i class="fas fa-leaf me-1"></i> Gardening
                                 </span>
-                            @elseif($service->type == 'landscaping')
+                            @else
                                 <span class="badge badge-landscaping rounded-pill">
                                     <i class="fas fa-tree me-1"></i> Landscaping
-                                </span>
-                            @else
-                                <span class="badge bg-secondary rounded-pill">
-                                    <i class="fas fa-question me-1"></i> Other
                                 </span>
                             @endif
                         </td>
