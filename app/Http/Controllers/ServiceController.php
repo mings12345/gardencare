@@ -17,45 +17,49 @@ class ServiceController extends Controller
     // Show the form to add a new service
     public function create()
     {
-        return view('admin.add-service');
+        $serviceTypes = ['Gardening', 'Landscaping'];
+        return view('admin.add-service', compact('serviceTypes'));
     }
 
     // Store a new service
     public function store(Request $request)
     {
-        // Validate the request data
-        $request->validate([
+        $validated = $request->validate([
+            'type' => 'required|in:Gardening,Landscaping',
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'description' => 'nullable|string'
         ]);
 
-        // Create a new service
-        Service::create($request->all());
+        Service::create($validated);
 
-        return redirect()->route('admin.manageServices')->with('success', 'Service added successfully.');
+        return redirect()->route('admin.manageServices')
+            ->with('success', 'Service added successfully.');
     }
 
     // Show the form to edit a service
     public function edit($id)
     {
         $service = Service::findOrFail($id);
-        return view('admin.edit-service', compact('service'));
+        $serviceTypes = ['Gardening', 'Landscaping'];
+        return view('admin.edit-service', compact('service', 'serviceTypes'));
     }
 
     // Update a service
     public function update(Request $request, $id)
     {
-        // Validate the request data
-        $request->validate([
+        $validated = $request->validate([
+            'type' => 'required|in:Gardening,Landscaping',
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'description' => 'nullable|string'
         ]);
 
-        // Update the service
         $service = Service::findOrFail($id);
-        $service->update($request->all());
+        $service->update($validated);
 
-        return redirect()->route('admin.manageServices')->with('success', 'Service updated successfully.');
+        return redirect()->route('admin.manageServices')
+            ->with('success', 'Service updated successfully.');
     }
 
     // Delete a service
@@ -64,15 +68,14 @@ class ServiceController extends Controller
         $service = Service::findOrFail($id);
         $service->delete();
 
-        return redirect()->route('admin.manageServices')->with('success', 'Service deleted successfully.');
+        return redirect()->route('admin.manageServices')
+            ->with('success', 'Service deleted successfully.');
     }
 
-     // Fetch all services for API
-     public function getServices()
-     {
-         $services = Service::all(); // Fetch all services from the database
-         return response()->json([
-             'services' => $services, // Return services as JSON
-         ]);
-     }
+    // Fetch all services for API
+    public function getServices()
+    {
+        $services = Service::all();
+        return response()->json(['services' => $services]);
+    }
 }
