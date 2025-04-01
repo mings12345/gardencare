@@ -40,10 +40,19 @@
         .btn-action {
             margin: 5px;
         }
+        
+        .back-button {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-5">
+        <!-- Back Button -->
+        <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary back-button">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        
         <h1>User Management</h1>
 
         <!-- Statistics Cards -->
