@@ -22,8 +22,7 @@ Route::get('/seasonal-tips', [SeasonalTipController::class, 'index']);
 Route::get('/seasonal-tips/{plantId}/{region}/{season}', [SeasonalTipController::class, 'getTipsByPlantRegionAndSeason']);
 
 // Authentication Routes
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+
 Route::post('/update-profile', [ProfileController::class, 'updateProfile']);
 
 // Test Route
@@ -54,6 +53,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
     Route::put('/profile/update', [AuthController::class, 'updateProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile/{userId}', [AuthController::class, 'getProfileData']);
