@@ -8,18 +8,21 @@ use Illuminate\Http\Request;
 
 class MessageController extends Controller
 {
-    public function getMessages(User $user1, User $user2)
+        public function getMessages($user1, $user2)
     {
         try {
+            $user1 = User::findOrFail($user1);
+            $user2 = User::findOrFail($user2);
+
             // Mark received messages as read
             Message::unreadFrom($user2->id, $user1->id)
-                   ->update(['is_read' => true, 'read_at' => now()]);
-    
+                ->update(['is_read' => true, 'read_at' => now()]);
+
             $messages = Message::with(['sender:id,name,profile_picture_url', 'receiver:id,name'])
                 ->betweenUsers($user1->id, $user2->id)
                 ->ordered()
                 ->get();
-    
+
             return response()->json([
                 'meta' => [
                     'total_messages' => $messages->count(),
@@ -43,6 +46,7 @@ class MessageController extends Controller
             return response()->json(['error' => 'Unable to fetch messages. ' . $e->getMessage()], 500);
         }
     }
+
 
     public function sendMessage(Request $request)
     {
