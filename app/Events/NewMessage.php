@@ -27,6 +27,11 @@ class NewMessage implements ShouldBroadcast
         return new PrivateChannel('user.'.$this->message->receiver_id);
     }
 
+    public function broadcastAs()
+    {
+        return 'NewMessage'; // Must match frontend
+    }
+    
     public function broadcastWith()
     {
         return [
