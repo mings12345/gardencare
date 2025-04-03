@@ -47,6 +47,8 @@ Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook']); /
 // Fetch all gardeners
 Route::get('/gardeners', [AuthController::class, 'getGardeners']); // Fetch only users with user_type = gardener
 
+Route::post('/login', [AuthController::class, 'login']);
+
 // Protected Routes (Require Authentication)
 Route::middleware(['auth:sanctum'])->group(function () {
     // Get authenticated user
@@ -54,7 +56,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         return $request->user();
     });
     Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
     Route::put('/profile/update', [AuthController::class, 'updateProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile/{userId}', [AuthController::class, 'getProfileData']);
