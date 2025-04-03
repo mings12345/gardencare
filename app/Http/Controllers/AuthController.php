@@ -175,6 +175,12 @@ class AuthController extends Controller
 
         return response()->json($serviceProviders);
     }
+    public function getHomeowners()
+    {
+        $homeowners = User::where('user_type', 'homeowner')->get();
+
+        return response()->json($homeowners);
+    }
 
 
    

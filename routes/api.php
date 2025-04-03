@@ -46,7 +46,7 @@ Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook']); /
 
 // Fetch all gardeners
 Route::get('/gardeners', [AuthController::class, 'getGardeners']); // Fetch only users with user_type = gardener
-
+Route::get('/homeowners', [AuthController::class, 'getHomeowners']); 
 Route::post('/login', [AuthController::class, 'login']);
 
 // Protected Routes (Require Authentication)
