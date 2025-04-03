@@ -57,7 +57,8 @@ class MessageController extends Controller
         ]);
 
         $message = Message::create($validated);
-        event(new NewMessage($message))->toOthers();
+
+         broadcast(new NewMessage($message))->toOthers();
 
         return response()->json([
             'status' => 'success',
