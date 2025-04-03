@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Message;
 use App\Models\User;                                                                                
 use Illuminate\Http\Request;
-
+use App\Events\NewMessage;
 class MessageController extends Controller
 {
     public function getMessages($user1, $user2)
@@ -57,6 +57,7 @@ class MessageController extends Controller
         ]);
 
         $message = Message::create($validated);
+        event(new NewMessage($message))->toOthers();
 
         return response()->json([
             'status' => 'success',
