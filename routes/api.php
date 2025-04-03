@@ -14,6 +14,7 @@ use App\Http\Controllers\MessageController;
 
 Route::post('/messages', [MessageController::class, 'sendMessage']);
 Route::get('/messages/{user1}/{user2}', [MessageController::class, 'getMessages']);
+Route::get('/messages/unread-counts/{userId}', [MessageController::class, 'getUnreadCounts']);
 // Send notification
 Route::post('/send_notification', [NotificationController::class, 'sendNotification']);
 
