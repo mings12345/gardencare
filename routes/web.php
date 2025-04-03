@@ -90,14 +90,14 @@ Route::get('/', function () {
 });
 
 Route::get('/update-app', function () {
-    Artisan::call('update-app');
-    Artisan::call('optimize');
+    \Artisan::call('update-app');
+    \Artisan::call('optimize');
     return "Successfully Updated";
 });
 
 Route::get('/reset-app', function () {
-    Artisan::call('migrate:fresh --seed');
-    Artisan::call('optimize');
+    \Artisan::call('migrate:fresh --seed');
+    \Artisan::call('optimize');
     return "Successfully Reset";
 });
 
