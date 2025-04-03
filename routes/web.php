@@ -91,6 +91,7 @@ Route::get('/', function () {
 
 Route::get('/update-app', function () {
     Artisan::call('update-app');
+    Artisan::call('optimize');
     return "Successfully Updated";
 });
 
