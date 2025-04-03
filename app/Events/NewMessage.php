@@ -40,10 +40,17 @@ class NewMessage implements ShouldBroadcast
             'receiver_id' => $this->message->receiver_id,
             'message' => $this->message->message,
             'is_read' => $this->message->is_read,
-            'read_at' => $this->message->read_at,
+            'read_at' => $this->message->read_at?->toDateTimeString(),
             'created_at' => $this->message->created_at->toDateTimeString(),
-            'sender' => $this->message->sender->only(['id', 'name', 'profile_picture_url']),
-            'receiver' => $this->message->receiver->only(['id', 'name']),
+            'sender' => [
+                'id' => $this->message->sender->id,
+                'name' => $this->message->sender->name,
+                'profile_picture_url' => $this->message->sender->profile_picture_url ?? '',
+            ],
+            'receiver' => [
+                'id' => $this->message->receiver->id,
+                'name' => $this->message->receiver->name,
+            ],
         ];
     }
 }
