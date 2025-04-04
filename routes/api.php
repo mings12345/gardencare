@@ -12,6 +12,9 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Broadcast;
 
+Route::post('/broadcasting/auth', function (Request $request) {
+    return Broadcast::auth($request);
+})->middleware('auth:api');
 
 Route::post('/messages', [MessageController::class, 'sendMessage']);
 Route::get('/messages/{user1}/{user2}', [MessageController::class, 'getMessages']);
@@ -67,19 +70,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Store FCM token
     Route::post('/store-token', [NotificationController::class, 'storeToken']);
 
-    // Messaging Routes
-    
-    Route::post('/broadcasting/auth', function (Request $request) {
-        return Broadcast::auth($request);
-        $pusher = new Pusher\Pusher(
-            config('broadcasting.connections.pusher.key'),
-            config('broadcasting.connections.pusher.secret'),
-            config('broadcasting.connections.pusher.app_id'),
-            config('broadcasting.connections.pusher.options')
-        );
-        
-        return response()->json(
-            $pusher->socket_auth($request->channel_name, $request->socket_id)
-        );
-    });
+ 
 });
