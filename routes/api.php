@@ -10,6 +10,7 @@ use App\Http\Controllers\SeasonalTipController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MessageController;
+use Illuminate\Support\Facades\Broadcast;
 
 
 Route::post('/messages', [MessageController::class, 'sendMessage']);
@@ -69,6 +70,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Messaging Routes
     
     Route::post('/broadcasting/auth', function (Request $request) {
+        return Broadcast::auth($request);
         $pusher = new Pusher\Pusher(
             config('broadcasting.connections.pusher.key'),
             config('broadcasting.connections.pusher.secret'),
