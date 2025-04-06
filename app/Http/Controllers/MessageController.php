@@ -55,7 +55,7 @@ class MessageController extends Controller
                 'receiver_id' => 'required|exists:users,id',
                 'message' => 'required|string|max:2000',
             ]);
-
+            \Log::info('Broadcasting message to user.'.$message->receiver_id); // 👈 Add this
             $message = Message::create($validated);
             
             // Refresh with relationships in one query
