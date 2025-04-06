@@ -48,23 +48,26 @@ class MessageController extends Controller
     }
 
 
-    public function sendMessage(Request $request)
-    {
-        $validated = $request->validate([
-            'sender_id' => 'required|exists:users,id',
-            'receiver_id' => 'required|exists:users,id',
-            'message' => 'required|string|max:2000',
-        ]);
+            public function sendMessage(Request $request)
+        {
+            $validated = $request->validate([
+                'sender_id' => 'required|exists:users,id',
+                'receiver_id' => 'required|exists:users,id',
+                'message' => 'required|string|max:2000',
+            ]);
 
-        $message = Message::create($validated);
+            $message = Message::create($validated);
+            
+            // Refresh with relationships in one query
+            $message->load(['sender', 'receiver']);
+            
+            broadcast(new NewMessage($message))->toOthers();
 
-         broadcast(new NewMessage($message))->toOthers();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => $message->load(['sender:id,name', 'receiver:id,name'])
-        ], 201);
-    }
+            return response()->json([
+                'status' => 'success',
+                'message' => $message
+            ], 201);
+        }
 
         public function getUnreadCounts($userId)
     {
