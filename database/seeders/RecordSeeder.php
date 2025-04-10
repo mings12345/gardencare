@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use App\Models\Service;
 
@@ -33,7 +34,15 @@ class RecordSeeder extends Seeder
             'name' => 'Gardener user',
             'email' => 'gardener@gardencare.com',
             'password' => bcrypt('LLCC@2025'),
-            'user_type' => 'gardener'
+            'user_type' => 'gardener',
+            'rating' => 4.8,
+            'completed_jobs' => 24,
+            'experience' => 5,
+            'bio' => 'Professional gardener with 5 years of experience in organic gardening and landscape design.',
+            'highlighted_works' => json_encode([
+                'gardeners/works/garden1.jpg',  // Relative to storage/app/public
+                'gardeners/works/garden2.jpg',
+            ]),
         ]);
         User::create([
             'name' => 'nans',

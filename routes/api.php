@@ -50,7 +50,7 @@ Route::post('/payment/attach', [PaymentController::class, 'attachMethod']); // A
 Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook']); // PayMongo webhook
 
 // Fetch all gardeners
-Route::get('/gardeners', [AuthController::class, 'getGardeners']); // Fetch only users with user_type = gardener
+Route::get('/gardeners', [AuthController::class, 'getGardeners']); 
 Route::get('/homeowners', [AuthController::class, 'getHomeowners']); 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
