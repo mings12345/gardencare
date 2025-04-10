@@ -58,4 +58,8 @@ class User extends Authenticatable
         // This might vary based on your authentication setup
         return $this->role === $role;
     }
+    public function portfolioImages()
+{
+    return $this->hasMany(GardenerPortfolioImage::class);
+}
 }

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('address')->nullable(); // New column for address
             $table->enum('user_type', ['homeowner', 'gardener', 'service_provider', 'admin']);
             $table->decimal('rating', 3, 2)->nullable()->default(0.0); // e.g., 4.75
-            $table->text('experience')->nullable(); // e.g., "5 years of gardening"
+            $table->text('years_experience')->nullable(); // e.g., "5 years of gardening"
             $table->json('highlighted_works')->nullable(); // Store image paths/URLs as JSON
             $table->json('reviews')->nullable(); // Store reviews as JSON
             $table->integer('completed_jobs')->nullable()->default(0); // removed ->after()

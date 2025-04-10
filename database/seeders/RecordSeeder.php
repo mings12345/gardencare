@@ -37,7 +37,7 @@ class RecordSeeder extends Seeder
             'user_type' => 'gardener',
             'rating' => 4.8,
             'completed_jobs' => 24,
-            'experience' => 5,
+            'years_experience' => 5,
             'bio' => 'Professional gardener with 5 years of experience in organic gardening and landscape design.',
             'highlighted_works' => json_encode([
                 'gardeners/works/garden1.jpg',  // Relative to storage/app/public

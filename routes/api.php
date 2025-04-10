@@ -11,6 +11,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Broadcast;
+use App\Http\Controllers\Api\GardenerApiController;
 
 Route::post('/broadcasting/auth', function (Request $request) {
     return Broadcast::auth($request);
@@ -50,6 +51,8 @@ Route::post('/payment/attach', [PaymentController::class, 'attachMethod']); // A
 Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook']); // PayMongo webhook
 
 // Fetch all gardeners
+Route::get('/gardeners', [GardenerApiController::class, 'index']);
+Route::get('/gardeners/{id}', [GardenerApiController::class, 'show']);
 Route::get('/gardeners', [AuthController::class, 'getGardeners']); 
 Route::get('/homeowners', [AuthController::class, 'getHomeowners']); 
 Route::post('/login', [AuthController::class, 'login']);
