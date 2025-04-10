@@ -55,6 +55,10 @@ Route::get('/homeowners', [AuthController::class, 'getHomeowners']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+Route::post('/bookings/{booking}/rate', 'RatingController@store');
+Route::get('/gardeners/{gardener}/ratings', 'RatingController@gardenerRatings');
+Route::get('/bookings/{booking}/rating', 'RatingController@show');
+Route::put('/ratings/{rating}', 'RatingController@update');
 
 // Protected Routes (Require Authentication)
 Route::middleware(['auth:sanctum'])->group(function () {
