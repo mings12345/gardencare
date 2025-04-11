@@ -40,141 +40,149 @@ class AuthController extends Controller
         ]);
 
         if ($request->filled('fcm_token')) {
-            $user->fcmTokens()->create(['token' => $request->fcm_token]);
+            $user->update(['fcm_token' => $request->fcm_token]);
         }
 
         return response()->json([
             'message' => 'User registered successfully.',
             'user' => $user,
         ], 201);
-    }   
-
-            public function login(Request $request)
-        {
-            $validator = Validator::make($request->all(), [
-                'email' => 'required|string|email',
-                'password' => 'required|string',
-                'fcm_token' => 'nullable|string', // Accept FCM token
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'message' => 'Validation Error',
-                    'errors' => $validator->errors(),
-                ], 422);
-            }
-
-            $credentials = $request->only('email', 'password');
-
-            try {
-                if (!auth()->attempt($credentials)) {
-                    return response()->json(['error' => 'Invalid credentials'], 401);
-                }
-
-                $user = auth()->user();
-                $token = $user->createToken('Access Token')->plainTextToken;
-
-                            // Store or update FCM token
-                if ($request->filled('fcm_token')) {
-                    $user->fcmTokens()->updateOrCreate(
-                        ['token' => $request->fcm_token]
-                    );
-                }
-
-                // Explicitly include user details with user_type
-                return response()->json([
-                    'message' => 'Login successful.',
-                    'token' => $token,
-                    'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'user_type' => $user->user_type, // Include the user_type here
-                        'created_at' => $user->created_at,
-                        'updated_at' => $user->updated_at,
-                    ],
-                ], 200);
-
-            } catch (\Exception $e) {
-                // Log the exception for debugging
-                \Log::error('Login error: ' . $e->getMessage());
-
-                return response()->json(['error' => 'An unexpected error occurred.'], 500);
-            }
-        }
-
-          
-
-        public function getProfileData($userId)
-        {
-            \Log::info('Fetching profile data for user ID: ' . $userId); // Debugging line
-
-            $user = User::find($userId);
-
-            if (!$user) {
-                \Log::error('User not found for ID: ' . $userId); // Debugging line
-                return response()->json(['message' => 'User not found'], 404);
-            }
-
-            \Log::info('User found: ' . json_encode($user)); // Debugging line
-
-            return response()->json([
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone,
-                'address' => $user->address,
-            ]);
-        }
-
-                public function updateProfile(Request $request)
-        {
-            $user = auth()->user(); // Get the authenticated user
-
-            $validator = Validator::make($request->all(), [
-                'name' => 'sometimes|string|max:50',
-                'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
-                'phone' => 'sometimes|string|max:15',
-                'address' => 'sometimes|string|max:255',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'message' => 'Validation Error',
-                    'errors' => $validator->errors(),
-                ], 422);
-            }
-
-            // Update user profile
-            $user->update($request->only(['name', 'email', 'phone', 'address']));
-
-            return response()->json([
-                'message' => 'Profile updated successfully.',
-                'user' => $user,
-            ], 200);
-        }
-
-                public function logout(Request $request)
-        {
-            // Revoke the current user's token
-            $request->user()->currentAccessToken()->delete();
-            return response()->json([
-                'message' => 'Logged out successfully.',
-            ], 200);
-        }
-
-        public function getGardeners()
-    {
-    $gardeners = User::where('user_type', 'gardener')->get();
-
-    return response()->json($gardeners);
     }
-    
-        public function getServiceProviders()
+
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+            'fcm_token' => 'nullable|string', // Accept FCM token
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation Error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $credentials = $request->only('email', 'password');
+
+        try {
+            if (!auth()->attempt($credentials)) {
+                return response()->json(['error' => 'Invalid credentials'], 401);
+            }
+
+            $user = auth()->user();
+            $token = $user->createToken('Access Token')->plainTextToken;
+
+            // Store or update FCM token
+            if ($request->filled('fcm_token')) {
+                $user->update(['fcm_token' => $request->fcm_token]);
+            }
+
+            // Explicitly include user details with user_type
+            return response()->json([
+                'message' => 'Login successful.',
+                'token' => $token,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'user_type' => $user->user_type, // Include the user_type here
+                    'created_at' => $user->created_at,
+                    'updated_at' => $user->updated_at,
+                ],
+            ], 200);
+
+        } catch (\Exception $e) {
+            // Log the exception for debugging
+            \Log::error('Login error: ' . $e->getMessage());
+
+            return response()->json(['error' => 'An unexpected error occurred.'], 500);
+        }
+    }
+
+    // Add the updateFcmToken method here
+    public function updateFcmToken(Request $request)
+    {
+        $request->validate(['fcm_token' => 'required|string']);
+
+        $user = auth()->user(); // Get the authenticated user
+        $user->update(['fcm_token' => $request->fcm_token]); // Update the FCM token
+
+        return response()->json(['message' => 'FCM token updated successfully']);
+    }
+
+    public function getProfileData($userId)
+    {
+        \Log::info('Fetching profile data for user ID: ' . $userId); // Debugging line
+
+        $user = User::find($userId);
+
+        if (!$user) {
+            \Log::error('User not found for ID: ' . $userId); // Debugging line
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        \Log::info('User found: ' . json_encode($user)); // Debugging line
+
+        return response()->json([
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'address' => $user->address,
+        ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user(); // Get the authenticated user
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|string|max:50',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+            'phone' => 'sometimes|string|max:15',
+            'address' => 'sometimes|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation Error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        // Update user profile
+        $user->update($request->only(['name', 'email', 'phone', 'address']));
+
+        return response()->json([
+            'message' => 'Profile updated successfully.',
+            'user' => $user,
+        ], 200);
+    }
+
+    public function logout(Request $request)
+    {
+        // Revoke the current user's token
+        $request->user()->currentAccessToken()->delete();
+        return response()->json([
+            'message' => 'Logged out successfully.',
+        ], 200);
+    }
+
+    public function getGardeners()
+    {
+        $gardeners = User::where('user_type', 'gardener')->get();
+
+        return response()->json($gardeners);
+    }
+
+    public function getServiceProviders()
     {
         $serviceProviders = User::where('user_type', 'service_provider')->get();
 
         return response()->json($serviceProviders);
     }
+
     public function getHomeowners()
     {
         $homeowners = User::where('user_type', 'homeowner')->get();
@@ -182,42 +190,38 @@ class AuthController extends Controller
         return response()->json($homeowners);
     }
 
-
-   
-
-public function showAdminLoginForm()
-{
-    return view('auth.login');
-}
-
-public function adminLogin(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'email' => 'required|string|email',
-        'password' => 'required|string',
-    ]);
-
-    if ($validator->fails()) {
-        return redirect()->back()->withErrors($validator)->withInput();
+    public function showAdminLoginForm()
+    {
+        return view('auth.login');
     }
 
-    $credentials = $request->only('email', 'password');
+    public function adminLogin(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
 
-    if (auth()->guard('web')->attempt($credentials)) {
-        $user = Auth::guard('web')->user();
-        if ($user->user_type === 'admin') {
-            return redirect()->route('admin.dashboard');
-        } else {
-            \Log::warning('Non-admin user attempted to access admin dashboard', ['user' => $user]);
-            //auth()->logout();
-            return redirect()->back()->with('error', 'You do not have access to this page.');
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
         }
+
+        $credentials = $request->only('email', 'password');
+
+        if (auth()->guard('web')->attempt($credentials)) {
+            $user = Auth::guard('web')->user();
+            if ($user->user_type === 'admin') {
+                return redirect()->route('admin.dashboard');
+            } else {
+                \Log::warning('Non-admin user attempted to access admin dashboard', ['user' => $user]);
+                return redirect()->back()->with('error', 'You do not have access to this page.');
+            }
+        }
+
+        return redirect()->back()->with('error', 'Invalid credentials');
     }
 
-    return redirect()->back()->with('error', 'Invalid credentials');
-}
-
-public function index()
+    public function index()
     {
         $totalHomeowners = User::where('user_type', 'homeowner')->count();
         $totalGardeners = User::where('user_type', 'gardener')->count();

@@ -12,23 +12,29 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Broadcast;
 
+// Broadcasting Authentication
 Route::post('/broadcasting/auth', function (Request $request) {
     return Broadcast::auth($request);
 })->middleware('auth:api');
 
+// Messaging Routes
 Route::post('/messages', [MessageController::class, 'sendMessage']);
 Route::get('/messages/{user1}/{user2}', [MessageController::class, 'getMessages']);
 Route::get('/messages/unread-counts/{userId}', [MessageController::class, 'getUnreadCounts']);
-// Send notification
+
+// Notification Routes
 Route::post('/send_notification', [NotificationController::class, 'sendNotification']);
+Route::post('/store-token', [NotificationController::class, 'storeToken']); // Store FCM token
 
 // Seasonal Tips Routes
 Route::get('/seasonal-tips', [SeasonalTipController::class, 'index']);
 Route::get('/seasonal-tips/{plantId}/{region}/{season}', [SeasonalTipController::class, 'getTipsByPlantRegionAndSeason']);
 
 // Authentication Routes
-
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/update-profile', [ProfileController::class, 'updateProfile']);
+Route::post('/update-fcm-token', [AuthController::class, 'updateFcmToken']); // Add FCM token update route
 
 // Test Route
 Route::get('/test', function () {
@@ -49,12 +55,11 @@ Route::post('/payment/intent', [PaymentController::class, 'createIntent']); // C
 Route::post('/payment/attach', [PaymentController::class, 'attachMethod']); // Attach payment method
 Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook']); // PayMongo webhook
 
-// Fetch all gardeners
+// Fetch all users by type
 Route::get('/gardeners', [AuthController::class, 'getGardeners']); 
 Route::get('/homeowners', [AuthController::class, 'getHomeowners']); 
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
 
+// Ratings Routes
 Route::post('/bookings/{booking}/rate', 'RatingController@store');
 Route::get('/gardeners/{gardener}/ratings', 'RatingController@gardenerRatings');
 Route::get('/bookings/{booking}/rating', 'RatingController@show');
@@ -66,14 +71,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
+    // Profile Routes
     Route::put('/profile/update', [AuthController::class, 'updateProfile']);
-    Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile/{userId}', [AuthController::class, 'getProfileData']);
-    
+
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout']);
+
     // Protected Payment Routes
     Route::post('/payment/history', [PaymentController::class, 'paymentHistory']);
-    // Store FCM token
-    Route::post('/store-token', [NotificationController::class, 'storeToken']);
-
- 
 });

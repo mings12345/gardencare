@@ -26,6 +26,7 @@ return new class extends Migration
             $table->json('reviews')->nullable(); // Store reviews as JSON
             $table->integer('completed_jobs')->nullable()->default(0); // removed ->after()
             $table->text('bio')->nullable(); // removed ->after()
+            $table->string('fcm_token')->nullable()->after('email');
             $table->rememberToken();
             $table->timestamps();
         });

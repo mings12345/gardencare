@@ -1,9 +1,10 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\BookingService;
+use App\Models\User;
+use App\Notifications\BookingNotification;
 use Illuminate\Http\Request;
 use Validator;
 
@@ -63,15 +64,78 @@ class BookingController extends Controller
 
         // Attach services to the booking
         foreach ($request->get('service_ids') as $service_id) {
-            BookingService::create([ 
+            BookingService::create([
                 'booking_id' => $booking->id,
                 'service_id' => $service_id,
-            ]); 
-        } 
+            ]);
+        }
+
+        // Notify the gardener or service provider
+        if ($request->get('type') === 'Gardening' && $request->get('gardener_id')) {
+            $gardener = User::find($request->get('gardener_id'));
+            if ($gardener && $gardener->fcm_token) { // Ensure the gardener has an FCM token
+                $this->sendNotification(
+                    'New Booking',
+                    'You have a new gardening booking request.',
+                    $gardener->fcm_token
+                );
+            }
+        } elseif ($request->get('type') === 'Landscaping' && $request->get('serviceprovider_id')) {
+            $serviceProvider = User::find($request->get('serviceprovider_id'));
+            if ($serviceProvider && $serviceProvider->fcm_token) { // Ensure the service provider has an FCM token
+                $this->sendNotification(
+                    'New Booking',
+                    'You have a new landscaping booking request.',
+                    $serviceProvider->fcm_token
+                );
+            }
+        }
+
         return response()->json([
             'message' => 'Booking created successfully',
             'type' => 'success',
             'booking' => $booking->load('services'), // Load services to return in response
         ], 201);
+    }
+
+    public function sendNotification($title, $body, $token)
+{
+    $factory = (new Factory)->withServiceAccount(base_path('path-to-service-account.json'));
+    $messaging = $factory->createMessaging();
+
+    $message = [
+        'token' => $token,
+        'notification' => [
+            'title' => $title,
+            'body' => $body,
+        ],
+    ];
+
+    $messaging->send($message);
+}
+    public function getGardenerBookings($gardenerId)
+    {
+        $bookings = Booking::where('gardener_id', $gardenerId)
+            ->with(['homeowner', 'services']) // Include related data
+            ->orderBy('date', 'desc') // Order by date
+            ->get();
+
+        return response()->json([
+            'message' => 'Bookings retrieved successfully.',
+            'bookings' => $bookings,
+        ], 200);
+    }
+
+    public function getServiceProviderBookings($serviceProviderId)
+    {
+        $bookings = Booking::where('serviceprovider_id', $serviceProviderId)
+            ->with(['homeowner', 'services']) // Include related data
+            ->orderBy('date', 'desc') // Order by date
+            ->get();
+
+        return response()->json([
+            'message' => 'Bookings retrieved successfully.',
+            'bookings' => $bookings,
+        ], 200);
     }
 }
