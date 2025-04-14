@@ -81,21 +81,12 @@ class BookingController extends Controller
 
     protected function sendBookingNotification(Booking $booking)
 {
-    try {
-        if ($booking->type === 'Gardening' && $booking->gardener_id) {
-            $gardener = User::find($booking->gardener_id);
-            if ($gardener) {
-                $gardener->notify(new NewBookingNotification($booking));
-            }
-        } elseif ($booking->type === 'Landscaping' && $booking->serviceprovider_id) {
-            $provider = User::find($booking->serviceprovider_id);
-            if ($provider) {
-                $provider->notify(new NewBookingNotification($booking));
-            }
-        }
-    } catch (\Exception $e) {
-        \Log::error("Notification failed: " . $e->getMessage());
-        // Don't rethrow - we'll handle this in the transaction
+    if ($booking->type === 'Gardening' && $booking->gardener_id) {
+        $gardener = User::find($booking->gardener_id);
+        $gardener->notify(new \App\Notifications\NewBookingNotification($booking)); // Fixed class name
+    } elseif ($booking->type === 'Landscaping' && $booking->serviceprovider_id) {
+        $provider = User::find($booking->serviceprovider_id);
+        $provider->notify(new \App\Notifications\NewBookingNotification($booking)); // Fixed class name
     }
 }
 
