@@ -48,6 +48,8 @@ class BookingController extends Controller
             ], 422);
         }
 
+        try {
+
         // Create the booking
         $booking = Booking::create([
             'type' => $request->type,
@@ -69,8 +71,8 @@ class BookingController extends Controller
                 'service_id' => $service_id,
             ]);
         }
-
-        try {
+             // Load relationships for notifications
+            $booking->load(['homeowner', 'services']);
             $provider = $request->gardener_id 
                 ? Gardener::find($request->gardener_id)
                 : ServiceProvider::find($request->serviceprovider_id);
