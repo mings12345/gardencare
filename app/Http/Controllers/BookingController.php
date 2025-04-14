@@ -70,46 +70,49 @@ class BookingController extends Controller
             ]);
         }
 
-            // Get service provider details
-        $provider = $request->gardener_id 
-        ? Gardener::find($request->gardener_id)
-        : ServiceProvider::find($request->serviceprovider_id);
-
-    // Get homeowner details
-    $homeowner = Homeowner::find($request->homeowner_id);
-
-    // Notification for homeowner
-    Notification::create([
-        'user_id' => $request->homeowner_id,
-        'title' => 'Booking Confirmed',
-        'message' => 'Your booking with ' . $provider->name . ' has been confirmed',
-        'type' => 'booking',
-        'data' => [
-            'booking_id' => $booking->id,
-            'type' => 'booking_created',
-            'provider_name' => $provider->name,
-            'date' => $booking->date,
-            'time' => $booking->time
-        ]
-    ]);
-
-    // Notification for service provider
-    Notification::create([
-        'user_id' => $provider->user_id, // Make sure your providers have user_id
-        'title' => 'New Booking Request',
-        'message' => 'New booking from ' . $homeowner->name . ' for ' . $booking->date,
-        'type' => 'booking',
-        'data' => [
-            'booking_id' => $booking->id,
-            'type' => 'new_booking',
-            'homeowner_name' => $homeowner->name,
-            'address' => $booking->address,
-            'date' => $booking->date,
-            'time' => $booking->time,
-            'services' => $booking->services->pluck('name'),
-            'total_price' => $booking->total_price
-        ]
-    ]);
+        try {
+            $provider = $request->gardener_id 
+                ? Gardener::find($request->gardener_id)
+                : ServiceProvider::find($request->serviceprovider_id);
+        
+            $homeowner = Homeowner::find($request->homeowner_id);
+        
+            if ($provider && $homeowner) {
+                Notification::create([
+                    'user_id' => $request->homeowner_id,
+                    'title' => 'Booking Confirmed',
+                    'message' => 'Your booking with ' . $provider->name . ' has been confirmed',
+                    'type' => 'booking',
+                    'data' => [
+                        'booking_id' => $booking->id,
+                        'type' => 'booking_created',
+                        'provider_name' => $provider->name,
+                        'date' => $booking->date,
+                        'time' => $booking->time
+                    ]
+                ]);
+        
+                Notification::create([
+                    'user_id' => $provider->user_id ?? null, // This must exist
+                    'title' => 'New Booking Request',
+                    'message' => 'New booking from ' . $homeowner->name . ' for ' . $booking->date,
+                    'type' => 'booking',
+                    'data' => [
+                        'booking_id' => $booking->id,
+                        'type' => 'new_booking',
+                        'homeowner_name' => $homeowner->name,
+                        'address' => $booking->address,
+                        'date' => $booking->date,
+                        'time' => $booking->time,
+                        'services' => $booking->services->pluck('name'),
+                        'total_price' => $booking->total_price
+                    ]
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error("Notification error for booking {$booking->id}: " . $e->getMessage());
+            // Optionally continue silently or respond with a warning
+        }
 
         return response()->json([
             'message' => 'Booking created successfully',
@@ -117,7 +120,7 @@ class BookingController extends Controller
             'booking' => $booking->load(['homeowner', 'services']),
         ], 201);
     }
-    
+
         public function respondToBooking(Request $request, $bookingId)
     {
         $validated = $request->validate([
