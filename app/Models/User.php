@@ -60,8 +60,19 @@ class User extends Authenticatable
         return $this->role === $role;
     }
 
-    public function routeNotificationForFcm()
+        public function gardenerBookings()
     {
-        return $this->device_token;
+        return $this->hasMany(Booking::class, 'gardener_id');
     }
+
+    public function serviceProviderBookings()
+    {
+        return $this->hasMany(Booking::class, 'serviceprovider_id');
+    }
+
+    public function homeownerBookings()
+    {
+        return $this->hasMany(Booking::class, 'homeowner_id');
+    }
+  
 }
