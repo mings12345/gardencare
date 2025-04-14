@@ -6,6 +6,7 @@ use App\Models\BookingService;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Validator;
+use App\Http\Controllers\NotificationController;
 
 
 class BookingController extends Controller
