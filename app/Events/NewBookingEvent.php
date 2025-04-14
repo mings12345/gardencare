@@ -2,7 +2,6 @@
 
 namespace App\Events;
 
-use App\Models\Booking;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -15,59 +14,28 @@ class NewBookingEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * The booking instance.
-     *
-     * @var \App\Models\Booking
-     */
     public $booking;
+    public $userType;
 
-    /**
-     * Create a new event instance.
-     *
-     * @param  \App\Models\Booking  $booking
-     * @return void
-     */
-    public function __construct(Booking $booking)
+    public function __construct($booking, $userType)
     {
         $this->booking = $booking;
+        $this->userType = $userType;
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return \Illuminate\Broadcasting\Channel|array
-     */
     public function broadcastOn()
     {
-        // Broadcasting to a private channel based on the booking's user ID
-        // This allows real-time notifications to be sent to the specific user
-        return new PrivateChannel('bookings.' . $this->booking->user_id);
+        return new Channel('private-' . $this->userType . '-' . $this->booking->provider_id);
     }
 
-    /**
-     * The event's broadcast name.
-     *
-     * @return string
-     */
-    public function broadcastAs()
-    {
-        return 'booking.created';
-    }
-
-    /**
-     * Get the data to broadcast.
-     *
-     * @return array
-     */
     public function broadcastWith()
     {
         return [
-            'id' => $this->booking->id,
-            'user_id' => $this->booking->user_id,
-            'status' => $this->booking->status,
-            'created_at' => $this->booking->created_at,
-            // Add any other booking attributes you want to include
+            'message' => 'You have a new booking!',
+            'booking_id' => $this->booking->id,
+            'homeowner_name' => $this->booking->homeowner->name,
+            'date' => $this->booking->date,
+            'total_price' => $this->booking->total_price
         ];
     }
 }

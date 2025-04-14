@@ -37,8 +37,7 @@ Route::get('/messages/{user1}/{user2}', [MessageController::class, 'getMessages'
 Route::get('/messages/unread-counts/{userId}', [MessageController::class, 'getUnreadCounts']);
 
 // Notification Routes
-Route::post('/notification', [NotificationController::class, 'index']);
-Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+Route::post('/send_notification', [NotificationController::class, 'sendNotification']);
 Route::post('/store-token', [NotificationController::class, 'storeToken']); // Store FCM token
 
 // Seasonal Tips Routes
@@ -61,11 +60,10 @@ Route::get('/services', [ServiceController::class, 'getServices']); // Get all s
 
 // Bookings Routes
 Route::post('/create_booking', [BookingController::class, 'store']); // Create a booking
-Route::get('/bookings/{bookingId}', [BookingController::class, 'show']); // Get booking details
-Route::put('/bookings/{id}/status', [BookingController::class, 'updateBookingStatus']); // Update booking status
-Route::get('/gardener/bookings', [BookingController::class, 'getGardenerBookings'])->middleware('auth:sanctum'); // Get gardener's bookings
-Route::get('/service-provider/bookings', [BookingController::class, 'getServiceProviderBookings'])->middleware('auth:sanctum'); // Get service provider's bookings
-
+Route::get('/bookings/{booking}', [BookingController::class, 'show']);
+Route::put('/bookings/{booking}/status', [BookingController::class, 'updateStatus']);
+Route::get('/gardeners/{gardenerId}/bookings', [BookingController::class, 'getGardenerBookings']); // Get bookings for a gardener
+Route::get('/service_providers/{serviceProviderId}/bookings', [BookingController::class, 'getServiceProviderBookings']); // Get bookings for a service provider
 Route::get('/service_providers', [AuthController::class, 'getServiceProviders']); // Fetch only users with user_type = service provider
 
 // Payment Routes
