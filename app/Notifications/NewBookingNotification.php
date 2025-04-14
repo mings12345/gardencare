@@ -42,5 +42,17 @@ class NewBooking extends Notification implements ShouldQueue
             'url' => '/provider/bookings/' . $this->booking->id,
         ];
     }
+
+    public function toDatabase($notifiable)
+{
+    return [
+        'booking_id' => $this->booking->id,
+        'message' => 'New booking request received',
+        'type' => 'new_booking',
+        'homeowner_name' => $this->booking->homeowner->name,
+        'date' => $this->booking->date,
+        'time' => $this->booking->time,
+    ];
+}
 }
 
