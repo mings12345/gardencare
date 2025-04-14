@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\BookingService;
 use App\Models\User;
-use App\Notifications\BookingNotification;
 use Illuminate\Http\Request;
 use Validator;
 
@@ -69,50 +68,26 @@ class BookingController extends Controller
                 'service_id' => $service_id,
             ]);
         }
-
-        // Notify the gardener or service provider
-        if ($request->get('type') === 'Gardening' && $request->get('gardener_id')) {
-            $gardener = User::find($request->get('gardener_id'));
-            if ($gardener && $gardener->fcm_token) { // Ensure the gardener has an FCM token
-                $this->sendNotification(
-                    'New Booking',
-                    'You have a new gardening booking request.',
-                    $gardener->fcm_token
-                );
-            }
-        } elseif ($request->get('type') === 'Landscaping' && $request->get('serviceprovider_id')) {
-            $serviceProvider = User::find($request->get('serviceprovider_id'));
-            if ($serviceProvider && $serviceProvider->fcm_token) { // Ensure the service provider has an FCM token
-                $this->sendNotification(
-                    'New Booking',
-                    'You have a new landscaping booking request.',
-                    $serviceProvider->fcm_token
-                );
-            }
-        }
-
+         // Send notification to the appropriate provider
+         $this->sendBookingNotification($booking);
         return response()->json([
             'message' => 'Booking created successfully',
             'type' => 'success',
-            'booking' => $booking->load('services'), // Load services to return in response
+            'booking' => $booking->load(['homeowner', 'services']), // Load services to return in response
         ], 201);
+    }   
+
+    protected function sendBookingNotification(Booking $booking)
+    {
+        if ($booking->type === 'Gardening' && $booking->gardener_id) {
+            $gardener = User::find($booking->gardener_id);
+            $gardener->notify(new NewBookingNotification($booking));
+        } elseif ($booking->type === 'Landscaping' && $booking->serviceprovider_id) {
+            $provider = User::find($booking->serviceprovider_id);
+            $provider->notify(new NewBookingNotification($booking));
+        }
     }
 
-    public function sendNotification($title, $body, $token)
-{
-    $factory = (new Factory)->withServiceAccount(base_path('path-to-service-account.json'));
-    $messaging = $factory->createMessaging();
-
-    $message = [
-        'token' => $token,
-        'notification' => [
-            'title' => $title,
-            'body' => $body,
-        ],
-    ];
-
-    $messaging->send($message);
-}
     public function getGardenerBookings($gardenerId)
     {
         $bookings = Booking::where('gardener_id', $gardenerId)
@@ -136,6 +111,40 @@ class BookingController extends Controller
         return response()->json([
             'message' => 'Bookings retrieved successfully.',
             'bookings' => $bookings,
+        ], 200);
+    }
+
+      // Update booking status (accept/reject)
+      public function updateStatus(Request $request, $bookingId)
+      {
+          $validated = $request->validate([
+              'status' => 'required|in:accepted,rejected,cancelled,completed',
+              'reason' => 'nullable|string|max:255',
+          ]);
+  
+          $booking = Booking::findOrFail($bookingId);
+          $booking->update([
+              'status' => $validated['status'],
+              'status_reason' => $validated['reason'] ?? null,
+          ]);
+  
+          // Here you could add notifications to the homeowner about status change
+  
+          return response()->json([
+              'message' => 'Booking status updated successfully',
+              'booking' => $booking,
+          ], 200);
+      }
+
+      // Get booking details
+    public function show($bookingId)
+    {
+        $booking = Booking::with(['homeowner', 'gardener', 'serviceProvider', 'services'])
+            ->findOrFail($bookingId);
+
+        return response()->json([
+            'message' => 'Booking retrieved successfully',
+            'booking' => $booking,
         ], 200);
     }
 }

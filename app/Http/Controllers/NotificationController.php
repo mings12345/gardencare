@@ -1,72 +1,86 @@
 <?php
-/*
+
 namespace App\Http\Controllers;
 
-use App\Models\FcmToken;
-use App\Models\User; // Added
+use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
-use App\Services\NotificationService;
 
 class NotificationController extends Controller
 {
-    protected $notificationService;
-
-    public function __construct(NotificationService $notificationService)
+    public function getUserNotifications(Request $request)
     {
-        $this->notificationService = $notificationService;
+        $user = $request->user();
+        $notifications = $user->notifications()
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return response()->json([
+            'notifications' => $notifications,
+            'unread_count' => $user->unreadNotifications->count(),
+        ]);
+    }
+
+    public function markAsRead(Request $request)
+    {
+        $request->validate([
+            'notification_id' => 'required|uuid|exists:notifications,id',
+        ]);
+
+        $notification = $request->user()
+            ->notifications()
+            ->findOrFail($request->notification_id);
+
+        $notification->markAsRead();
+
+        return response()->json([
+            'message' => 'Notification marked as read',
+            'unread_count' => $request->user()->unreadNotifications->count(),
+        ]);
+    }
+
+    public function markAllAsRead(Request $request)
+    {
+        $request->user()->unreadNotifications->markAsRead();
+
+        return response()->json([
+            'message' => 'All notifications marked as read',
+            'unread_count' => 0,
+        ]);
     }
 
     public function storeToken(Request $request)
     {
         $request->validate([
-            'token' => 'required|string',
+            'device_token' => 'required|string',
         ]);
-    
-        $user = $request->user();
-    
-        // Check if the token already exists
-        $existingToken = FcmToken::where('token', $request->token)->first();
-    
-        if (!$existingToken) {
-            // Store new token (no deletion)
-            $user->fcmTokens()->create(['token' => $request->token]);
-        }
-    
-        return response()->json(['success' => true]);
+
+        $request->user()->update([
+            'device_token' => $request->device_token,
+        ]);
+
+        return response()->json(['message' => 'Device token stored successfully']);
     }
-    
 
     public function sendNotification(Request $request)
-{
-    $request->validate([
-        'user_id' => 'required|integer',
-        'notification' => 'required|array',
-        'notification.title' => 'required|string',
-        'notification.body' => 'required|string',
-    ]);
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'title' => 'required|string',
+            'body' => 'required|string',
+            'type' => 'nullable|string',
+            'data' => 'nullable|array',
+        ]);
 
-    $user = User::find($request->user_id);
+        $user = User::find($request->user_id);
+        
+        $user->notify(new GenericNotification(
+            $request->title,
+            $request->body,
+            $request->type,
+            $request->data ?? []
+        ));
 
-    if (!$user) {
-        return response()->json(['success' => false, 'message' => 'User not found'], 404);
+        return response()->json(['message' => 'Notification sent successfully']);
     }
-
-    // Get the latest FCM token for this user
-    $token = $user->fcmTokens()->latest()->first()->token ?? null;
-
-    if (!$token) {
-        return response()->json(['success' => false, 'message' => 'No FCM token found'], 400);
-    }
-
-    // Send notification
-    $success = $this->notificationService->sendPushNotification($token, [
-        'title' => $request->notification['title'],
-        'body' => $request->notification['body'],
-    ]);
-
-    return response()->json(['success' => $success]);
 }
-
-}
-
-*/

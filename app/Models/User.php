@@ -58,4 +58,9 @@ class User extends Authenticatable
         // This might vary based on your authentication setup
         return $this->role === $role;
     }
+
+    public function routeNotificationForFcm()
+    {
+        return $this->device_token;
+    }
 }
