@@ -12,10 +12,24 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Broadcast;
 
+
 // Broadcasting Authentication
-Route::post('/broadcasting/auth', function (Request $request) {
-    return Broadcast::auth($request);
-})->middleware('auth:api');
+Route::post('/pusher/auth', function (Request $request) {
+    $user = $request->user();
+    
+    if (!$user) {
+        return response()->json(['message' => 'Unauthorized'], 401);
+    }
+
+    $pusher = new Pusher\Pusher(
+        config('broadcasting.connections.pusher.key'),
+        config('broadcasting.connections.pusher.secret'),
+        config('broadcasting.connections.pusher.app_id'),
+        config('broadcasting.connections.pusher.options')
+    );
+
+    return $pusher->socket_auth($request->channel_name, $request->socket_id);
+})->middleware('auth:sanctum');
 
 // Messaging Routes
 Route::post('/messages', [MessageController::class, 'sendMessage']);
@@ -23,7 +37,8 @@ Route::get('/messages/{user1}/{user2}', [MessageController::class, 'getMessages'
 Route::get('/messages/unread-counts/{userId}', [MessageController::class, 'getUnreadCounts']);
 
 // Notification Routes
-Route::post('/send_notification', [NotificationController::class, 'sendNotification']);
+Route::post('/notification', [NotificationController::class, 'index']);
+Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 Route::post('/store-token', [NotificationController::class, 'storeToken']); // Store FCM token
 
 // Seasonal Tips Routes
@@ -46,10 +61,11 @@ Route::get('/services', [ServiceController::class, 'getServices']); // Get all s
 
 // Bookings Routes
 Route::post('/create_booking', [BookingController::class, 'store']); // Create a booking
-Route::get('/bookings/{booking}', [BookingController::class, 'show']);
-Route::put('/bookings/{booking}/status', [BookingController::class, 'updateStatus']);
-Route::get('/gardeners/{gardenerId}/bookings', [BookingController::class, 'getGardenerBookings']); // Get bookings for a gardener
-Route::get('/service_providers/{serviceProviderId}/bookings', [BookingController::class, 'getServiceProviderBookings']); // Get bookings for a service provider
+Route::get('/bookings/{bookingId}', [BookingController::class, 'show']); // Get booking details
+Route::put('/bookings/{id}/status', [BookingController::class, 'updateBookingStatus']); // Update booking status
+Route::get('/gardener/bookings', [BookingController::class, 'getGardenerBookings'])->middleware('auth:sanctum'); // Get gardener's bookings
+Route::get('/service-provider/bookings', [BookingController::class, 'getServiceProviderBookings'])->middleware('auth:sanctum'); // Get service provider's bookings
+
 Route::get('/service_providers', [AuthController::class, 'getServiceProviders']); // Fetch only users with user_type = service provider
 
 // Payment Routes

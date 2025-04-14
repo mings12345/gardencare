@@ -6,21 +6,18 @@ use App\Models\BookingService;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Validator;
-use App\Notifications\NewBookingNotification;
+use App\Events\NewBookingEvent;
 
 class BookingController extends Controller
 {
     // Display a list of bookings
     public function index()
     {
-        // Fetch all bookings with related data (e.g., homeowner, gardener, services)
         $bookings = Booking::with(['homeowner', 'gardener', 'serviceProvider', 'services'])->get();
-
-        // Pass the bookings to the view
         return view('bookings.index', compact('bookings'));
     }
 
-    // Create a new booking
+    // Create a new booking with real-time notifications
     public function store(Request $request)
     {
         // Define base validation rules
@@ -28,117 +25,165 @@ class BookingController extends Controller
             'type' => 'required|in:Gardening,Landscaping',
             'homeowner_id' => 'required|exists:users,id',
             'service_ids' => 'required|array',
-            'address' => 'required|string',
-            'date' => 'required|date',
-            'time' => 'required',
-            'total_price' => 'required|numeric',
-            'special_instructions' => 'nullable|string',
+            'service_ids.*' => 'exists:services,id',
+            'address' => 'required|string|max:255',
+            'date' => 'required|date|after_or_equal:today',
+            'time' => 'required|date_format:H:i',
+            'total_price' => 'required|numeric|min:0',
+            'special_instructions' => 'nullable|string|max:500',
         ];
 
-        // Add conditional validation rules based on the booking type
+        // Add conditional validation rules
         if ($request->get('type') === 'Gardening') {
             $rules['gardener_id'] = 'required|exists:users,id';
         } elseif ($request->get('type') === 'Landscaping') {
             $rules['serviceprovider_id'] = 'required|exists:users,id';
         }
 
-        // Validate the request
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return response()->json(['type' => 'error', 'messages' => $validator->errors()], 422);
+            return response()->json([
+                'type' => 'error', 
+                'messages' => $validator->errors()
+            ], 422);
         }
 
         // Create the booking
         $booking = Booking::create([
-            'type' => $request->get('type'),
-            'homeowner_id' => $request->get('homeowner_id'),
-            'gardener_id' => $request->get('gardener_id') ?? null,
-            'serviceprovider_id' => $request->get('serviceprovider_id') ?? null,
-            'address' => $request->get('address'),
-            'date' => $request->get('date'),
-            'time' => $request->get('time'),
-            'total_price' => $request->get('total_price'),
-            'special_instructions' => $request->get('special_instructions'),
+            'type' => $request->type,
+            'homeowner_id' => $request->homeowner_id,
+            'gardener_id' => $request->gardener_id ?? null,
+            'serviceprovider_id' => $request->serviceprovider_id ?? null,
+            'address' => $request->address,
+            'date' => $request->date,
+            'time' => $request->time,
+            'total_price' => $request->total_price,
+            'special_instructions' => $request->special_instructions,
             'status' => 'pending',
         ]);
 
         // Attach services to the booking
-        foreach ($request->get('service_ids') as $service_id) {
+        foreach ($request->service_ids as $service_id) {
             BookingService::create([
                 'booking_id' => $booking->id,
                 'service_id' => $service_id,
             ]);
         }
-         // Send notification to the appropriate provider
-         $this->sendBookingNotification($booking);
+            // Notify the relevant service provider
+        if ($booking->type == 'Gardening') {
+            $this->notifyGardener($booking);
+        } else if ($booking->type == 'Landscaping') {
+            $this->notifyServiceProvider($booking);
+        }
+
         return response()->json([
             'message' => 'Booking created successfully',
             'type' => 'success',
-            'booking' => $booking->load(['homeowner', 'services']), // Load services to return in response
+            'booking' => $booking->load(['homeowner', 'services']),
         ], 201);
-    }   
-
-    protected function sendBookingNotification(Booking $booking)
-{
-    if ($booking->type === 'Gardening' && $booking->gardener_id) {
-        $gardener = User::find($booking->gardener_id);
-        $gardener->notify(new \App\Notifications\NewBookingNotification($booking)); // Fixed class name
-    } elseif ($booking->type === 'Landscaping' && $booking->serviceprovider_id) {
-        $provider = User::find($booking->serviceprovider_id);
-        $provider->notify(new \App\Notifications\NewBookingNotification($booking)); // Fixed class name
     }
-}
 
-    public function getGardenerBookings($gardenerId)
+        private function notifyGardener($booking)
     {
-        $bookings = Booking::where('gardener_id', $gardenerId)
-            ->with(['homeowner', 'services']) // Include related data
-            ->orderBy('date', 'desc') // Order by date
-            ->get();
-
-        return response()->json([
-            'message' => 'Bookings retrieved successfully.',
-            'bookings' => $bookings,
-        ], 200);
+        $gardener = Gardener::find($booking->gardener_id);
+        
+        // Create notification record
+        Notification::create([
+            'user_id' => $gardener->user_id,
+            'title' => 'New Booking Request',
+            'message' => 'You have a new gardening booking request',
+            'data' => json_encode($booking),
+            'read' => false
+        ]);
+        
+        event(new NewBookingEvent($gardener->user_id, $booking));
     }
 
-    public function getServiceProviderBookings($serviceProviderId)
+    private function notifyServiceProvider($booking)
     {
-        $bookings = Booking::where('serviceprovider_id', $serviceProviderId)
-            ->with(['homeowner', 'services']) // Include related data
-            ->orderBy('date', 'desc') // Order by date
-            ->get();
-
-        return response()->json([
-            'message' => 'Bookings retrieved successfully.',
-            'bookings' => $bookings,
-        ], 200);
+        $provider = ServiceProvider::find($booking->serviceprovider_id);
+        
+        // Create notification record
+        Notification::create([
+            'user_id' => $provider->user_id,
+            'title' => 'New Booking Request',
+            'message' => 'You have a new landscaping booking request',
+            'data' => json_encode($booking),
+            'read' => false
+        ]);
+        
+        event(new NewBookingEvent($provider->user_id, $booking));
     }
 
-      // Update booking status (accept/reject)
-      public function updateStatus(Request $request, $bookingId)
-      {
-          $validated = $request->validate([
-              'status' => 'required|in:accepted,rejected,cancelled,completed',
-              'reason' => 'nullable|string|max:255',
-          ]);
-  
-          $booking = Booking::findOrFail($bookingId);
-          $booking->update([
-              'status' => $validated['status'],
-              'status_reason' => $validated['reason'] ?? null,
-          ]);
-  
-          // Here you could add notifications to the homeowner about status change
-  
-          return response()->json([
-              'message' => 'Booking status updated successfully',
-              'booking' => $booking,
-          ], 200);
-      }
+        public function getGardenerBookings(Request $request)
+    {
+        $gardener = Gardener::where('user_id', auth()->id())->first();
+        
+        if (!$gardener) {
+            return response()->json(['message' => 'Gardener not found'], 404);
+        }
+        
+        $bookings = Booking::where('gardener_id', $gardener->id)
+                        ->where('type', 'Gardening')
+                        ->with('homeowner', 'services')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                        
+        return response()->json(['bookings' => $bookings]);
+    }
 
-      // Get booking details
+        public function getServiceProviderBookings(Request $request)
+    {
+        $provider = ServiceProvider::where('user_id', auth()->id())->first();
+        
+        if (!$provider) {
+            return response()->json(['message' => 'Service provider not found'], 404);
+        }
+        
+        $bookings = Booking::where('serviceprovider_id', $provider->id)
+                        ->where('type', 'Landscaping')
+                        ->with('homeowner', 'services')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                        
+        return response()->json(['bookings' => $bookings]);
+    }
+
+
+        public function updateBookingStatus(Request $request, $id)
+    {
+        $booking = Booking::findOrFail($id);
+        
+        // Verify the user has permission to update this booking
+        if ($booking->type == 'Gardening') {
+            $gardener = Gardener::where('user_id', auth()->id())->first();
+            if (!$gardener || $booking->gardener_id != $gardener->id) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+        } else {
+            $provider = ServiceProvider::where('user_id', auth()->id())->first();
+            if (!$provider || $booking->serviceprovider_id != $provider->id) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+        }
+        
+        $booking->status = $request->status;
+        $booking->save();
+        
+        // Notify homeowner about status change
+        Notification::create([
+            'user_id' => $booking->homeowner_id,
+            'title' => 'Booking Status Updated',
+            'message' => "Your booking has been {$request->status}",
+            'data' => json_encode($booking),
+            'read' => false
+        ]);
+        
+        return response()->json(['message' => 'Booking status updated', 'booking' => $booking]);
+    }
+
+    // Get booking details
     public function show($bookingId)
     {
         $booking = Booking::with(['homeowner', 'gardener', 'serviceProvider', 'services'])
