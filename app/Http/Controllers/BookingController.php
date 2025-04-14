@@ -60,6 +60,7 @@ class BookingController extends Controller
             'time' => $request->get('time'),
             'total_price' => $request->get('total_price'),
             'special_instructions' => $request->get('special_instructions'),
+            'status' => 'pending',
         ]);
 
         // Attach services to the booking
@@ -79,15 +80,24 @@ class BookingController extends Controller
     }   
 
     protected function sendBookingNotification(Booking $booking)
-    {
+{
+    try {
         if ($booking->type === 'Gardening' && $booking->gardener_id) {
             $gardener = User::find($booking->gardener_id);
-            $gardener->notify(new NewBookingNotification($booking));
+            if ($gardener) {
+                $gardener->notify(new NewBookingNotification($booking));
+            }
         } elseif ($booking->type === 'Landscaping' && $booking->serviceprovider_id) {
             $provider = User::find($booking->serviceprovider_id);
-            $provider->notify(new NewBookingNotification($booking));
+            if ($provider) {
+                $provider->notify(new NewBookingNotification($booking));
+            }
         }
+    } catch (\Exception $e) {
+        \Log::error("Notification failed: " . $e->getMessage());
+        // Don't rethrow - we'll handle this in the transaction
     }
+}
 
     public function getGardenerBookings($gardenerId)
     {
