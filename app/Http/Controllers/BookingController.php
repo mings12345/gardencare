@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Validator;
 
+
 class BookingController extends Controller
 {
     // Display a list of bookings
@@ -74,10 +75,10 @@ class BookingController extends Controller
              // Load relationships for notifications
             $booking->load(['homeowner', 'services']);
             $provider = $request->gardener_id 
-                ? Gardener::find($request->gardener_id)
-                : ServiceProvider::find($request->serviceprovider_id);
-        
-            $homeowner = Homeowner::find($request->homeowner_id);
+            ? User::find($request->gardener_id)
+            : User::find($request->serviceprovider_id);
+
+        $homeowner = User::find($request->homeowner_id);
         
             if ($provider && $homeowner) {
                 Notification::create([
