@@ -37,8 +37,9 @@ Route::get('/messages/{user1}/{user2}', [MessageController::class, 'getMessages'
 Route::get('/messages/unread-counts/{userId}', [MessageController::class, 'getUnreadCounts']);
 
 // Notification Routes
-Route::post('/send_notification', [NotificationController::class, 'sendNotification']);
+Route::get('/notifications', [NotificationController::class, 'index'])->middleware('auth:sanctum');
 Route::post('/store-token', [NotificationController::class, 'storeToken']); // Store FCM token
+Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->middleware('auth:sanctum');
 
 // Seasonal Tips Routes
 Route::get('/seasonal-tips', [SeasonalTipController::class, 'index']);

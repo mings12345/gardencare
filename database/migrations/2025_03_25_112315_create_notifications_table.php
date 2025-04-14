@@ -16,11 +16,12 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->string('title');
             $table->text('message');
-            $table->text('data')->nullable();
-            $table->boolean('read')->default(false);
+            $table->boolean('is_read')->default(false);
+            $table->string('type'); // e.g., 'booking', 'message', etc.
+            $table->json('data')->nullable(); // Additional data
             $table->timestamps();
-            
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

@@ -6,8 +6,6 @@ use App\Models\BookingService;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Validator;
-use App\Notifications\NewBookingNotification;
-use App\Events\NewBookingEvent;
 
 class BookingController extends Controller
 {
@@ -18,7 +16,7 @@ class BookingController extends Controller
         return view('bookings.index', compact('bookings'));
     }
 
-    // Create a new booking with real-time notifications
+    // Create a new booking (notifications removed)
     public function store(Request $request)
     {
         // Define base validation rules
@@ -72,9 +70,46 @@ class BookingController extends Controller
             ]);
         }
 
-        // Send notifications
-        $this->sendBookingNotification($booking);
-        $this->broadcastBookingEvent($booking);
+            // Get service provider details
+        $provider = $request->gardener_id 
+        ? Gardener::find($request->gardener_id)
+        : ServiceProvider::find($request->serviceprovider_id);
+
+    // Get homeowner details
+    $homeowner = Homeowner::find($request->homeowner_id);
+
+    // Notification for homeowner
+    Notification::create([
+        'user_id' => $request->homeowner_id,
+        'title' => 'Booking Confirmed',
+        'message' => 'Your booking with ' . $provider->name . ' has been confirmed',
+        'type' => 'booking',
+        'data' => [
+            'booking_id' => $booking->id,
+            'type' => 'booking_created',
+            'provider_name' => $provider->name,
+            'date' => $booking->date,
+            'time' => $booking->time
+        ]
+    ]);
+
+    // Notification for service provider
+    Notification::create([
+        'user_id' => $provider->user_id, // Make sure your providers have user_id
+        'title' => 'New Booking Request',
+        'message' => 'New booking from ' . $homeowner->name . ' for ' . $booking->date,
+        'type' => 'booking',
+        'data' => [
+            'booking_id' => $booking->id,
+            'type' => 'new_booking',
+            'homeowner_name' => $homeowner->name,
+            'address' => $booking->address,
+            'date' => $booking->date,
+            'time' => $booking->time,
+            'services' => $booking->services->pluck('name'),
+            'total_price' => $booking->total_price
+        ]
+    ]);
 
         return response()->json([
             'message' => 'Booking created successfully',
@@ -82,44 +117,40 @@ class BookingController extends Controller
             'booking' => $booking->load(['homeowner', 'services']),
         ], 201);
     }
-
-    /**
-     * Send database notification to the provider
-     */
-    protected function sendBookingNotification(Booking $booking)
+    
+        public function respondToBooking(Request $request, $bookingId)
     {
-        try {
-            if ($booking->type === 'Gardening' && $booking->gardener_id) {
-                $gardener = User::find($booking->gardener_id);
-                $gardener->notify(new NewBookingNotification($booking));
-            } elseif ($booking->type === 'Landscaping' && $booking->serviceprovider_id) {
-                $provider = User::find($booking->serviceprovider_id);
-                $provider->notify(new NewBookingNotification($booking));
-            }
-        } catch (\Exception $e) {
-            \Log::error('Notification failed: '.$e->getMessage());
-        }
+        $validated = $request->validate([
+            'status' => 'required|in:accepted,rejected',
+            'reason' => 'nullable|string|max:255',
+        ]);
+
+        $booking = Booking::findOrFail($bookingId);
+        
+        // Update booking status
+        $booking->update([
+            'status' => $validated['status'],
+            'status_reason' => $validated['reason'] ?? null,
+        ]);
+
+        // Create notification for homeowner
+        Notification::create([
+            'user_id' => $booking->homeowner_id,
+            'title' => 'Booking ' . ucfirst($validated['status']),
+            'message' => 'Your booking has been ' . $validated['status'] . ' by ' . $booking->provider->name,
+            'type' => 'booking',
+            'data' => [
+                'booking_id' => $booking->id,
+                'type' => 'booking_updated',
+                'status' => $validated['status']
+            ]
+        ]);
+
+        return response()->json([
+            'message' => 'Booking response submitted successfully',
+            'booking' => $booking,
+        ], 200);
     }
-
-    /**
-     * Broadcast real-time event via Pusher
-     */
-    protected function broadcastBookingEvent(Booking $booking)
-    {
-        try {
-            $channelType = $booking->type === 'Gardening' ? 'gardener' : 'provider';
-            $providerId = $booking->type === 'Gardening' 
-                ? $booking->gardener_id 
-                : $booking->serviceprovider_id;
-
-            if ($providerId) {
-                event(new NewBookingEvent($booking, $channelType));
-            }
-        } catch (\Exception $e) {
-            \Log::error('Pusher broadcast failed: '.$e->getMessage());
-        }
-    }
-
     // Get gardener's bookings
     public function getGardenerBookings($gardenerId)
     {
@@ -169,9 +200,6 @@ class BookingController extends Controller
             'status' => $validated['status'],
             'status_reason' => $validated['reason'] ?? null,
         ]);
-
-        // Here you could add notifications to the homeowner about status change
-        // $this->sendStatusChangeNotification($booking);
 
         return response()->json([
             'message' => 'Booking status updated successfully',
