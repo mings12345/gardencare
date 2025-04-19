@@ -72,7 +72,7 @@ class AuthController extends Controller
             }
 
             $user = auth()->user();
-            $token = $user->createToken('Access Token')->plainTextToken;
+            $token = $user->createToken('Access Token', ['broadcast'])->plainTextToken;
 
             // Store or update FCM token
             if ($request->filled('fcm_token')) {
