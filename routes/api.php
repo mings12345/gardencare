@@ -12,7 +12,6 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Broadcast;
 
-Broadcast::routes(['prefix' => 'api', 'middleware' => ['auth:api']]);
 
 // Broadcasting Authentication
 Route::post('/broadcasting/auth', function (Request $request) {
