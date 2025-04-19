@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Broadcast;
 
+Broadcast::routes(['middleware' => ['auth:api']]);
+
 Broadcast::channel('private-gardener.{gardenerId}', function ($user, $gardenerId) {
     return (int) $user->id === (int) $gardenerId;
 });
