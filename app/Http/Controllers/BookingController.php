@@ -32,7 +32,6 @@ class BookingController extends Controller
             'time' => 'required|date_format:H:i',
             'total_price' => 'required|numeric|min:0',
             'special_instructions' => 'nullable|string|max:500',
-            'payment_intent_id' => 'required|string',
         ];
 
         // Add conditional validation rules
@@ -49,19 +48,6 @@ class BookingController extends Controller
                 'type' => 'error', 
                 'messages' => $validator->errors()
             ], 422);
-        }
-
-             // Verify payment intent
-        $paymentVerified = $this->verifyPaymentIntent(
-            $request->payment_intent_id,
-            $request->total_price
-        );
-
-        if (!$paymentVerified) {
-            return response()->json([
-                'type' => 'error',
-                'message' => 'Payment verification failed'
-            ], 402);
         }
 
         // Create the booking
