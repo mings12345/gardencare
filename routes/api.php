@@ -14,11 +14,11 @@ use Illuminate\Support\Facades\Broadcast;
 
 
 // Broadcasting Authentication
-Route::post('/pusher/auth', function (Request $request) {
+Route::post('/broadcasting/auth', function (Request $request) {
     $user = $request->user();
     
     if (!$user) {
-        return response()->json(['message' => 'Unauthorized'], 401);
+        return response()->json(['message' => 'Unauthorized'], 403);
     }
 
     $pusher = new Pusher\Pusher(
@@ -28,7 +28,19 @@ Route::post('/pusher/auth', function (Request $request) {
         config('broadcasting.connections.pusher.options')
     );
 
-    return $pusher->socket_auth($request->channel_name, $request->socket_id);
+    return response()->json(
+        $pusher->authorizeChannel(
+            $request->channel_name,
+            $request->socket_id,
+            [
+                'user_id' => $user->id,
+                'user_info' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                ]
+            ]
+        )
+    );
 })->middleware('auth:sanctum');
 
 // Messaging Routes
@@ -66,6 +78,7 @@ Route::put('/bookings/{booking}/status', [BookingController::class, 'updateStatu
 Route::get('/gardeners/{gardenerId}/bookings', [BookingController::class, 'getGardenerBookings']); // Get bookings for a gardener
 Route::get('/service_providers/{serviceProviderId}/bookings', [BookingController::class, 'getServiceProviderBookings']); // Get bookings for a service provider
 Route::get('/service_providers', [AuthController::class, 'getServiceProviders']); // Fetch only users with user_type = service provider
+Route::get('/homeowners/{homeownerId}/bookings', [BookingController::class, 'getHomeownerBookings']); // Get bookings for a gardener
 
 // Payment Routes
 Route::post('/payment/intent', [PaymentController::class, 'createIntent']); // Create payment intent

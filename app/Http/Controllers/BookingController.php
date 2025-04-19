@@ -6,6 +6,7 @@ use App\Models\BookingService;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Validator;
+use App\Events\BookingNotification;
 
 class BookingController extends Controller
 {
@@ -69,11 +70,38 @@ class BookingController extends Controller
                 'service_id' => $service_id,
             ]);
         }
+
+              // Send notification to the selected professional
+        $this->sendBookingNotification($booking);
+
         return response()->json([
             'message' => 'Booking created successfully',
             'type' => 'success',
             'booking' => $booking->load(['homeowner', 'services']),
         ], 201);
+    }
+
+    protected function sendBookingNotification(Booking $booking)
+    {
+        $notificationData = [
+            'title' => 'New Booking Request',
+            'body' => "You have a new {$booking->type} booking request",
+            'booking_id' => $booking->id,
+            'type' => 'booking_request',
+            'created_at' => now()->toDateTimeString(),
+        ];
+
+        if ($booking->type === 'Gardening' && $booking->gardener_id) {
+            event(new BookingNotification(
+                $booking->gardener_id, 
+                $notificationData
+            ));
+        } elseif ($booking->type === 'Landscaping' && $booking->serviceprovider_id) {
+            event(new BookingNotification(
+                $booking->serviceprovider_id, 
+                $notificationData
+            ));
+        }
     }
 
     // Get gardener's bookings
@@ -100,6 +128,24 @@ class BookingController extends Controller
 
         return response()->json([
             'message' => 'Bookings retrieved successfully.',
+            'bookings' => $bookings,
+        ], 200);
+    }
+
+    public function getHomeownerBookings($homeownerId)
+    {
+        $bookings = Booking::where('homeowner_id', $homeownerId)
+            ->with([
+                'gardener', 
+                'serviceProvider', 
+                'services',
+                'homeowner' // In case you need homeowner details
+            ])
+            ->orderBy('date', 'desc')
+            ->get();
+    
+        return response()->json([
+            'message' => 'Homeowner bookings retrieved successfully.',
             'bookings' => $bookings,
         ], 200);
     }
