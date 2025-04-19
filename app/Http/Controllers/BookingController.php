@@ -6,7 +6,8 @@ use App\Models\BookingService;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Validator;
-use App\Events\BookingNotification;
+use App\Events\BookingStatusUpdated;
+use App\Events\NewBooking;
 
 class BookingController extends Controller
 {
@@ -88,6 +89,14 @@ class BookingController extends Controller
             ]);
         }
 
+         // Determine which provider to notify
+         $providerId = null;
+         if ($request->type === 'Gardening') {
+             $providerId = $request->gardener_id;
+         } else if ($request->type === 'Landscaping') {
+             $providerId = $request->serviceprovider_id;
+         }
+
              // Create payment record
         Payment::create([
             'booking_id' => $booking->id,
@@ -99,8 +108,10 @@ class BookingController extends Controller
             'currency' => 'php',
         ]);
 
-              // Send notification to the selected professional
-        $this->sendBookingNotification($booking);
+            
+         
+        // Broadcast the event to both homeowner and service provider
+          event(new NewBooking($booking));
 
         return response()->json([
             'message' => 'Booking created successfully',
@@ -109,6 +120,25 @@ class BookingController extends Controller
         ], 201);
     }
     
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|string|in:pending,accepted,declined,completed,cancelled',
+        ]);
+
+        $booking = Booking::findOrFail($id);
+        $oldStatus = $booking->status;
+        
+        // Update the status
+        $booking->status = $request->status;
+        $booking->save();
+
+        // Broadcast the status update
+        event(new BookingStatusUpdated($booking, $oldStatus));
+
+        return response()->json($booking);
+    }
+
     protected function verifyPaymentIntent($paymentIntentId, $amount)
     {
         Stripe::setApiKey(config('services.stripe.secret'));
