@@ -15,32 +15,7 @@ use Illuminate\Support\Facades\Broadcast;
 
 // Broadcasting Authentication
 Route::post('/broadcasting/auth', function (Request $request) {
-    $user = $request->user();
-    
-    if (!$user) {
-        return response()->json(['message' => 'Unauthorized'], 403);
-    }
-
-    $pusher = new Pusher\Pusher(
-        config('broadcasting.connections.pusher.key'),
-        config('broadcasting.connections.pusher.secret'),
-        config('broadcasting.connections.pusher.app_id'),
-        config('broadcasting.connections.pusher.options')
-    );
-
-    return response()->json(
-        $pusher->authorizeChannel(
-            $request->channel_name,
-            $request->socket_id,
-            [
-                'user_id' => $user->id,
-                'user_info' => [
-                    'name' => $user->name,
-                    'email' => $user->email,
-                ]
-            ]
-        )
-    );
+    return  Broadcast::auth($request);
 })->middleware('auth:sanctum');
 
 // Messaging Routes
@@ -81,9 +56,8 @@ Route::get('/service_providers', [AuthController::class, 'getServiceProviders'])
 Route::get('/homeowners/{homeownerId}/bookings', [BookingController::class, 'getHomeownerBookings']); // Get bookings for a gardener
 
 // Payment Routes
-Route::post('/payment/intent', [PaymentController::class, 'createIntent']); // Create payment intent
-Route::post('/payment/attach', [PaymentController::class, 'attachMethod']); // Attach payment method
-Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook']); // PayMongo webhook
+Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
+Route::post('/stripe/webhook', [PaymentController::class, 'handleWebhook']);
 
 // Fetch all users by type
 Route::get('/gardeners', [AuthController::class, 'getGardeners']); 
@@ -108,7 +82,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
-
-    // Protected Payment Routes
-    Route::post('/payment/history', [PaymentController::class, 'paymentHistory']);
+  
 });

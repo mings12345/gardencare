@@ -31,6 +31,7 @@ class BookingController extends Controller
             'time' => 'required|date_format:H:i',
             'total_price' => 'required|numeric|min:0',
             'special_instructions' => 'nullable|string|max:500',
+            'payment_intent_id' => 'required|string',
         ];
 
         // Add conditional validation rules
@@ -49,6 +50,19 @@ class BookingController extends Controller
             ], 422);
         }
 
+             // Verify payment intent
+        $paymentVerified = $this->verifyPaymentIntent(
+            $request->payment_intent_id,
+            $request->total_price
+        );
+
+        if (!$paymentVerified) {
+            return response()->json([
+                'type' => 'error',
+                'message' => 'Payment verification failed'
+            ], 402);
+        }
+
         // Create the booking
         $booking = Booking::create([
             'type' => $request->type,
@@ -61,6 +75,9 @@ class BookingController extends Controller
             'total_price' => $request->total_price,
             'special_instructions' => $request->special_instructions,
             'status' => 'pending',
+            'payment_status' => 'paid',
+            'payment_method' => 'card',
+            'stripe_payment_intent_id' => $request->payment_intent_id,
         ]);
 
         // Attach services to the booking
@@ -71,6 +88,17 @@ class BookingController extends Controller
             ]);
         }
 
+             // Create payment record
+        Payment::create([
+            'booking_id' => $booking->id,
+            'user_id' => $request->homeowner_id,
+            'amount' => $request->total_price,
+            'payment_method' => 'card',
+            'transaction_id' => $request->payment_intent_id,
+            'status' => 'succeeded',
+            'currency' => 'php',
+        ]);
+
               // Send notification to the selected professional
         $this->sendBookingNotification($booking);
 
@@ -79,6 +107,20 @@ class BookingController extends Controller
             'type' => 'success',
             'booking' => $booking->load(['homeowner', 'services']),
         ], 201);
+    }
+    
+    protected function verifyPaymentIntent($paymentIntentId, $amount)
+    {
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        try {
+            $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
+            
+            return $paymentIntent->status === 'succeeded' && 
+                   $paymentIntent->amount === (int)($amount * 100);
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     protected function sendBookingNotification(Booking $booking)

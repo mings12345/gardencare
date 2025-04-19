@@ -24,6 +24,9 @@ return new class extends Migration
             $table->time('time'); // Add time field
             $table->decimal('total_price', 8, 2); // Add total_price field
             $table->text('special_instructions')->nullable();
+            $table->string('payment_status')->default('unpaid')->after('status');
+            $table->string('payment_method')->nullable()->after('payment_status');
+            $table->string('stripe_payment_intent_id')->nullable()->after('payment_method');
             $table->enum('status',['pending','confirm','completed'])->default('pending'); // e.g., pending, confirmed, completed
             $table->timestamps();
         });

@@ -2,92 +2,134 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Booking;
-use App\Models\Payment;
 use Illuminate\Http\Request;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
+use App\Models\Booking;
+use App\Models\Payment;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
-    public function createIntent(Request $request)
+    public function createPaymentIntent(Request $request)
     {
         $request->validate([
-            'booking_id' => 'required|exists:bookings,id',
             'amount' => 'required|numeric|min:1',
+            'booking_id' => 'nullable|exists:bookings,id',
         ]);
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        $booking = Booking::find($request->booking_id);
+        try {
+            $paymentIntent = PaymentIntent::create([
+                'amount' => $request->amount * 100, // Convert to cents
+                'currency' => 'php',
+                'automatic_payment_methods' => [
+                    'enabled' => true,
+                ],
+                'metadata' => [
+                    'booking_id' => $request->booking_id,
+                    'user_id' => auth()->id(),
+                ],
+            ]);
 
-        if (!$booking->isPayable()) {
-            return response()->json(['error' => 'Booking is not payable'], 400);
+            return response()->json([
+                'clientSecret' => $paymentIntent->client_secret,
+                'paymentIntentId' => $paymentIntent->id,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Stripe Error: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        $intent = PaymentIntent::create([
-            'amount' => $request->amount * 100,
-            'currency' => 'php',
-            'metadata' => [
-                'booking_id' => $booking->id,
-                'user_id' => auth()->id(),
-            ],
-        ]);
-
-        $booking->update(['payment_intent_id' => $intent->id]);
-
-        return response()->json([
-            'client_secret' => $intent->client_secret,
-            'payment_intent_id' => $intent->id,
-        ]);
     }
 
-    public function confirmPayment(Request $request)
+    public function handleWebhook(Request $request)
     {
-        $request->validate([
-            'payment_intent_id' => 'required',
-            'booking_id' => 'required|exists:bookings,id',
-        ]);
+        $payload = $request->getContent();
+        $sig_header = $request->header('Stripe-Signature');
+        $endpoint_secret = config('services.stripe.webhook_secret');
 
-        Stripe::setApiKey(config('services.stripe.secret'));
-        $intent = PaymentIntent::retrieve($request->payment_intent_id);
-
-        if ($intent->status !== 'succeeded') {
-            return response()->json(['error' => 'Payment not completed'], 400);
+        try {
+            $event = \Stripe\Webhook::constructEvent(
+                $payload, $sig_header, $endpoint_secret
+            );
+        } catch (\UnexpectedValueException $e) {
+            return response()->json(['error' => 'Invalid payload'], 400);
+        } catch (\Stripe\Exception\SignatureVerificationException $e) {
+            return response()->json(['error' => 'Invalid signature'], 400);
         }
 
-        $booking = Booking::find($request->booking_id);
-        $amount = $intent->amount / 100;
+        switch ($event->type) {
+            case 'payment_intent.succeeded':
+                $paymentIntent = $event->data->object;
+                $this->handlePaymentSucceeded($paymentIntent);
+                break;
+                
+            case 'payment_intent.payment_failed':
+                $paymentIntent = $event->data->object;
+                $this->handlePaymentFailed($paymentIntent);
+                break;
+                
+            // Add more event handlers as needed
+        }
 
-        $booking->update([
-            'amount_paid' => $booking->amount_paid + $amount,
-            'status' => $booking->payment_type === 'full' && $amount >= $booking->total_price
-                ? 'paid'
-                : 'partially_paid',
-        ]);
-
-        Payment::create([
-            'booking_id' => $booking->id,
-            'user_id' => auth()->id(),
-            'amount' => $amount,
-            'payment_method' => 'stripe',
-            'payment_intent_id' => $intent->id,
-            'status' => 'completed',
-        ]);
-
-        return response()->json([
-            'message' => 'Payment successful',
-            'booking' => $booking,
-        ]);
+        return response()->json(['status' => 'success']);
     }
 
-    public function paymentHistory(Request $request)
+    protected function handlePaymentSucceeded($paymentIntent)
     {
-        $payments = Payment::where('user_id', auth()->id())
-            ->with('booking')
-            ->latest()
-            ->get();
+        $metadata = $paymentIntent->metadata;
+        
+        if (isset($metadata->booking_id)) {
+            $booking = Booking::find($metadata->booking_id);
+            
+            if ($booking) {
+                // Update booking payment status
+                $booking->update([
+                    'payment_status' => 'paid',
+                    'payment_method' => $paymentIntent->payment_method_types[0] ?? 'card',
+                    'stripe_payment_intent_id' => $paymentIntent->id,
+                ]);
 
-        return response()->json($payments);
+                // Create payment record
+                Payment::create([
+                    'booking_id' => $booking->id,
+                    'user_id' => $metadata->user_id,
+                    'amount' => $paymentIntent->amount / 100,
+                    'payment_method' => $paymentIntent->payment_method_types[0] ?? 'card',
+                    'transaction_id' => $paymentIntent->id,
+                    'status' => 'succeeded',
+                    'currency' => $paymentIntent->currency,
+                    'metadata' => json_encode($paymentIntent),
+                ]);
+            }
+        }
+    }
+
+    protected function handlePaymentFailed($paymentIntent)
+    {
+        $metadata = $paymentIntent->metadata;
+        
+        if (isset($metadata->booking_id)) {
+            $booking = Booking::find($metadata->booking_id);
+            
+            if ($booking) {
+                $booking->update([
+                    'payment_status' => 'failed',
+                ]);
+
+                Payment::create([
+                    'booking_id' => $booking->id,
+                    'user_id' => $metadata->user_id,
+                    'amount' => $paymentIntent->amount / 100,
+                    'payment_method' => $paymentIntent->payment_method_types[0] ?? 'card',
+                    'transaction_id' => $paymentIntent->id,
+                    'status' => 'failed',
+                    'currency' => $paymentIntent->currency,
+                    'metadata' => json_encode($paymentIntent),
+                ]);
+            }
+        }
     }
 }

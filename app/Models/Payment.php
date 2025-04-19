@@ -9,7 +9,17 @@ class Payment extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'booking_id',
+        'user_id',
+        'amount',
+        'payment_method',
+        'transaction_id',
+        'status',
+        'currency',
+        'metadata'
+    ];
+
     protected $casts = [
         'metadata' => 'array',
     ];
