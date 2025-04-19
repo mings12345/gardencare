@@ -14,6 +14,7 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'api/*',              // All API routes
         'broadcasting/auth',  // Pusher auth endpoint
-        'sanctum/csrf-cookie' // Sanctum's CSRF cookie route
+        'sanctum/csrf-cookie', // Sanctum's CSRF cookie route
+        'webhook/*'
     ];
 }
