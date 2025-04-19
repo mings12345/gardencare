@@ -76,9 +76,7 @@ class BookingController extends Controller
             'total_price' => $request->total_price,
             'special_instructions' => $request->special_instructions,
             'status' => 'pending',
-            'payment_status' => 'paid',
-            'payment_method' => 'card',
-            'stripe_payment_intent_id' => $request->payment_intent_id,
+           
         ]);
 
         // Attach services to the booking
@@ -97,19 +95,6 @@ class BookingController extends Controller
              $providerId = $request->serviceprovider_id;
          }
 
-             // Create payment record
-        Payment::create([
-            'booking_id' => $booking->id,
-            'user_id' => $request->homeowner_id,
-            'amount' => $request->total_price,
-            'payment_method' => 'card',
-            'transaction_id' => $request->payment_intent_id,
-            'status' => 'succeeded',
-            'currency' => 'php',
-        ]);
-
-            
-         
         // Broadcast the event to both homeowner and service provider
           event(new NewBooking($booking));
 
@@ -138,44 +123,6 @@ class BookingController extends Controller
 
         return response()->json($booking);
     }
-
-    protected function verifyPaymentIntent($paymentIntentId, $amount)
-    {
-        Stripe::setApiKey(config('services.stripe.secret'));
-
-        try {
-            $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
-            
-            return $paymentIntent->status === 'succeeded' && 
-                   $paymentIntent->amount === (int)($amount * 100);
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-
-    protected function sendBookingNotification(Booking $booking)
-    {
-        $notificationData = [
-            'title' => 'New Booking Request',
-            'body' => "You have a new {$booking->type} booking request",
-            'booking_id' => $booking->id,
-            'type' => 'booking_request',
-            'created_at' => now()->toDateTimeString(),
-        ];
-
-        if ($booking->type === 'Gardening' && $booking->gardener_id) {
-            event(new BookingNotification(
-                $booking->gardener_id, 
-                $notificationData
-            ));
-        } elseif ($booking->type === 'Landscaping' && $booking->serviceprovider_id) {
-            event(new BookingNotification(
-                $booking->serviceprovider_id, 
-                $notificationData
-            ));
-        }
-    }
-
     // Get gardener's bookings
     public function getGardenerBookings($gardenerId)
     {

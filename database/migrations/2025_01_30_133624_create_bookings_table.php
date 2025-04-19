@@ -24,10 +24,6 @@ return new class extends Migration
             $table->time('time'); // Add time field
             $table->decimal('total_price', 8, 2); // Add total_price field
             $table->text('special_instructions')->nullable();
-            $table->string('payment_status')->default('unpaid');
-            $table->string('payment_method')->nullable();
-            $table->string('stripe_payment_intent_id')->nullable();
-            $table->enum('status',['pending','confirm','completed'])->default('pending'); // e.g., pending, confirmed, completed
             $table->timestamps();
         });
         Schema::enableForeignKeyConstraints(); // Re-enable foreign key checks
