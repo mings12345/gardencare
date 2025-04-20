@@ -98,7 +98,8 @@ Route::get('/update-app', function () {
 Route::get('/reset-app', function () {
     \Artisan::call('migrate:fresh', [
         '--seed'  => true,
-        '--force' => true, 
+        '--force' => true,
+        'optimize' => true,
     ]);
     
     echo '<pre>'.\Artisan::output().'</pre>';
