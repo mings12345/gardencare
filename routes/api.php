@@ -55,6 +55,8 @@ Route::post('/stripe/webhook', [PaymentController::class, 'handleWebhook']);
 // Fetch all users by type
 Route::get('/gardeners', [AuthController::class, 'getGardeners']); 
 Route::get('/homeowners', [AuthController::class, 'getHomeowners']); 
+Route::get('/service_providers', [AuthController::class, 'getServiceProviders']); // Fetch only users with user_type = service provider
+
 
 
 // Ratings Routes
@@ -72,7 +74,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/bookings/{booking}/status', [BookingController::class, 'updateStatus']);
     Route::get('/gardeners/{gardenerId}/bookings', [BookingController::class, 'getGardenerBookings']); // Get bookings for a gardener
     Route::get('/service_providers/{serviceProviderId}/bookings', [BookingController::class, 'getServiceProviderBookings']); // Get bookings for a service provider
-    Route::get('/service_providers', [AuthController::class, 'getServiceProviders']); // Fetch only users with user_type = service provider
     Route::get('/homeowners/{homeownerId}/bookings', [BookingController::class, 'getHomeownerBookings']); // Get bookings for a gardener
 
     // Get authenticated user
