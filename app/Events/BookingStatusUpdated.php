@@ -74,6 +74,7 @@ class BookingStatusUpdated implements ShouldBroadcast
             'id' => $this->booking->id,
             'old_status' => $this->oldStatus,
             'new_status' => $this->booking->status,
+            'decline_reason' => $this->booking->decline_reason,
             'updated_at' => $this->booking->updated_at->toIso8601String(),
             'booking' => [
                 'id' => $this->booking->id,
@@ -86,6 +87,7 @@ class BookingStatusUpdated implements ShouldBroadcast
                 'time' => $this->booking->time,
                 'total_price' => $this->booking->total_price,
                 'status' => $this->booking->status,
+                'decline_reason' => $this->booking->decline_reason, 
             ]
         ];
     }

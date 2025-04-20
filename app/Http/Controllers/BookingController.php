@@ -112,6 +112,7 @@ class BookingController extends Controller
     {
         $request->validate([
             'status' => 'required|string|in:pending,accepted,declined,completed,cancelled',
+            'reason' => 'nullable|string|max:255',
         ]);
 
         $booking = Booking::findOrFail($id);
@@ -119,12 +120,19 @@ class BookingController extends Controller
         
         // Update the status
         $booking->status = $request->status;
-        $booking->save();
-
+        
+         // Only update reason if status is declined and reason is provided
+    if ($request->status === 'declined' && $request->has('reason')) {
+        $booking->decline_reason = $request->reason;
+    }
+    $booking->save();
         // Broadcast the status update
         event(new BookingStatusUpdated($booking, $oldStatus));
 
-        return response()->json($booking);
+        return response()->json([
+            'booking' => $booking,
+            'message' => 'Booking status updated successfully'
+        ]);
     }
     // Get gardener's bookings
     public function getGardenerBookings($gardenerId)
