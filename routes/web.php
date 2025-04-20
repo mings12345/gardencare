@@ -96,9 +96,14 @@ Route::get('/update-app', function () {
 });
 
 Route::get('/reset-app', function () {
-    \Artisan::call('migrate:fresh --seed');
-    \Artisan::call('optimize');
-    return "Successfully Reset";
+        $process = new \Symfony\Component\Process\Process(['php', 'artisan', 'migrate:fresh', '--seed']);
+        $process->setTty(true); // Allows interaction (if needed)
+        $process->setInput("Y\n"); // Automatically sends "Y" and Enter
+        $process->run();
+        if (!$process->isSuccessful()) {
+            throw new \RuntimeException($process->getErrorOutput());
+        }
+        echo $process->getOutput();
 });
 
 require __DIR__.'/auth.php';
