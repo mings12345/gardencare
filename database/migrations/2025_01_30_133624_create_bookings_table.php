@@ -25,7 +25,7 @@ return new class extends Migration
             $table->time('time'); // Add time field
             $table->decimal('total_price', 8, 2); // Add total_price field
             $table->text('special_instructions')->nullable();
-            $table->text('reject_reason')->nullable();
+            $table->text('decline_reason')->nullable();
             $table->timestamps();
         });
         Schema::enableForeignKeyConstraints(); // Re-enable foreign key checks

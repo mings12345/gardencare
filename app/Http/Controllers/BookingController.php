@@ -115,6 +115,10 @@ class BookingController extends Controller
             'reason' => 'nullable|string|max:255',
         ]);
 
+          // Convert status to lowercase before saving
+        $validated = $request->all();
+        $validated['status'] = strtolower($validated['status']);
+        
         $booking = Booking::findOrFail($id);
         $oldStatus = $booking->status;
         
