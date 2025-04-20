@@ -61,7 +61,6 @@ class BookingController extends Controller
             'time' => $request->time,
             'total_price' => $request->total_price,
             'special_instructions' => $request->special_instructions,
-            'status' => 'pending',
            
         ]);
 
@@ -89,6 +88,19 @@ class BookingController extends Controller
             'type' => 'success',
             'booking' => $booking->load(['homeowner', 'services']),
         ], 201);
+    }
+
+    Public function get_pending_bookings($userId)
+    {
+        $user_type = auth()->user()->user_type;
+
+        return Booking::where('status', 'Pending')
+            ->with(['homeowner', 'gardener', 'serviceProvider', 'services'])
+            ->when($user_type === 'gardener',fn($q)=>$q->where('gardener_id', $userId))
+            ->when($user_type === 'homeowner',fn($q)=>$q->where('homeowner_id', $userId))
+            ->when($user_type === 'service_provider',fn($q)=>$q->where('serviceprovider_id', $userId))
+            ->orderBy('date', 'desc')
+            ->get();
     }
     
     public function updateStatus(Request $request, $id)
