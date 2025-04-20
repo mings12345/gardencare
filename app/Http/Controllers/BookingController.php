@@ -84,7 +84,7 @@ class BookingController extends Controller
           event(new NewBooking($booking));
 
         return response()->json([
-            'message' => 'Booking created successfully',
+            'message' => 'Booking created successfully with Booking Number: ' . $booking->id,
             'type' => 'success',
             'booking' => $booking->load(['homeowner', 'services']),
         ], 201);
@@ -101,7 +101,7 @@ class BookingController extends Controller
             ->when($user_type === 'service_provider',fn($q)=>$q->where('serviceprovider_id', $userId))
             ->orderBy('date', 'desc')
             ->get();
-            
+
         return response()->json([
             'message' => 'Bookings retrieved successfully.',
             'bookings' => $bookings,
