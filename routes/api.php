@@ -58,6 +58,7 @@ Route::get('/service_providers', [AuthController::class, 'getServiceProviders'])
 Route::get('/homeowners', [AuthController::class, 'getHomeowners']); 
 
 
+Route::put('/bookings/{booking}/status', [BookingController::class, 'updateStatus']);
 
 // Ratings Routes
 Route::post('/bookings/{booking}/rate', 'RatingController@store');
@@ -71,7 +72,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Bookings Routes
     Route::post('/create_booking', [BookingController::class, 'store']); // Create a booking
     Route::get('/bookings/{booking}', [BookingController::class, 'show']);
-    Route::put('/bookings/{booking}/status', [BookingController::class, 'updateStatus']);
     Route::get('/gardeners/{gardenerId}/bookings', [BookingController::class, 'getGardenerBookings']); // Get bookings for a gardener
     Route::get('/service_providers/{serviceProviderId}/bookings', [BookingController::class, 'getServiceProviderBookings']); // Get bookings for a service provider
     Route::get('/homeowners/{homeownerId}/bookings', [BookingController::class, 'getHomeownerBookings']); // Get bookings for a gardener
