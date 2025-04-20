@@ -53,6 +53,9 @@ Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentI
 Route::post('/stripe/webhook', [PaymentController::class, 'handleWebhook']);
 
 // Fetch all users by type
+Route::get('/gardeners', [AuthController::class, 'getGardeners']); 
+Route::get('/service_providers', [AuthController::class, 'getServiceProviders']); // Fetch only users with user_type = service provider
+Route::get('/homeowners', [AuthController::class, 'getHomeowners']); 
 
 
 
@@ -77,10 +80,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    Route::get('/gardeners', [AuthController::class, 'getGardeners']); 
-    Route::get('/service_providers', [AuthController::class, 'getServiceProviders']); // Fetch only users with user_type = service provider
-    Route::get('/homeowners', [AuthController::class, 'getHomeowners']); 
-
+   
     // Profile Routes
     Route::put('/profile/update', [AuthController::class, 'updateProfile']);
     Route::get('/profile/{userId}', [AuthController::class, 'getProfileData']);
