@@ -92,7 +92,7 @@ Route::get('/', function () {
 Route::get('/update-app', function () {
     \Artisan::call('update-app');
     \Artisan::call('optimize');
-    return "Successfully Updated";
+    echo '<pre>'.\Artisan::output().'</pre>';
 });
 
 Route::get('/reset-app', function () {
@@ -101,7 +101,7 @@ Route::get('/reset-app', function () {
         '--force' => true, 
     ]);
     
-    echo \Artisan::output();
+    echo '<pre>'.\Artisan::output().'</pre>';
 });
 
 require __DIR__.'/auth.php';
