@@ -75,7 +75,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/gardeners/{gardenerId}/bookings', [BookingController::class, 'getGardenerBookings']); // Get bookings for a gardener
     Route::get('/service_providers/{serviceProviderId}/bookings', [BookingController::class, 'getServiceProviderBookings']); // Get bookings for a service provider
     Route::get('/homeowners/{homeownerId}/bookings', [BookingController::class, 'getHomeownerBookings']); // Get bookings for a gardener
-    Route::get('/get_pending_bookings', [BookingController::class, 'get_pending_bookings']); 
+    Route::get('/get_pending_bookings/{userId}', [BookingController::class, 'get_pending_bookings']); 
     // Get authenticated user
     Route::get('/user', function (Request $request) {
         return $request->user();
