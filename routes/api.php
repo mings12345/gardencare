@@ -63,6 +63,8 @@ Route::post('/stripe/webhook', [PaymentController::class, 'handleWebhook']);
 Route::get('/gardeners', [AuthController::class, 'getGardeners']); 
 Route::get('/homeowners', [AuthController::class, 'getHomeowners']); 
 
+Route::get('/bookings/user/{userId}', [BookingController::class, 'getUserBookings']);
+
 // Ratings Routes
 Route::post('/bookings/{booking}/rate', 'RatingController@store');
 Route::get('/gardeners/{gardener}/ratings', 'RatingController@gardenerRatings');
@@ -76,7 +78,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         return $request->user();
     });
     
-    Route::get('/bookings/user/{userId}', [BookingController::class, 'getUserBookings']);
     // Profile Routes
     Route::put('/profile/update', [AuthController::class, 'updateProfile']);
     Route::get('/profile/{userId}', [AuthController::class, 'getProfileData']);
