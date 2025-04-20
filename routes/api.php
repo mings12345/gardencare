@@ -46,15 +46,7 @@ Route::get('/test', function () {
 // Services Routes
 Route::get('/services', [ServiceController::class, 'getServices']); // Get all services
 
-// Bookings Routes
-Route::post('/create_booking', [BookingController::class, 'store']); // Create a booking
-Route::get('/bookings/{booking}', [BookingController::class, 'show']);
-Route::put('/bookings/{booking}/status', [BookingController::class, 'updateStatus']);
-Route::get('/gardeners/{gardenerId}/bookings', [BookingController::class, 'getGardenerBookings']); // Get bookings for a gardener
-Route::get('/service_providers/{serviceProviderId}/bookings', [BookingController::class, 'getServiceProviderBookings']); // Get bookings for a service provider
-Route::get('/service_providers', [AuthController::class, 'getServiceProviders']); // Fetch only users with user_type = service provider
-Route::get('/homeowners/{homeownerId}/bookings', [BookingController::class, 'getHomeownerBookings']); // Get bookings for a gardener
-Route::get('/homeowner-bookings/{homeownerId}', [BookingController::class, 'getHomeownerBookings']);
+
 
 // Payment Routes
 Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
@@ -73,6 +65,16 @@ Route::put('/ratings/{rating}', 'RatingController@update');
 
 // Protected Routes (Require Authentication)
 Route::middleware(['auth:sanctum'])->group(function () {
+
+    // Bookings Routes
+    Route::post('/create_booking', [BookingController::class, 'store']); // Create a booking
+    Route::get('/bookings/{booking}', [BookingController::class, 'show']);
+    Route::put('/bookings/{booking}/status', [BookingController::class, 'updateStatus']);
+    Route::get('/gardeners/{gardenerId}/bookings', [BookingController::class, 'getGardenerBookings']); // Get bookings for a gardener
+    Route::get('/service_providers/{serviceProviderId}/bookings', [BookingController::class, 'getServiceProviderBookings']); // Get bookings for a service provider
+    Route::get('/service_providers', [AuthController::class, 'getServiceProviders']); // Fetch only users with user_type = service provider
+    Route::get('/homeowners/{homeownerId}/bookings', [BookingController::class, 'getHomeownerBookings']); // Get bookings for a gardener
+
     // Get authenticated user
     Route::get('/user', function (Request $request) {
         return $request->user();
