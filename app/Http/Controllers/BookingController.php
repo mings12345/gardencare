@@ -109,15 +109,23 @@ class BookingController extends Controller
     }
     
     public function updateStatus(Request $request, $id)
-    {
+{
+    \Log::info('Update status request received', ['id' => $id, 'request' => $request->all()]);
+    
+    try {
         $request->validate([
-            'status' => 'required|string|in:pending,accepted,declined,completed,cancelled',
+            'status' => 'required|string|in:pending,accepted,declined,completed',
         ]);
 
         $booking = Booking::findOrFail($id);
         $oldStatus = $booking->status;
         
-        // Update the status
+        \Log::info('Updating booking status', [
+            'booking_id' => $id,
+            'old_status' => $oldStatus,
+            'new_status' => $request->status
+        ]);
+        
         $booking->status = $request->status;
         $booking->save();
 
@@ -125,7 +133,15 @@ class BookingController extends Controller
         event(new BookingStatusUpdated($booking, $oldStatus));
 
         return response()->json($booking);
+        
+    } catch (\Exception $e) {
+        \Log::error('Booking status update failed', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        return response()->json(['error' => $e->getMessage()], 500);
     }
+}
     // Get gardener's bookings
     public function getGardenerBookings($gardenerId)
     {
