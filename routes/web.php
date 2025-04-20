@@ -97,7 +97,6 @@ Route::get('/update-app', function () {
 
 Route::get('/reset-app', function () {
         $process = new \Symfony\Component\Process\Process(['php', 'artisan', 'migrate:fresh', '--seed']);
-        $process->setTty(true); // Allows interaction (if needed)
         $process->setInput("Y\n"); // Automatically sends "Y" and Enter
         $process->run();
         if (!$process->isSuccessful()) {
