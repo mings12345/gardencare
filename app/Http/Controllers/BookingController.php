@@ -137,6 +137,24 @@ class BookingController extends Controller
         ], 200);
     }
 
+    public function getHomeownerBookings($homeownerId)
+    {
+        $bookings = Booking::where('homeowner_id', $homeownerId)
+            ->with([
+                'gardener', 
+                'serviceProvider', 
+                'services',
+                'homeowner' // In case you need homeowner details
+            ])
+            ->orderBy('date', 'desc')
+            ->get();
+    
+        return response()->json([
+            'message' => 'Homeowner bookings retrieved successfully.',
+            'bookings' => $bookings,
+        ], 200);
+    }
+
     public function getUserBookings($userId)
     {
         // Verify that the authenticated user is requesting their own bookings
@@ -178,7 +196,6 @@ class BookingController extends Controller
             ], 500);
         }
     }
-
     // Get booking details
     public function show($bookingId)
     {
