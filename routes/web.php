@@ -88,21 +88,61 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 Route::get('/', function () {
     return ['Laravel' => app()->version()];
 });
+use Illuminate\Support\Facades\Artisan;
+use Symfony\Component\Process\Process;
+
 
 Route::get('/update-app', function () {
-    \Artisan::call('update-app');
-    \Artisan::call('optimize');
-    echo '<pre>'.\Artisan::output().'</pre>';
+    $artisanPath = base_path('artisan');
+    $output = '';
+    
+    $commands = [
+        ['php', $artisanPath, 'update-app'],
+        ['php', $artisanPath, 'optimize']
+    ];
+    
+    foreach ($commands as $command) {
+        $process = new Process($command, base_path());
+        $process->setTimeout(300); // 5 minute timeout
+        
+        try {
+            $process->mustRun();
+            $output .= "> " . implode(' ', $command) . "\n";
+            $output .= $process->getOutput() . "\n\n";
+        } catch (\Exception $e) {
+            $output .= "ERROR: " . $e->getMessage() . "\n";
+            $output .= $process->getErrorOutput() . "\n\n";
+        }
+    }
+    
+    return '<pre style="background:#f0f0f0; padding:20px; border-radius:5px; font-family:monospace;">'
+           . htmlspecialchars($output)
+           . '</pre>';
 });
 
 Route::get('/reset-app', function () {
-    \Artisan::call('migrate:fresh', [
-        '--seed'  => true,
-        '--force' => true,
-        'optimize' => true,
-    ]);
+    $artisanPath = base_path('artisan');
+    $output = '';
     
-    echo '<pre>'.\Artisan::output().'</pre>';
+    $commands = [
+        ['php', $artisanPath, 'migrate:fresh', '--seed', '--force'],
+        ['php', $artisanPath, 'optimize']
+    ];
+    
+    foreach ($commands as $command) {
+        $process = new Process($command, base_path());
+        $process->setTimeout(300);
+        
+        try {
+            $process->mustRun();
+            $output .= ">Running Command \n";
+            $output .= $process->getOutput() . "\n\n";
+        } catch (\Exception $e) {
+            $output .= "ERROR: " . $e->getMessage() . "\n";
+            $output .= $process->getErrorOutput() . "\n\n";
+        }
+    }
+    
+    return '<pre style="background:#f0f0f0;padding:20px;">'.htmlspecialchars($output).'</pre>';
 });
-
 require __DIR__.'/auth.php';
