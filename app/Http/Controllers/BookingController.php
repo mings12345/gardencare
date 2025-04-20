@@ -137,22 +137,46 @@ class BookingController extends Controller
         ], 200);
     }
 
-    public function getHomeownerBookings($homeownerId)
+    public function getUserBookings($userId)
     {
-        $bookings = Booking::where('homeowner_id', $homeownerId)
-            ->with([
-                'gardener', 
-                'serviceProvider', 
-                'services',
-                'homeowner' // In case you need homeowner details
-            ])
-            ->orderBy('date', 'desc')
-            ->get();
-    
-        return response()->json([
-            'message' => 'Homeowner bookings retrieved successfully.',
-            'bookings' => $bookings,
-        ], 200);
+        // Verify that the authenticated user is requesting their own bookings
+        if (Auth::id() != $userId) {
+            return response()->json([
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+        
+        try {
+            $bookings = Booking::where('user_id', $userId)
+                ->with(['service', 'gardener']) // Include related models if needed
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($booking) {
+                    // Format the data as needed
+                    return [
+                        'id' => $booking->id,
+                        'type' => $booking->type ?? $booking->service->name ?? 'Garden Service',
+                        'address' => $booking->address,
+                        'date' => $booking->date,
+                        'time' => $booking->time,
+                        'total_price' => $booking->total_price,
+                        'special_instructions' => $booking->special_instructions,
+                        'status' => $booking->status,
+                        'gardener_name' => $booking->gardener->name ?? 'Not Assigned',
+                        'created_at' => $booking->created_at->format('Y-m-d H:i:s'),
+                    ];
+                });
+            
+            return response()->json([
+                'bookings' => $bookings,
+                'message' => 'Bookings retrieved successfully'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to retrieve bookings',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     // Get booking details
