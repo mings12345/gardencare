@@ -94,13 +94,18 @@ class BookingController extends Controller
     {
         $user_type = auth()->user()->user_type;
 
-        return Booking::where('status', 'Pending')
+        $bookings = Booking::where('status', 'Pending')
             ->with(['homeowner', 'gardener', 'serviceProvider', 'services'])
             ->when($user_type === 'gardener',fn($q)=>$q->where('gardener_id', $userId))
             ->when($user_type === 'homeowner',fn($q)=>$q->where('homeowner_id', $userId))
             ->when($user_type === 'service_provider',fn($q)=>$q->where('serviceprovider_id', $userId))
             ->orderBy('date', 'desc')
             ->get();
+            
+        return response()->json([
+            'message' => 'Bookings retrieved successfully.',
+            'bookings' => $bookings,
+        ], 200);
     }
     
     public function updateStatus(Request $request, $id)
