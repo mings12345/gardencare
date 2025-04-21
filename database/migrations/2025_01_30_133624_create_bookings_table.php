@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('homeowner_id')->references('id')->on('users');
             $table->foreignId('gardener_id')->nullable()->references('id')->on('users');
             $table->string('address');
-            $table->enum('status', ['Pending','Rejected','Approved', 'Completed'])->default('Pending');
+            $table->enum('status', ['Pending','Declined','Accepted', 'Completed'])->default('Pending');
             $table->date('date'); // Add date field
             $table->time('time'); // Add time field
             $table->decimal('total_price', 8, 2); // Add total_price field
