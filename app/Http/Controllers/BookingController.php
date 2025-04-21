@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Events\BookingStatusUpdated;
 use App\Events\NewBooking;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
@@ -108,40 +109,50 @@ class BookingController extends Controller
         ], 200);
     }
     
-    public function updateStatus(Request $request, $id)
-{
-    \Log::info('Update status request received', ['id' => $id, 'request' => $request->all()]);
-    
-    try {
-        $request->validate([
-            'status' => 'required|string|in:Pending,Accepted,Declined,Completed',
-        ]);
-
-        $booking = Booking::findOrFail($id);
-        $oldStatus = $booking->status;
+    public function updateStatus(Request $request, $id) {
+        \Log::info('Update status request received', ['id' => $id, 'request' => $request->all()]);
         
-        \Log::info('Updating booking status', [
-            'booking_id' => $id,
-            'old_status' => $oldStatus,
-            'new_status' => $request->status
-        ]);
-        
-        $booking->status = $request->status;
-        $booking->save();
-
-        // Broadcast the status update
-        event(new BookingStatusUpdated($booking, $oldStatus));
-
-        return response()->json($booking);
-        
-    } catch (\Exception $e) {
-        \Log::error('Booking status update failed', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-        return response()->json(['error' => $e->getMessage()], 500);
+        try {
+            $request->validate([
+                'status' => 'required|string|in:Pending,Accepted,Declined,Completed',
+            ]);
+            
+            $booking = Booking::findOrFail($id);
+            $oldStatus = $booking->status;
+            
+            // Make sure we're using one of the exact enum values
+            $allowedStatuses = ['Pending', 'Declined', 'Accepted', 'Completed'];
+            if (!in_array($request->status, $allowedStatuses)) {
+                return response()->json(['error' => 'Invalid status value'], 422);
+            }
+            
+            \Log::info('Updating booking status', [
+                'booking_id' => $id,
+                'old_status' => $oldStatus,
+                'new_status' => $request->status,
+                'status_type' => gettype($request->status)
+            ]);
+            
+            // Update using query builder to ensure proper SQL syntax
+            $result = DB::table('bookings')
+                ->where('id', $id)
+                ->update(['status' => $request->status]);
+                
+            $booking->refresh(); // Refresh the model with updated data
+            
+            // Broadcast the status update event
+            event(new BookingStatusUpdated($booking, $oldStatus));
+            
+            return response()->json($booking);
+        } catch (\Exception $e) {
+            \Log::error('Booking status update failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
-}
     // Get gardener's bookings
     public function getGardenerBookings($gardenerId)
     {
