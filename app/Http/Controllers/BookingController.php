@@ -126,7 +126,7 @@ class BookingController extends Controller
             'new_status' => $request->status
         ]);
         
-        $booking->status = $request->status;
+        $booking->status = (string) $request->input('status');
         $booking->save();
 
         // Broadcast the status update
