@@ -114,7 +114,7 @@ class BookingController extends Controller
     
     try {
         $request->validate([
-            'status' => 'required|string|in:Pending,Accepted,Declined,Completed',
+            'status' => 'required|string|in:pending,accepted,declined,completed',
         ]);
 
         $booking = Booking::findOrFail($id);
@@ -126,7 +126,7 @@ class BookingController extends Controller
             'new_status' => $request->status
         ]);
         
-        $booking->status = (string) $request->input('status');
+        $booking->status = $request->status;
         $booking->save();
 
         // Broadcast the status update
