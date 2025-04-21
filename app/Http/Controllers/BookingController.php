@@ -139,7 +139,7 @@ class BookingController extends Controller
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString()
         ]);
-        return response()->json(['error' => $e->getMessage()], 500);
+        return response()->json($e->errors(), 422);
     }
 }
     // Get gardener's bookings
