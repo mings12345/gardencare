@@ -114,7 +114,7 @@ class BookingController extends Controller
     
     try {
         $request->validate([
-            'status' => 'required|string|in:pending,accepted,declined,completed',
+            'status' => 'required|string|in:Pending,Accepted,Declined,Completed',
         ]);
 
         $booking = Booking::findOrFail($id);
