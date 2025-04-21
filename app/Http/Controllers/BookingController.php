@@ -108,41 +108,40 @@ class BookingController extends Controller
         ], 200);
     }
     
-        public function updateStatus(Request $request, $id)
-    {
-        \Log::info('Update status request received', ['id' => $id, 'request' => $request->all()]);
+    public function updateStatus(Request $request, $id)
+{
+    \Log::info('Update status request received', ['id' => $id, 'request' => $request->all()]);
+    
+    try {
+        $request->validate([
+            'status' => 'required|string|in:pending,accepted,declined,completed',
+        ]);
+
+        $booking = Booking::findOrFail($id);
+        $oldStatus = $booking->status;
         
-        try {
-            $request->validate([
-                'status' => 'required|string|in:Pending,Accepted,Declined,Completed',
-            ]);
+        \Log::info('Updating booking status', [
+            'booking_id' => $id,
+            'old_status' => $oldStatus,
+            'new_status' => $request->status
+        ]);
+        
+        $booking->status = $request->status;
+        $booking->save();
 
-            $booking = Booking::findOrFail($id);
-            $oldStatus = $booking->status;
-            
-            \Log::info('Updating booking status', [
-                'booking_id' => $id,
-                'old_status' => $oldStatus,
-                'new_status' => $request->status
-            ]);
-            
-            // Make sure we're setting the value as a string
-            $booking->status = (string)$request->status;
-            $booking->save();
+        // Broadcast the status update
+        event(new BookingStatusUpdated($booking, $oldStatus));
 
-            // Broadcast the status update
-            event(new BookingStatusUpdated($booking, $oldStatus));
-
-            return response()->json($booking);
-            
-        } catch (\Exception $e) {
-            \Log::error('Booking status update failed', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        return response()->json($booking);
+        
+    } catch (\Exception $e) {
+        \Log::error('Booking status update failed', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        return response()->json(['error' => $e->getMessage()], 500);
     }
+}
     // Get gardener's bookings
     public function getGardenerBookings($gardenerId)
     {
