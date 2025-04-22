@@ -15,11 +15,6 @@ class RecordSeeder extends Seeder
      */
     public function run(): void
     {
-        // Ensure the directory exists
-        if (!Storage::disk('public')->exists('services')) {
-            Storage::disk('public')->makeDirectory('services');
-        }
-
         User::create([
             'name' => 'Admin User',
             'email' => 'admin@gardencare.com',
@@ -98,70 +93,50 @@ class RecordSeeder extends Seeder
             'user_type' => 'service_provider'
         ]);
 
-        // Gardening Services with images
         Service::create([
             'name' => 'Plant Care',
             'type' => 'Gardening',
-            'price' => 500,
-            'description' => 'Professional plant care to ensure healthy growth and longevity.',
-            'image_url' => 'services/plant_care.jpg'
+            'price' => 500
         ]);
-        
         Service::create([
             'name' => 'Watering',
             'type' => 'Gardening',
-            'price' => 500,
-            'description' => 'Regular watering services to maintain optimal moisture levels for your plants.',
-            'image_url' => 'services/watering.jpg'
+            'price' => 500
         ]);
-        
         Service::create([
             'name' => 'Pest Control',
             'type' => 'Gardening',
-            'price' => 500,
-            'description' => 'Effective pest management to protect your garden from harmful insects and diseases.',
-            'image_url' => 'services/pest_control.jpg'
+            'price' => 500
         ]);
-        
         Service::create([
             'name' => 'Lawn Mowing',
             'type' => 'Gardening',
-            'price' => 500,
-            'description' => 'Professional lawn mowing service to keep your grass at the ideal height and appearance.',
-            'image_url' => 'services/lawn_mowing.jpg'
+            'price' => 500
         ]);
         
-        // Landscaping Services with images
         Service::create([
             'name' => 'Garden Design',
             'type' => 'Landscaping',
-            'price' => 500,
-            'description' => 'Creative garden design services to transform your outdoor space.',
-            'image_url' => 'services/garden_design.jpg'
+            'price' => 500
         ]);
 
         Service::create([
             'name' => 'Pathway Construction',
             'type' => 'Landscaping',
-            'price' => 500,
-            'description' => 'Custom pathway construction using quality materials for functionality and aesthetics.',
-            'image_url' => 'services/pathway_construction.jpg'
+            'price' => 500
         ]);
         
         Service::create([
             'name' => 'Fencing',
             'type' => 'Landscaping',
-            'price' => 500,
-            'description' => 'Professional fence installation to enhance privacy and security.',
-            'image_url' => 'services/fencing.jpg'
+            'price' => 500
         ]);
         
         Service::create([
             'name' => 'Outdoor Furniture',
             'type' => 'Landscaping',
-            'price' => 500,
-            'description' => 'Selection and installation of durable and stylish outdoor furniture.',
-            'image_url' => 'services/outdoor_furniture.jpg'
+            'price' => 500
         ]);
+
     }
 }
