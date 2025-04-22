@@ -188,6 +188,26 @@ class BookingController extends Controller
         ], 200);
     }
 
+        public function countBookings($userId)
+    {
+        $user = User::findOrFail($userId);
+        
+        $count = Booking::when($user->user_type === 'gardener', function($query) use ($userId) {
+                    return $query->where('gardener_id', $userId);
+                })
+                ->when($user->user_type === 'service_provider', function($query) use ($userId) {
+                    return $query->where('serviceprovider_id', $userId);
+                })
+                ->when($user->user_type === 'homeowner', function($query) use ($userId) {
+                    return $query->where('homeowner_id', $userId);
+                })
+                ->count();
+
+        return response()->json([
+            'count' => $count,
+            'message' => 'Booking count retrieved successfully'
+        ], 200);
+    }
     // Get booking details
     public function show($bookingId)
     {

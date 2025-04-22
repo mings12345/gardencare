@@ -69,6 +69,7 @@ Route::put('/ratings/{rating}', 'RatingController@update');
 Route::middleware(['auth:sanctum'])->group(function () {
 
     // Bookings Routes
+    Route::get('/bookings/count/{userId}', [BookingController::class, 'countBookings']);
     Route::post('/create_booking', [BookingController::class, 'store']); // Create a booking
     Route::get('/bookings/{booking}', [BookingController::class, 'show']);
     Route::put('/bookings/{booking}/status', [BookingController::class, 'updateStatus']);
