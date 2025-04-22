@@ -45,6 +45,7 @@ Route::get('/test', function () {
 
 // Services Routes
 Route::get('/services', [ServiceController::class, 'getServices']); // Get all services
+Route::get('/services/gardening', [ServiceController::class, 'getGardeningServices']);
 
 
 

@@ -78,4 +78,10 @@ class ServiceController extends Controller
         $services = Service::all();
         return response()->json(['services' => $services]);
     }
+
+    public function getGardeningServices()
+    {
+        $gardeningServices = Service::where('type', 'Gardening')->get();
+        return response()->json(['services' => $gardeningServices]);
+    }
 }
