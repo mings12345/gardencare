@@ -36,19 +36,4 @@ class Booking extends Model
         ->select('booking_services.*','services.name','services.price')
         ->join('services', 'services.id', '=', 'booking_services.service_id');
     }
-
-    protected $casts = [
-        'date' => 'date',
-        'total_price' => 'decimal:2'
-    ];
-
-    protected $attributes = [
-        'status' => 'Pending',
-        'payment_status' => 'Unpaid'
-    ];
-    
-    public function payment()
-    {
-        return $this->hasOne(Payment::class);
-    }
 }

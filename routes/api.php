@@ -83,8 +83,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         return $request->user();
     });
    
-    Route::post('/bookings/{id}/process-payment', [BookingController::class, 'processPayment']);
-    Route::get('/bookings/{id}/payment', [BookingController::class, 'getPaymentDetails']);
     // Profile Routes
     Route::put('/profile/update', [AuthController::class, 'updateProfile']);
     Route::get('/profile/{userId}', [AuthController::class, 'getProfileData']);
