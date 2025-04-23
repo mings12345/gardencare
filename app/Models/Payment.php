@@ -11,26 +11,34 @@ class Payment extends Model
 
     protected $fillable = [
         'booking_id',
-        'user_id',
-        'amount',
+        'payment_type',
         'payment_method',
-        'transaction_id',
-        'status',
-        'currency',
-        'metadata'
+        'amount_paid',
+        'remaining_balance',
+        'payment_date',
+        'payment_status',
+        'transaction_id'
     ];
 
     protected $casts = [
-        'metadata' => 'array',
+        'payment_date' => 'datetime',
+        'amount_paid' => 'decimal:2',
+        'remaining_balance' => 'decimal:2'
     ];
 
+    /**
+     * Get the booking associated with the payment.
+     */
     public function booking()
     {
         return $this->belongsTo(Booking::class);
     }
 
-    public function user()
+    /**
+     * Get the transactions for this payment.
+     */
+    public function transactions()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(PaymentTransaction::class);
     }
 }
