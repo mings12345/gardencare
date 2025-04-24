@@ -28,6 +28,12 @@
             display: flex;
             gap: 10px;
         }
+        .description-cell {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body>
@@ -62,6 +68,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Service Name</th>
+                        <th>Description</th>
                         <th>Type</th>
                         <th>Price</th>
                         <th>Actions</th>
@@ -72,6 +79,9 @@
                     <tr>
                         <td>{{ $service->id }}</td>
                         <td>{{ $service->name }}</td>
+                        <td class="description-cell" title="{{ $service->description }}">
+                            {{ $service->description }}
+                        </td>
                         <td>
                             @if($service->type == 'Gardening')
                                 <span class="badge badge-gardening rounded-pill">
