@@ -85,7 +85,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
    
     Route::post('/update_gcash', [AuthController::class, 'updateGcash']); // Create a booking
     // Profile Routes
-    Route::put('/profile/update', [AuthController::class, 'updateProfile']);
+    Route::post('/profile/update', [AuthController::class, 'updateProfile']);
     Route::get('/profile/{userId}', [AuthController::class, 'getProfileData']);
 
     // Logout
