@@ -189,7 +189,8 @@ class BookingController extends Controller
                 'gardener', 
                 'serviceProvider', 
                 'services',
-                'homeowner' // In case you need homeowner details
+                'homeowner',
+                'payment'// In case you need homeowner details
             ])
             ->orderBy('date', 'desc')
             ->get();
