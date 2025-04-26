@@ -139,7 +139,7 @@ class BookingController extends Controller
 
         if($request->status == 'accepted'){
             $booking->payments->each(function($payment) {
-                $payment->update(['payment_status' => 'Received','receiver_gcash_no'=>auth()->user()->gcash_no]);
+                $payment->update(['payment_status' => 'Received','receiver_gcash_no'=>auth()->user()->gcash_no??'09xxxxxxxx']);
             });
         }
         
