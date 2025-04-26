@@ -181,6 +181,20 @@ class BookingController extends Controller
             ])
             ->orderBy('date', 'desc')
             ->get();
+            map(function ($booking) {
+                // Ensure all payment fields are included
+                return [
+                    'id' => $booking->id,
+                    'type' => $booking->type,
+                    // ... other existing fields ...
+                    'payment_status' => $booking->payment_status,
+                    'payment_method' => $booking->payment_method,
+                    'amount_paid' => $booking->amount_paid,
+                    'remaining_balance' => $booking->remaining_balance,
+                    'payment_type' => $booking->payment_type,
+                    // ... rest of your fields ...
+                ];
+            });
     
         return response()->json([
             'message' => 'Homeowner bookings retrieved successfully.',
