@@ -120,7 +120,7 @@ class BookingController extends Controller
             'status' => 'required|string|in:pending,accepted,declined,completed',
         ]);
 
-        $booking = Booking::with(['payments'=>fn($q)=>$q->where('payment_status','Pending')])->OrFail($id);
+        $booking = Booking::with(['payments'=>fn($q)=>$q->where('payment_status','Pending')])->findOrFail($id);
         $oldStatus = $booking->status;
         
         \Log::info('Updating booking status', [
