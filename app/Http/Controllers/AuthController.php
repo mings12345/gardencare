@@ -130,6 +130,7 @@ class AuthController extends Controller
             'email' => $user->email,
             'phone' => $user->phone,
             'address' => $user->address,
+            'gcash_no' => $user->gcash_no,
         ]);
     }
 
