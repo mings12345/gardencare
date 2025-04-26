@@ -20,8 +20,6 @@ return new class extends Migration
             $table->decimal('remaining_balance', 10, 2)->default(0);
             $table->timestamp('payment_date');
             $table->string('payment_status');
-            $table->string('transaction_id')->nullable();
-            $table->timestamps();
             $table->timestamps();
         });
     }
