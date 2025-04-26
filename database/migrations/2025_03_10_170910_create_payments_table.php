@@ -17,7 +17,8 @@ return new class extends Migration
             $table->decimal('amount_paid', 10, 2);
             $table->timestamp('payment_date');
             $table->string('sender_gcash_no');
-            $table->string('receiver_gcash_no');
+            $table->enum('payment_status',['Pending', 'Received'])->default('Pending');
+            $table->string('receiver_gcash_no')->nullable();
             $table->timestamps();
         });
     }
