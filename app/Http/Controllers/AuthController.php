@@ -142,6 +142,7 @@ class AuthController extends Controller
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'sometimes|string|max:15',
             'address' => 'sometimes|string|max:255',
+            'gcash' => 'sometimes|string|max:11',
         ]);
 
         if ($validator->fails()) {
@@ -152,7 +153,7 @@ class AuthController extends Controller
         }
 
         // Update user profile
-        $user->update($request->only(['name', 'email', 'phone', 'address']));
+        $user->update($request->only(['name', 'email', 'phone', 'address,', 'gcash']));
 
         return response()->json([
             'message' => 'Profile updated successfully.',
