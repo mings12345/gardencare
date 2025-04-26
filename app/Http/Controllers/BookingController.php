@@ -128,7 +128,7 @@ class BookingController extends Controller
             'status' => 'required|string|in:pending,accepted,declined,completed',
         ]);
 
-        $booking = Booking::findOrFail($id);
+        $booking = Booking::with(['payments'=>fn($q)=>$q->where('payment_status','Pending')])->OrFail($id);
         $oldStatus = $booking->status;
         
         \Log::info('Updating booking status', [
@@ -136,6 +136,12 @@ class BookingController extends Controller
             'old_status' => $oldStatus,
             'new_status' => $request->status
         ]);
+
+        if($request->status == 'accepted'){
+            $booking->payments->each(function($payment) {
+                $payment->update(['payment_status' => 'Received','receiver_gcash_no'=>auth()->user()->gcash_no]);
+            });
+        }
         
         $booking->status = $request->status;
         $booking->save();
