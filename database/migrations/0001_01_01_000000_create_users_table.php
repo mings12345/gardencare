@@ -27,6 +27,7 @@ return new class extends Migration
             $table->integer('completed_jobs')->nullable()->default(0); // removed ->after()
             $table->text('bio')->nullable(); // removed ->after()
             $table->string('fcm_token')->nullable();
+            $table->string('gcash_no', 11)->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

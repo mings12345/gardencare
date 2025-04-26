@@ -183,6 +183,10 @@ class AuthController extends Controller
         return response()->json($serviceProviders);
     }
 
+    public function updateGcash(){
+        return auth()->user()->update(['gcash_no' => request('gcash_no')]);
+    }
+
     public function getHomeowners()
     {
         $homeowners = User::where('user_type', 'homeowner')->get();
