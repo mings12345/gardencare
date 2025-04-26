@@ -28,7 +28,10 @@ class Booking extends Model
     {
         return $this->belongsTo(User::class, 'serviceprovider_id', 'id');
     }
-
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'booking_id', 'id');
+    }
     // Define the relationship with BookingService
     public function services()
     {

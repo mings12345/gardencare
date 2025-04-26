@@ -223,7 +223,7 @@ class BookingController extends Controller
     // Get booking details
     public function show($bookingId)
     {
-        $booking = Booking::with(['homeowner', 'gardener', 'serviceProvider', 'services'])
+        $booking = Booking::with(['homeowner', 'gardener', 'serviceProvider', 'services', 'payment'])
             ->findOrFail($bookingId);
 
         return response()->json([
