@@ -76,20 +76,12 @@ class BookingController extends Controller
             ]);
         }
 
-        $payment = Payment::create([
+        Payment::create([
             'booking_id' => $booking->id,
             'amount_paid' => $request->input('payment.amount_paid'),
             'payment_date' => now(),
             'sender_gcash_no' => $request->input('payment.sender_gcash_no'),
         ]);
-
-         // Determine which provider to notify
-         $providerId = null;
-         if ($request->type === 'Gardening') {
-             $providerId = $request->gardener_id;
-         } else if ($request->type === 'Landscaping') {
-             $providerId = $request->serviceprovider_id;
-         }
 
         // Broadcast the event to both homeowner and service provider
           event(new NewBooking($booking));
@@ -141,6 +133,19 @@ class BookingController extends Controller
             $booking->payments->each(function($payment) {
                 $payment->update(['payment_status' => 'Received','receiver_gcash_no'=>auth()->user()->gcash_no??'09xxxxxxxx']);
             });
+        }elseif($request->status == 'completed'){
+            $total_price = $booking->total_price;
+            $total_paid = Payment::where('booking_id', $booking->id)->where('payment_status','Received')->sum('amount_paid');
+            if($total_price-$total_paid > 0){
+                Payment::create([
+                    'booking_id' => $booking->id,
+                    'amount_paid' => ($total_price-$total_paid),
+                    'payment_date' => now(),
+                    'payment_status' => 'Received',
+                    'sender_gcash_no' => $booking->payments->first()->sender_gcash_no,
+                    'receiver_gcash_no' => auth()->user()->gcash_no??'09xxxxxxxx',
+                ]);
+            }
         }
         
         $booking->status = $request->status;
