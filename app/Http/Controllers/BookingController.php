@@ -32,6 +32,9 @@ class BookingController extends Controller
             'time' => 'required|date_format:H:i',
             'total_price' => 'required|numeric|min:0',
             'special_instructions' => 'nullable|string|max:500',
+            'payment_status' => 'required|in:pending,paid,partially_paid',
+            'payment.amount_paid' => 'required|numeric|min:0',
+            'payment.sender_gcash_no' => 'required|string|max:20',
         ];
 
         // Add conditional validation rules
@@ -71,6 +74,14 @@ class BookingController extends Controller
                 'service_id' => $service_id,
             ]);
         }
+
+        $payment = Payment::create([
+            'booking_id' => $booking->id,
+            'amount_paid' => $request->input('payment.amount_paid'),
+            'payment_date' => now(),
+            'sender_gcash_no' => $request->input('payment.sender_gcash_no'),
+            'receiver_gcash_no' => User::find($booking->gardener_id??$booking->service_provider_id)?->gcash_no,
+        ]);
 
          // Determine which provider to notify
          $providerId = null;
