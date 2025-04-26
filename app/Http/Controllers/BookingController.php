@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Events\BookingStatusUpdated;
 use App\Events\NewBooking;
+use  App\Models\Payment;
 
 class BookingController extends Controller
 {
@@ -80,7 +81,7 @@ class BookingController extends Controller
             'amount_paid' => $request->input('payment.amount_paid'),
             'payment_date' => now(),
             'sender_gcash_no' => $request->input('payment.sender_gcash_no'),
-            'receiver_gcash_no' => User::find($booking->gardener_id??$booking->service_provider_id)?->gcash_no,
+            'receiver_gcash_no' => User::find($booking->gardener_id??$booking->service_provider_id)?->gcash_no??'09123456781',
         ]);
 
          // Determine which provider to notify
