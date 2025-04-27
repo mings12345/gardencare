@@ -83,6 +83,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('/bookings/{bookingId}/feedback', [FeedbackController::class, 'store']);
   
 });
