@@ -20,7 +20,7 @@ class AdminDashboardController extends Controller
         $completedBookings = Booking::where('status', 'completed')->count();
 
         // Calculate total earnings (sum of all booking prices)
-        $totalEarnings = Booking::where('status', 'completed')->sum('total_price');
+        $totalEarnings = Payment::sum('admin_fee');
 
         // Count total users
         $totalHomeowners = User::where('user_type', 'homeowner')->count();
