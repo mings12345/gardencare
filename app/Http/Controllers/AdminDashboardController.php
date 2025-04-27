@@ -45,22 +45,18 @@ class AdminDashboardController extends Controller
             'ratings', // Changed from feedbacks to ratings
             'bookings'
         ));
+    }
 
+    // Add this new method for managing ratings/feedback
+    public function manageRatings()
+    {
         $ratings = Rating::with(['booking.gardener', 'booking.homeowner', 'booking.serviceProvider'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('admin.manageRatings', [
+        return view('admin.ratings.index', [
             'ratings' => $ratings,
             'totalRatings' => Rating::count(),
         ]);
     }
-
-    public function deleteRating(Rating $rating)
-{
-    $rating->delete();
-    return redirect()->route('admin.manageRatings')->with('success', 'Rating deleted successfully');
-}
-
-   
 }
