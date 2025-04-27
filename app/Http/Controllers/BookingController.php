@@ -105,6 +105,23 @@ class BookingController extends Controller
         ], 201);
     }
 
+
+    public function getTotalEarnings()
+{
+    $user = auth()->user();
+    
+    $totalEarnings = Payment::whereHas('booking', function($query) use ($user) {
+        $query->where('gardener_id', $user->id)
+              ->where('status', 'completed');
+    })
+    ->where('payment_status', 'Received')
+    ->sum('amount_paid');
+
+    return response()->json([
+        'total_earnings' => $totalEarnings
+    ]);
+}
+
     Public function get_pending_bookings($userId)
     {
         $user_type = auth()->user()->user_type;
