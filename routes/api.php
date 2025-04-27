@@ -59,13 +59,6 @@ Route::get('/service_providers', [AuthController::class, 'getServiceProviders'])
 Route::get('/homeowners', [AuthController::class, 'getHomeowners']); 
 
 
-
-// Ratings Routes
-Route::post('/bookings/{booking}/rate', 'RatingController@store');
-Route::get('/gardeners/{gardener}/ratings', 'RatingController@gardenerRatings');
-Route::get('/bookings/{booking}/rating', 'RatingController@show');
-Route::put('/ratings/{rating}', 'RatingController@update');
-
 // Protected Routes (Require Authentication)
 Route::middleware(['auth:sanctum'])->group(function () {
 
@@ -90,5 +83,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/bookings/{bookingId}/feedback', [FeedbackController::class, 'store']);
   
 });

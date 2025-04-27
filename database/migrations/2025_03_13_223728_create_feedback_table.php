@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('feedback', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email');
-            $table->text('message');
+            $table->foreignId('booking_id')->constrained()->onDelete('cascade');
+            $table->foreignId('homeowner_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('gardener_id')->constrained('users')->onDelete('cascade');
+            $table->decimal('rating', 3, 1); // Allows ratings like 4.5
+            $table->text('feedback')->nullable();
             $table->timestamps();
         });
     }

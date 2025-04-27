@@ -9,13 +9,25 @@ class Feedback extends Model
 {
     use HasFactory;
 
-    // Protect all fields from mass assignment except those explicitly allowed
     protected $guarded = []; 
 
-    // Relationship to User
-    public function user()
+    public function booking()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Booking::class);
+    }
+
+    public function homeowner()
+    {
+        return $this->belongsTo(User::class, 'homeowner_id');
+    }
+
+    public function gardener()
+    {
+        return $this->belongsTo(User::class, 'gardener_id');
+    }
+    public function service_provider()
+    {
+        return $this->belongsTo(User::class, 'service_provider_id');
     }
 }
 

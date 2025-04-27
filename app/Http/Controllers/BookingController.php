@@ -168,7 +168,7 @@ class BookingController extends Controller
     public function getGardenerBookings($gardenerId)
     {
         $bookings = Booking::where('gardener_id', $gardenerId)
-            ->with(['homeowner', 'services'])
+            ->with(['homeowner', 'services', 'feedback'])
             ->orderBy('date', 'desc')
             ->get();
 
@@ -182,7 +182,7 @@ class BookingController extends Controller
     public function getServiceProviderBookings($serviceProviderId)
     {
         $bookings = Booking::where('serviceprovider_id', $serviceProviderId)
-            ->with(['homeowner', 'services'])
+            ->with(['homeowner', 'services', 'feedback'])
             ->orderBy('date', 'desc')
             ->get();
 
@@ -200,7 +200,8 @@ class BookingController extends Controller
                 'serviceProvider', 
                 'services',
                 'homeowner',
-                'payments'// In case you need homeowner details
+                'payments',
+                'feedback'
             ])
             ->orderBy('date', 'desc')
             ->get();
@@ -234,7 +235,7 @@ class BookingController extends Controller
     // Get booking details
     public function show($bookingId)
     {
-        $booking = Booking::with(['homeowner', 'gardener', 'serviceProvider', 'services', 'payments'])
+        $booking = Booking::with(['homeowner', 'gardener', 'serviceProvider', 'services', 'payments', 'feedback'])
             ->findOrFail($bookingId);
 
         return response()->json([

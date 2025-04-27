@@ -39,4 +39,9 @@ class Booking extends Model
         ->select('booking_services.*','services.name','services.price')
         ->join('services', 'services.id', '=', 'booking_services.service_id');
     }
+
+    public function feedback()
+    {
+        return $this->hasOne(Feedback::class);
+    }
 }
