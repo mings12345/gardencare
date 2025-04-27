@@ -154,7 +154,7 @@
             </a>
 
             <!-- Feedback Management Card -->
-            <a href="{{ route('admin.manageFeedback') }}" class="text-decoration-none">
+            <a href="{{ route('admin.manageRatings') }}" class="text-decoration-none">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">View Feedback</h5>
