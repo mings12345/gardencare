@@ -11,7 +11,6 @@ use App\Http\Controllers\HomeownerController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceRequestController;
-use App\Http\Controllers\WebFeedbackController;
 
 
 Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
@@ -79,8 +78,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     });
     
     // Feedback Management
-    Route::get('/admin/manageFeedback', [WebFeedbackController::class, 'manageFeedback'])->name('admin.manageFeedback');
-    Route::delete('/admin/feedback/{id}', [WebFeedbackController::class, 'deleteFeedback'])->name('admin.deleteFeedback');
+    Route::get('/manage-feedback', [FeedbackController::class, 'index'])->name('admin.manageFeedback');
     
     // Reports
     Route::get('/generate-report', [ReportController::class, 'generateReport'])->name('admin.generateReport');
