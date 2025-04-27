@@ -118,7 +118,7 @@ class BookingController extends Controller
     ->sum( DB::raw('amount_paid-admin_fee') );
 
     return response()->json([
-        'total_earnings' => $totalEarnings
+        'total_earnings' => (float)$totalEarnings
     ]);
 }
 
