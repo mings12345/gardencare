@@ -7,6 +7,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use App\Models\Service;
+use App\Models\Setting;
 
 class RecordSeeder extends Seeder
 {
@@ -15,11 +16,15 @@ class RecordSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
+        $admin =  User::create([
             'name' => 'Admin User',
             'email' => 'admin@gardencare.com',
             'password' => bcrypt('LLCC@2025'),
             'user_type' => 'admin'
+        ]);
+        Setting::create([
+            'admin_user_wallet' => $admin->id,
+            'admin_fee_percentage' => 3,
         ]);
 
         User::create([

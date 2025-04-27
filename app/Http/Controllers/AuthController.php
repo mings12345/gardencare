@@ -130,7 +130,7 @@ class AuthController extends Controller
             'email' => $user->email,
             'phone' => $user->phone,
             'address' => $user->address,
-            'gcash_no' => $user->gcash_no,
+            'account' => $user->account,
         ]);
     }
 
@@ -143,7 +143,7 @@ class AuthController extends Controller
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'sometimes|string|max:15',
             'address' => 'sometimes|string|max:255',
-            'gcash_no' => 'sometimes|string|max:11',
+            'account' => 'sometimes|string|max:11',
         ]);
 
         if ($validator->fails()) {
@@ -154,7 +154,7 @@ class AuthController extends Controller
         }
 
         // Update user profile
-        $user->update($request->only(['name', 'email', 'phone', 'address,', 'gcash_no']));
+        $user->update($request->only(['name', 'email', 'phone', 'address,', 'account']));
 
         return response()->json([
             'message' => 'Profile updated successfully.',
@@ -185,8 +185,8 @@ class AuthController extends Controller
         return response()->json($serviceProviders);
     }
 
-    public function updateGcash(){
-        return auth()->user()->update(['gcash_no' => request('gcash_no')]);
+    public function updateAccount(){
+        return auth()->user()->update(['account' => request('account')]);
     }
 
     public function getHomeowners()

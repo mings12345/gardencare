@@ -9,6 +9,7 @@ use Validator;
 use App\Events\BookingStatusUpdated;
 use App\Events\NewBooking;
 use  App\Models\Payment;
+use  App\Models\Setting;
 
 class BookingController extends Controller
 {
@@ -129,18 +130,29 @@ class BookingController extends Controller
             'new_status' => $request->status
         ]);
 
+        $admin_fee_percent = Setting::first()?->admin_admin_fee_percentage??3;
+
         if($request->status == 'accepted'){
-            $booking->payments->each(function($payment) {
-                $payment->update(['payment_status' => 'Received','receiver_no'=>auth()->user()->account??'09xxxxxxxx']);
+            $booking->payments->each(function($payment) use($admin_fee_percent) {
+                $admin_fee = $payment->amount_paid * ($admin_fee_percent / 100);
+                $payment->update(
+                    [
+                        'payment_status' => 'Received',
+                        'receiver_no' => auth()->user()->account??'09xxxxxxxx',
+                        'amount_paid'  => $payment->amount_paid  - $admin_fee,
+                        'admin_fee' => $admin_fee
+                    ]);
             });
         }elseif($request->status == 'completed'){
             $total_price = $booking->total_price;
-            $total_paid = Payment::where('booking_id', $booking->id)->where('payment_status','Received')->sum('amount_paid');
+            $total_paid = Payment::where('booking_id', $booking->id)->where('payment_status','Received')->sum( fn($q)=>$q->amount_paid+$q->admin_fee );
             if($total_price-$total_paid > 0){
+                $admin_fee = ($total_price-$total_paid) * ($admin_fee_percent / 100);
                 Payment::create([
                     'booking_id' => $booking->id,
-                    'amount_paid' => ($total_price-$total_paid),
+                    'amount_paid' => ($total_price-$total_paid) - $admin_fee,
                     'payment_date' => now(),
+                    'admin_fee' => $admin_fee,
                     'payment_status' => 'Received',
                     'sender_no' => $booking->payments->first()->sender_no,
                     'receiver_no' => auth()->user()->account??'09xxxxxxxx',

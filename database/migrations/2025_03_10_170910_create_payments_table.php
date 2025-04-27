@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('booking_id')->constrained()->onDelete('cascade');
-            $table->decimal('amount_paid', 10, 2);
+            $table->decimal('amount_paid', 11, 2);
+            $table->decimal('admin_fee', 11, 2);
             $table->timestamp('payment_date');
-            $table->string('sender_gcash_no');
+            $table->string('sender_no');
             $table->enum('payment_status',['Pending', 'Received'])->default('Pending');
-            $table->string('receiver_gcash_no')->nullable();
+            $table->string('receiver_no')->nullable();
             $table->timestamps();
         });
     }
