@@ -149,10 +149,10 @@ class BookingController extends Controller
                     ]);
 
                     //add the to the provider 
-                    $payment->serviceProvider->increment('balance', $amount_paid-$admin_fee);
+                    $payment->serviceProvider?->increment('balance', $amount_paid-$admin_fee);
 
                     //add the to the gardener
-                    $payment->gardener->increment('balance', $amount_paid-$admin_fee);
+                    $payment->gardener?->increment('balance', $amount_paid-$admin_fee);
 
                     //Debit Admin fee to admin wallet
                     $admin_wallet?->increment('balance', $admin_fee);
@@ -174,13 +174,13 @@ class BookingController extends Controller
                 ]);
 
                 //credit full amount to homeowner
-                $payment->homeowner->decrement('balance', $total_balance);
+                $payment->homeowner?->decrement('balance', $total_balance);
 
                 //add the to the provider 
-                $payment->serviceProvider->increment('balance', $total_balance-$admin_fee);
+                $payment->serviceProvider?->increment('balance', $total_balance-$admin_fee);
 
                 //add the to the gardener
-                $payment->gardener->increment('balance', $total_balance-$admin_fee);
+                $payment->gardener?->increment('balance', $total_balance-$admin_fee);
 
                 //Debit Admin fee to admin wallet
                 $admin_wallet?->increment('balance', $admin_fee);
