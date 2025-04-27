@@ -115,10 +115,10 @@ class BookingController extends Controller
               ->where('status', 'completed');
     })
     ->where('payment_status', 'Received')
-    ->sum('amount_paid');
+    ->sumRaw('amount_paid-admin_fee');
 
     return response()->json([
-        'total_earnings' => $totalEarnings
+        'total_earnings' => (float)$totalEarnings
     ]);
 }
 
