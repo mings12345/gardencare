@@ -54,7 +54,7 @@ class AdminDashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('admin.ratings.index', [
+        return view('admin.manage-ratings', [
             'ratings' => $ratings,
             'totalRatings' => Rating::count(),
         ]);
