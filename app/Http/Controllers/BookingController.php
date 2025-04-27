@@ -35,7 +35,7 @@ class BookingController extends Controller
             'special_instructions' => 'nullable|string|max:500',
             'payment_status' => 'required|in:pending,paid,partially_paid',
             'payment.amount_paid' => 'required|numeric|min:0',
-            'payment.sender_gcash_no' => 'required|string|max:20',
+            'payment.sender_no' => 'required|string|max:20',
         ];
 
         // Add conditional validation rules
@@ -80,7 +80,7 @@ class BookingController extends Controller
             'booking_id' => $booking->id,
             'amount_paid' => $request->input('payment.amount_paid'),
             'payment_date' => now(),
-            'sender_gcash_no' => $request->input('payment.sender_gcash_no'),
+            'sender_no' => $request->input('payment.sender_no'),
         ]);
 
         // Broadcast the event to both homeowner and service provider
@@ -131,7 +131,7 @@ class BookingController extends Controller
 
         if($request->status == 'accepted'){
             $booking->payments->each(function($payment) {
-                $payment->update(['payment_status' => 'Received','receiver_gcash_no'=>auth()->user()->gcash_no??'09xxxxxxxx']);
+                $payment->update(['payment_status' => 'Received','receiver_no'=>auth()->user()->account??'09xxxxxxxx']);
             });
         }elseif($request->status == 'completed'){
             $total_price = $booking->total_price;
@@ -142,8 +142,8 @@ class BookingController extends Controller
                     'amount_paid' => ($total_price-$total_paid),
                     'payment_date' => now(),
                     'payment_status' => 'Received',
-                    'sender_gcash_no' => $booking->payments->first()->sender_gcash_no,
-                    'receiver_gcash_no' => auth()->user()->gcash_no??'09xxxxxxxx',
+                    'sender_no' => $booking->payments->first()->sender_no,
+                    'receiver_no' => auth()->user()->account??'09xxxxxxxx',
                 ]);
             }
         }
