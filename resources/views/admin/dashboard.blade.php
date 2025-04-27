@@ -104,9 +104,6 @@
         <a href="{{ route('admin.manageServices') }}">
             <i class="fas fa-tools"></i> Manage Services
         </a>
-        <a href="{{ route('admin.manageServiceRequests') }}">
-            <i class="fas fa-clipboard-list"></i> Service Requests
-        </a>
         <a href="{{ route('admin.manageFeedback') }}">
             <i class="fas fa-comments"></i> Manage Feedback
         </a>
