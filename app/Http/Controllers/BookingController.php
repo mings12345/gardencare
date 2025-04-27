@@ -229,8 +229,11 @@ protected function handleCompletedStatus($booking, $admin_fee_percent, $admin_wa
 {
     $total_price = $booking->total_price;
     $total_paid = Payment::where('booking_id', $booking->id)
-                        ->where('payment_status','Received')
-                        ->sum(fn($q) => $q->amount_paid + $q->admin_fee);
+    ->where('payment_status', 'Received')
+    ->sum('amount_paid') 
+    + Payment::where('booking_id', $booking->id)
+    ->where('payment_status', 'Received')
+    ->sum('admin_fee');
     $total_balance = $total_price - $total_paid; 
     
     if($total_balance > 0) {
