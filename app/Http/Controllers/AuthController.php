@@ -83,14 +83,7 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Login successful.',
                 'token' => $token,
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'user_type' => $user->user_type, // Include the user_type here
-                    'created_at' => $user->created_at,
-                    'updated_at' => $user->updated_at,
-                ],
+                'user' => $user,
             ], 200);
 
         } catch (\Exception $e) {
@@ -143,7 +136,7 @@ class AuthController extends Controller
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'sometimes|string|max:15',
             'address' => 'sometimes|string|max:255',
-            'account' => 'sometimes|string|max:11',
+            'account' => 'sometimes|string|max:11|unique:users,account,' . $user->id,
         ]);
 
         if ($validator->fails()) {
