@@ -20,13 +20,15 @@ class Booking extends Model
     // Define the relationship with the Gardener (assuming it's also a User)
     public function gardener()
     {
-        return $this->belongsTo(User::class, 'gardener_id', 'id');
+        return $this->belongsTo(User::class, 'gardener_id', 'id')
+        ->where('type', 'Gardening');
     }
 
     // Define the relationship with the Service Provider (assuming it's also a User)
     public function serviceProvider()
     {
-        return $this->belongsTo(User::class, 'serviceprovider_id', 'id');
+        return $this->belongsTo(User::class, 'serviceprovider_id', 'id')
+        ->where('type', 'Landscaping');
     }
     public function payments()
     {

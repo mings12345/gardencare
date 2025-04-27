@@ -121,7 +121,7 @@ class BookingController extends Controller
             'status' => 'required|string|in:pending,accepted,declined,completed',
         ]);
 
-        $booking = Booking::with(['payments'=>fn($q)=>$q->where('payment_status','Pending')])->findOrFail($id);
+        $booking = Booking::with(['payments'=>fn($q)=>$q->where('payment_status','Pending'),'homeowner','serviceProvider','gardener'])->findOrFail($id);
         $oldStatus = $booking->status;
         
         \Log::info('Updating booking status', [
@@ -130,33 +130,60 @@ class BookingController extends Controller
             'new_status' => $request->status
         ]);
 
-        $admin_fee_percent = Setting::first()?->admin_admin_fee_percentage??3;
-
+        $setting = Setting::first()?->admin_admin_fee_percentage??3;
+        $admin_fee_percent = $setting->admin_admin_fee_percentage??3;
+        $admin_wallet = User::findOrFail($setting->admin_user_wallet);
         if($request->status == 'accepted'){
             $booking->payments->each(function($payment) use($admin_fee_percent) {
-                $admin_fee = $payment->amount_paid * ($admin_fee_percent / 100);
+                $amount_paid = $payment->amount_paid;
+                $admin_fee = $amount_paid * ($admin_fee_percent / 100);
                 $payment->update(
                     [
                         'payment_status' => 'Received',
                         'receiver_no' => auth()->user()->account??'09xxxxxxxx',
-                        'amount_paid'  => $payment->amount_paid  - $admin_fee,
+                        'amount_paid'  => $amount_paid  - $admin_fee,
                         'admin_fee' => $admin_fee
                     ]);
+
+                    //credit full amount to homeowner
+                    $payment->homeowner->decrement('balance', $amount_paid);
+
+                    //add the to the provider 
+                    $payment->serviceProvider->increment('balance', $amount_paid-$admin_fee);
+
+                    //add the to the gardener
+                    $payment->gardener->increment('balance', $amount_paid-$admin_fee);
+
+                    //Debit Admin fee to admin wallet
+                    $admin_wallet->increment('balance', $admin_fee);
             });
         }elseif($request->status == 'completed'){
             $total_price = $booking->total_price;
             $total_paid = Payment::where('booking_id', $booking->id)->where('payment_status','Received')->sum( fn($q)=>$q->amount_paid+$q->admin_fee );
-            if($total_price-$total_paid > 0){
-                $admin_fee = ($total_price-$total_paid) * ($admin_fee_percent / 100);
+            $total_balance =  $total_price-$total_paid; 
+            if($total_balance > 0){
+                $admin_fee = $total_balance * ($admin_fee_percent / 100);
                 Payment::create([
                     'booking_id' => $booking->id,
-                    'amount_paid' => ($total_price-$total_paid) - $admin_fee,
+                    'amount_paid' => $total_balance - $admin_fee,
                     'payment_date' => now(),
                     'admin_fee' => $admin_fee,
                     'payment_status' => 'Received',
                     'sender_no' => $booking->payments->first()->sender_no,
                     'receiver_no' => auth()->user()->account??'09xxxxxxxx',
                 ]);
+
+                //credit full amount to homeowner
+                $payment->homeowner->decrement('balance', $total_balance);
+
+                //add the to the provider 
+                $payment->serviceProvider->increment('balance', $total_balance-$admin_fee);
+
+                //add the to the gardener
+                $payment->gardener->increment('balance', $total_balance-$admin_fee);
+
+                //Debit Admin fee to admin wallet
+                $admin_wallet->increment('balance', $admin_fee);
             }
         }
         
