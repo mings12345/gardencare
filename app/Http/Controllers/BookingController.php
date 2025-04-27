@@ -111,7 +111,7 @@ class BookingController extends Controller
     $user = auth()->user();
     
     $totalEarnings = Payment::whereHas('booking', function($query) use ($user) {
-        $query->where('gardener_id', $user->id)
+        $query->whereAny( ['gardener_id','serviceprovider_id'], $user->id)
               ->where('status', 'completed');
     })
     ->where('payment_status', 'Received')
