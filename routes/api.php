@@ -81,7 +81,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Profile Routes
     Route::post('/profile/update', [AuthController::class, 'updateProfile']);
     Route::get('/profile/{userId}', [AuthController::class, 'getProfileData']);
-    Route::post('bookings/{bookingId}/rate', [RatingController::class, 'submitRating'])->middleware('auth:api');
+    Route::post('bookings/{bookingId}/rate', [RatingController::class, 'submitRating']);
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
