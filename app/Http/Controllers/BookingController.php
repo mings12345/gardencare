@@ -77,7 +77,7 @@ class BookingController extends Controller
             ]);
         }
 
-        Payment::create([
+       $payment =  Payment::create([
             'booking_id' => $booking->id,
             'amount_paid' => $request->input('payment.amount_paid'),
             'payment_date' => now(),
@@ -85,7 +85,7 @@ class BookingController extends Controller
         ]);
 
         // Update the homeowner's balance
-        User::where('id', $request->homeowner_id)->decrement('balance', $request->input('payment.amount_paid'));
+        auth()->user()->decrement('balance', $payment->amount_paid);
 
         // Broadcast the event to both homeowner and service provider
           event(new NewBooking($booking));
