@@ -1,4 +1,4 @@
-@extends('dashboard') <!-- Or your admin layout -->
+@extends('dashboard.app') <!-- Or your admin layout -->
 
 @section('content')
 
