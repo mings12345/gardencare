@@ -79,9 +79,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     });
     
     // Feedback Management
-    Route::get('/manage-feedback', [FeedbackController::class, 'index'])->name('admin.manageFeedback');
     Route::get('/admin/manageFeedback', [WebFeedbackController::class, 'manageFeedback'])->name('admin.manageFeedback');
-Route::delete('/admin/feedback/{id}', [WebFeedbackController::class, 'deleteFeedback'])->name('admin.deleteFeedback');
+    Route::delete('/admin/feedback/{id}', [WebFeedbackController::class, 'deleteFeedback'])->name('admin.deleteFeedback');
     
     // Reports
     Route::get('/generate-report', [ReportController::class, 'generateReport'])->name('admin.generateReport');
