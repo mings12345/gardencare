@@ -10,6 +10,7 @@ use App\Events\BookingStatusUpdated;
 use App\Events\NewBooking;
 use  App\Models\Payment;
 use  App\Models\Setting;
+use App\Models\WalletTransaction;   
 
 class BookingController extends Controller
 {
@@ -87,6 +88,13 @@ class BookingController extends Controller
         // Update the homeowner's balance
         auth()->user()->decrement('balance', $payment->amount_paid);
 
+        WalletTransaction::create([
+            'user_id' => auth()->user()->id,
+            'amount' => $payment->amount_paid,
+            'transaction_type' => 'debit',
+            'description' => 'Booking payment for booking ID: ' . $booking->id,
+        ]);
+
         // Broadcast the event to both homeowner and service provider
           event(new NewBooking($booking));
 
@@ -148,14 +156,38 @@ class BookingController extends Controller
                         'admin_fee' => $admin_fee
                     ]);
 
-                    //add the to the provider 
-                    $payment->serviceProvider?->increment('balance', $amount_paid-$admin_fee);
+                    //add the to the provider
+                    if($payment->serviceProvider){
+                        $payment->serviceProvider->increment('balance', $amount_paid-$admin_fee);
+                        WalletTransaction::create([
+                            'user_id' => $payment->serviceProvider->id,
+                            'amount' => $amount_paid-$admin_fee,
+                            'transaction_type' => 'credit',
+                            'description' => 'Service Provider for booking ID: ' . $booking->id,
+                        ]);
+                    } 
 
                     //add the to the gardener
-                    $payment->gardener?->increment('balance', $amount_paid-$admin_fee);
+                    if($payment->gardener){
+                        $payment->gardener->increment('balance', $amount_paid-$admin_fee);
+                        WalletTransaction::create([
+                            'user_id' => $payment->gardener->id,
+                            'amount' => $amount_paid-$admin_fee,
+                            'transaction_type' => 'credit',
+                            'description' => 'Gardener fee for booking ID: ' . $booking->id,
+                        ]);
+                    }
 
                     //Debit Admin fee to admin wallet
-                    $admin_wallet?->increment('balance', $admin_fee);
+                    $done = $admin_wallet?->increment('balance', $admin_fee);
+                    if($done){
+                        WalletTransaction::create([
+                            'user_id' => $admin_wallet->id,
+                            'amount' => $admin_fee,
+                            'transaction_type' => 'credit',
+                            'description' => 'Admin fee for booking ID: ' . $booking->id,
+                        ]);
+                    }
             });
         }elseif($request->status == 'completed'){
             $total_price = $booking->total_price;
@@ -174,16 +206,46 @@ class BookingController extends Controller
                 ]);
 
                 //credit full amount to homeowner
-                $payment->homeowner?->decrement('balance', $total_balance);
+                $payment->homeowner->decrement('balance', $total_balance);
+                
+                WalletTransaction::create([
+                    'user_id' => $admin_wallet->id,
+                    'amount' => $total_balance,
+                    'transaction_type' => 'debit',
+                    'description' => 'Balance amount for booking ID: ' . $booking->id,
+                ]);
 
-                //add the to the provider 
-                $payment->serviceProvider?->increment('balance', $total_balance-$admin_fee);
+                //add the to the provider
+                if($payment->serviceProvider){
+                    $payment->serviceProvider->increment('balance', $total_balance-$admin_fee);
+                    WalletTransaction::create([
+                        'user_id' => $payment->serviceProvider->id,
+                        'amount' => $total_balance-$admin_fee,
+                        'transaction_type' => 'credit',
+                        'description' => 'Service Provider for booking ID: ' . $booking->id,
+                    ]);
+                } 
 
-                //add the to the gardener
-                $payment->gardener?->increment('balance', $total_balance-$admin_fee);
+                if($payment->gardener){
+                    $payment->gardener->increment('balance', $total_balance-$admin_fee);
+                    WalletTransaction::create([
+                        'user_id' => $payment->gardener->id,
+                        'amount' => $total_balance-$admin_fee,
+                        'transaction_type' => 'credit',
+                        'description' => 'Gardener fee for booking ID: ' . $booking->id,
+                    ]);
+                }
 
                 //Debit Admin fee to admin wallet
-                $admin_wallet?->increment('balance', $admin_fee);
+                $done = $admin_wallet?->increment('balance', $admin_fee);
+                if($done){
+                    WalletTransaction::create([
+                        'user_id' => $admin_wallet->id,
+                        'amount' => $admin_fee,
+                        'transaction_type' => 'credit',
+                        'description' => 'Admin fee for booking ID: ' . $booking->id,
+                    ]);
+                }
             }
         }
         
