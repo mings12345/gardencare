@@ -38,5 +38,42 @@ class RatingController extends Controller
             'error' => $e->getMessage() // Only in development
         ], 500);
     }
-}
+  }
+
+  public function index(): JsonResponse
+  {
+      try {
+          $ratings = Rating::with(['booking.gardener', 'booking.homeowner'])
+              ->orderBy('created_at', 'desc')
+              ->get()
+              ->map(function ($rating) {
+                  return [
+                      'id' => $rating->id,
+                      'booking_id' => $rating->booking_id,
+                      'rating' => $rating->rating,
+                      'feedback' => $rating->feedback,
+                      'created_at' => $rating->created_at,
+                      'gardener' => [
+                          'id' => $rating->booking->gardener->id,
+                          'name' => $rating->booking->gardener->name,
+                      ],
+                      'homeowner' => [
+                          'id' => $rating->booking->homeowner->id,
+                          'name' => $rating->booking->homeowner->name,
+                      ],
+                  ];
+              });
+
+          return response()->json([
+              'ratings' => $ratings,
+          ]);
+
+      } catch (\Exception $e) {
+          \Log::error('Failed to fetch ratings: ' . $e->getMessage());
+          return response()->json([
+              'message' => 'Failed to fetch ratings',
+              'error' => $e->getMessage() // Only include in development
+          ], 500);
+      }
+  }
 }

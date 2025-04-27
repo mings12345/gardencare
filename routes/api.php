@@ -82,6 +82,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/profile/update', [AuthController::class, 'updateProfile']);
     Route::get('/profile/{userId}', [AuthController::class, 'getProfileData']);
     Route::post('bookings/{bookingId}/rate', [RatingController::class, 'submitRating']);
+    Route::get('/ratings', [RatingController::class, 'index']);
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
