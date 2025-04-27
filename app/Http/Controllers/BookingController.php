@@ -11,7 +11,7 @@ use App\Events\NewBooking;
 use  App\Models\Payment;
 use  App\Models\Setting;
 use App\Models\WalletTransaction;   
-
+use Illuminate\Support\Facades\DB;
 class BookingController extends Controller
 {
     // Display a list of bookings
@@ -122,149 +122,149 @@ class BookingController extends Controller
             'bookings' => $bookings,
         ], 200);
     }
-    
-    public function updateStatus(Request $request, $id)
-{
-    \Log::info('Update status request received', ['id' => $id, 'request' => $request->all()]);
-    
-    try {
-        $request->validate([
-            'status' => 'required|string|in:pending,accepted,declined,completed',
-        ]);
-
-        $booking = Booking::with(['payments'=>fn($q)=>$q->where('payment_status','Pending'),'homeowner','serviceProvider','gardener'])->findOrFail($id);
-        $oldStatus = $booking->status;
-        
-        \Log::info('Updating booking status', [
-            'booking_id' => $id,
-            'old_status' => $oldStatus,
-            'new_status' => $request->status
-        ]);
-
-        $setting = Setting::first()?->admin_admin_fee_percentage??3;
-        $admin_fee_percent = $setting?->admin_admin_fee_percentage??3;
-        $admin_wallet = User::find($setting->admin_user_wallet);
-        if($request->status == 'accepted'){
-            $booking->payments->each(function($payment) use($admin_fee_percent) {
-                $amount_paid = $payment->amount_paid;
-                $admin_fee = $amount_paid * ($admin_fee_percent / 100);
-                $payment->update(
-                    [
-                        'payment_status' => 'Received',
-                        'receiver_no' => auth()->user()->account??'09xxxxxxxx',
-                        'amount_paid'  => $amount_paid  - $admin_fee,
-                        'admin_fee' => $admin_fee
-                    ]);
-
-                    //add the to the provider
-                    if($payment->serviceProvider){
-                        $payment->serviceProvider->increment('balance', $amount_paid-$admin_fee);
-                        WalletTransaction::create([
-                            'user_id' => $payment->serviceProvider->id,
-                            'amount' => $amount_paid-$admin_fee,
-                            'transaction_type' => 'credit',
-                            'description' => 'Service Provider for booking ID: ' . $booking->id,
-                        ]);
-                    } 
-
-                    //add the to the gardener
-                    if($payment->gardener){
-                        $payment->gardener->increment('balance', $amount_paid-$admin_fee);
-                        WalletTransaction::create([
-                            'user_id' => $payment->gardener->id,
-                            'amount' => $amount_paid-$admin_fee,
-                            'transaction_type' => 'credit',
-                            'description' => 'Gardener fee for booking ID: ' . $booking->id,
-                        ]);
-                    }
-
-                    //Debit Admin fee to admin wallet
-                    $done = $admin_wallet?->increment('balance', $admin_fee);
-                    if($done){
-                        WalletTransaction::create([
-                            'user_id' => $admin_wallet->id,
-                            'amount' => $admin_fee,
-                            'transaction_type' => 'credit',
-                            'description' => 'Admin fee for booking ID: ' . $booking->id,
-                        ]);
-                    }
-            });
-        }elseif($request->status == 'completed'){
-            $total_price = $booking->total_price;
-            $total_paid = Payment::where('booking_id', $booking->id)->where('payment_status','Received')->sum( fn($q)=>$q->amount_paid+$q->admin_fee );
-            $total_balance =  $total_price-$total_paid; 
-            if($total_balance > 0){
-                $admin_fee = $total_balance * ($admin_fee_percent / 100);
-                Payment::create([
-                    'booking_id' => $booking->id,
-                    'amount_paid' => $total_balance - $admin_fee,
-                    'payment_date' => now(),
-                    'admin_fee' => $admin_fee,
-                    'payment_status' => 'Received',
-                    'sender_no' => $booking->payments->first()->sender_no,
-                    'receiver_no' => auth()->user()->account??'09xxxxxxxx',
-                ]);
-
-                //credit full amount to homeowner
-                $payment->homeowner->decrement('balance', $total_balance);
+        public function updateStatus(Request $request, $id)
+        {
+            \Log::info('Update status request received', ['id' => $id, 'request' => $request->all()]);
+            
+            try {
+                DB::beginTransaction();
                 
-                WalletTransaction::create([
-                    'user_id' => $admin_wallet->id,
-                    'amount' => $total_balance,
-                    'transaction_type' => 'debit',
-                    'description' => 'Balance amount for booking ID: ' . $booking->id,
+                $request->validate([
+                    'status' => 'required|string|in:pending,accepted,declined,completed',
                 ]);
-
-                //add the to the provider
-                if($payment->serviceProvider){
-                    $payment->serviceProvider->increment('balance', $total_balance-$admin_fee);
-                    WalletTransaction::create([
-                        'user_id' => $payment->serviceProvider->id,
-                        'amount' => $total_balance-$admin_fee,
-                        'transaction_type' => 'credit',
-                        'description' => 'Service Provider for booking ID: ' . $booking->id,
-                    ]);
+        
+                $booking = Booking::with(['payments'=>fn($q)=>$q->where('payment_status','Pending'),'homeowner','serviceProvider','gardener'])
+                                ->findOrFail($id);
+                $oldStatus = $booking->status;
+                
+                $setting = Setting::first();
+                $admin_fee_percent = $setting?->admin_admin_fee_percentage ?? 3;
+                $admin_wallet = User::find($setting?->admin_user_wallet);
+        
+                if($request->status == 'accepted') {
+                    $this->handleAcceptedStatus($booking, $admin_fee_percent, $admin_wallet);
                 } 
-
-                if($payment->gardener){
-                    $payment->gardener->increment('balance', $total_balance-$admin_fee);
-                    WalletTransaction::create([
-                        'user_id' => $payment->gardener->id,
-                        'amount' => $total_balance-$admin_fee,
-                        'transaction_type' => 'credit',
-                        'description' => 'Gardener fee for booking ID: ' . $booking->id,
-                    ]);
+                elseif($request->status == 'completed') {
+                    $this->handleCompletedStatus($booking, $admin_fee_percent, $admin_wallet);
                 }
-
-                //Debit Admin fee to admin wallet
-                $done = $admin_wallet?->increment('balance', $admin_fee);
-                if($done){
-                    WalletTransaction::create([
-                        'user_id' => $admin_wallet->id,
-                        'amount' => $admin_fee,
-                        'transaction_type' => 'credit',
-                        'description' => 'Admin fee for booking ID: ' . $booking->id,
-                    ]);
-                }
+                
+                $booking->status = $request->status;
+                $booking->save();
+        
+                event(new BookingStatusUpdated($booking, $oldStatus));
+                
+                DB::commit();
+        
+                return response()->json($booking);
+                
+            } catch (\Exception $e) {
+                DB::rollBack();
+                \Log::error('Booking status update failed', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return response()->json(['message' => $e->getMessage()], 422);
             }
         }
-        
-        $booking->status = $request->status;
-        $booking->save();
 
-        // Broadcast the status update
-        event(new BookingStatusUpdated($booking, $oldStatus));
+    // New helper methods
+protected function handleAcceptedStatus($booking, $admin_fee_percent, $admin_wallet)
+{
+    $booking->payments->each(function($payment) use ($admin_fee_percent, $admin_wallet, $booking) {
+        $amount_paid = $payment->amount_paid;
+        $admin_fee = $amount_paid * ($admin_fee_percent / 100);
+        $provider_amount = $amount_paid - $admin_fee;
 
-        return response()->json($booking);
-        
-    } catch (\Exception $e) {
-        \Log::error('Booking status update failed', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+        $payment->update([
+            'payment_status' => 'Received',
+            'receiver_no' => auth()->user()->account ?? '09xxxxxxxx',
+            'amount_paid' => $provider_amount,
+            'admin_fee' => $admin_fee
         ]);
-        return response()->json($e->errors(), 422);
+
+        // Credit to service provider or gardener
+        $recipient = $booking->serviceProvider ?? $booking->gardener;
+        if ($recipient) {
+            $recipient->increment('balance', $provider_amount);
+            WalletTransaction::create([
+                'user_id' => $recipient->id,
+                'amount' => $provider_amount,
+                'transaction_type' => 'credit',
+                'description' => ($booking->serviceProvider ? 'Service Provider' : 'Gardener') . 
+                                ' fee for booking ID: ' . $booking->id,
+            ]);
+        }
+
+        // Credit admin fee
+        if ($admin_wallet) {
+            $admin_wallet->increment('balance', $admin_fee);
+            WalletTransaction::create([
+                'user_id' => $admin_wallet->id,
+                'amount' => $admin_fee,
+                'transaction_type' => 'credit',
+                'description' => 'Admin fee for booking ID: ' . $booking->id,
+            ]);
+        }
+    });
+}
+
+protected function handleCompletedStatus($booking, $admin_fee_percent, $admin_wallet)
+{
+    $total_price = $booking->total_price;
+    $total_paid = Payment::where('booking_id', $booking->id)
+                        ->where('payment_status','Received')
+                        ->sum(fn($q) => $q->amount_paid + $q->admin_fee);
+    $total_balance = $total_price - $total_paid; 
+    
+    if($total_balance > 0) {
+        $admin_fee = $total_balance * ($admin_fee_percent / 100);
+        $provider_amount = $total_balance - $admin_fee;
+
+        $payment = Payment::create([
+            'booking_id' => $booking->id,
+            'amount_paid' => $provider_amount,
+            'payment_date' => now(),
+            'admin_fee' => $admin_fee,
+            'payment_status' => 'Received',
+            'sender_no' => $booking->payments->first()->sender_no,
+            'receiver_no' => auth()->user()->account ?? '09xxxxxxxx',
+        ]);
+
+        // Debit from homeowner
+        $booking->homeowner->decrement('balance', $total_balance);
+        WalletTransaction::create([
+            'user_id' => $booking->homeowner->id,
+            'amount' => $total_balance,
+            'transaction_type' => 'debit',
+            'description' => 'Final payment for booking ID: ' . $booking->id,
+        ]);
+
+        // Credit to service provider or gardener
+        $recipient = $booking->serviceProvider ?? $booking->gardener;
+        if ($recipient) {
+            $recipient->increment('balance', $provider_amount);
+            WalletTransaction::create([
+                'user_id' => $recipient->id,
+                'amount' => $provider_amount,
+                'transaction_type' => 'credit',
+                'description' => ($booking->serviceProvider ? 'Service Provider' : 'Gardener') . 
+                                ' fee for booking ID: ' . $booking->id,
+            ]);
+        }
+
+        // Credit admin fee
+        if ($admin_wallet) {
+            $admin_wallet->increment('balance', $admin_fee);
+            WalletTransaction::create([
+                'user_id' => $admin_wallet->id,
+                'amount' => $admin_fee,
+                'transaction_type' => 'credit',
+                'description' => 'Admin fee for booking ID: ' . $booking->id,
+            ]);
+        }
     }
 }
+
     // Get gardener's bookings
     public function getGardenerBookings($gardenerId)
     {
