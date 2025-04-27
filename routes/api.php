@@ -77,7 +77,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    Route::get('/bookings/total_earnings', [BookingController::class, 'getTotalEarnings']);
+    Route::get('/bookings/total-earnings', [BookingController::class, 'getTotalEarnings']);
    
     Route::post('/update_account', [AuthController::class, 'updateAccount']); // Create a booking
     // Profile Routes
