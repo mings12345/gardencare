@@ -7,7 +7,7 @@ use App\Models\Booking;
 use App\Models\Feedback;
 use App\Models\User;
 use App\Models\Service;
-
+use App\Models\Payment;
 class AdminDashboardController extends Controller
 {
     public function index()
