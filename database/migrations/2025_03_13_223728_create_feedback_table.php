@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('booking_id')->constrained()->onDelete('cascade');
             $table->foreignId('homeowner_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('gardener_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('service_provider_id')->constrained('users')->onDelete('cascade');
             $table->decimal('rating', 3, 1); // Allows ratings like 4.5
             $table->text('feedback')->nullable();
             $table->timestamps();

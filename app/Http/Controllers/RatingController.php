@@ -42,6 +42,28 @@ class RatingController extends Controller
 
   public function index(): JsonResponse
   {
+    $user = auth()->user();
+    
+    $query = Rating::with(['booking.gardener', 'booking.homeowner'])
+        ->orderBy('created_at', 'desc');
+
+    // Filter based on user role
+    if ($user->role === 'service_provider') {
+        // Service providers should only see ratings for their own services
+        $query->whereHas('booking', function($q) use ($user) {
+            $q->where('service_provider_id', $user->id);
+        });
+    } elseif ($user->role === 'gardener') {
+        // Gardeners should only see their own ratings
+        $query->whereHas('booking', function($q) use ($user) {
+            $q->where('gardener_id', $user->id);
+        });
+    } elseif ($user->role === 'homeowner') {
+        // Homeowners should only see ratings they've given
+        $query->whereHas('booking', function($q) use ($user) {
+            $q->where('homeowner_id', $user->id);
+        });
+    }
       try {
           $ratings = Rating::with(['booking.gardener', 'booking.homeowner'])
               ->orderBy('created_at', 'desc')
