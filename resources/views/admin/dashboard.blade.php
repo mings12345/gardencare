@@ -8,105 +8,50 @@
     <!-- Font Awesome for Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
-        /* Sidebar styling */
-        .sidebar {
-            height: 100vh;
-            width: 250px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #4CAF50; /* Green theme */
-            padding-top: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .sidebar a {
-            padding: 15px 20px;
-            text-decoration: none;
-            font-size: 18px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            transition: background-color 0.3s;
-        }
-
-        .sidebar a:hover {
-            background-color: #45a049; /* Darker green on hover */
-        }
-
-        .sidebar a i {
-            margin-right: 10px;
-            font-size: 20px;
-        }
-
-        /* Main content styling */
-        .main-content {
-            margin-left: 250px; /* Same as sidebar width */
-            padding: 20px;
-            background-color: #f5f5f5; /* Light background */
-        }
-
-        /* Card grid styling */
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            transition: transform 0.2s;
-            border: none;
+        /* Previous styles remain the same */
+        
+        /* New styles for feedback management */
+        .feedback-table {
+            background-color: white;
             border-radius: 10px;
-            overflow: hidden;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
+            overflow: hidden;
+            margin-top: 20px;
         }
-
-        .card:hover {
-            transform: scale(1.05);
+        
+        .feedback-table th {
+            background-color: #4CAF50;
+            color: white;
         }
-
-        .card-body {
-            padding: 20px;
-            text-align: center;
+        
+        .feedback-table tr:hover {
+            background-color: #f5f5f5;
         }
-
-        .card-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
+        
+        .rating-stars {
+            color: #FFD700; /* Gold color for stars */
         }
-
-        .card-text {
-            font-size: 16px;
-            color: #666;
+        
+        .feedback-actions a {
+            margin-right: 10px;
+            color: #4CAF50;
         }
-
-        /* Gardening-themed background */
-        body {
-            background-image: url('https://www.transparenttextures.com/patterns/leaves.png'); /* Subtle leaf pattern */
-            background-repeat: repeat;
+        
+        .badge {
+            font-size: 0.8em;
+            padding: 5px 8px;
+        }
+        
+        .pagination {
+            justify-content: center;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
+    <!-- Sidebar remains the same -->
     <div class="sidebar">
-        <a href="{{ route('admin.dashboard') }}">
-            <i class="fas fa-home"></i> Dashboard
-        </a>
-        <a href="{{ route('admin.manageBookings') }}">
-            <i class="fas fa-calendar-alt"></i> Manage Bookings
-        </a>
-        <a href="{{ route('admin.manageUsers') }}">
-            <i class="fas fa-users"></i> Manage Users
-        </a>
-        <a href="{{ route('admin.manageServices') }}">
-            <i class="fas fa-tools"></i> Manage Services
-        </a>
-        <a href="{{ route('admin.manageFeedback') }}">
-            <i class="fas fa-comments"></i> Manage Feedback
-        </a>
+        <!-- ... existing sidebar content ... -->
     </div>
 
     <!-- Main Content -->
@@ -115,57 +60,164 @@
 
         <!-- Card Grid -->
         <div class="card-grid">
-            <!-- Total Bookings Card -->
-            <a href="{{ route('admin.manageBookings') }}" class="text-decoration-none">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Total Bookings</h5>
-                        <p class="card-text">{{ $totalBookings }}</p>
-                    </div>
-                </div>
-            </a>
+            <!-- ... existing cards ... -->
+        </div>
 
-            <!-- Total Users Card -->
-            <a href="{{ route('admin.manageUsers') }}" class="text-decoration-none">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Total Users</h5>
-                        <p class="card-text">{{ $totalHomeowners + $totalGardeners + $totalServiceProviders }}</p>
-                    </div>
-                </div>
-            </a>
+        <!-- Feedback Management Section -->
+        <div class="feedback-section mt-5">
+            <h2 class="mb-4">Feedback Management</h2>
+            
+            <div class="feedback-table">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Booking ID</th>
+                            <th>Rating</th>
+                            <th>Feedback</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($feedbacks as $feedback)
+                        <tr>
+                            <td>{{ $feedback->id }}</td>
+                            <td>{{ $feedback->booking_id }}</td>
+                            <td>
+                                <div class="rating-stars">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        @if($i <= $feedback->rating)
+                                            <i class="fas fa-star"></i>
+                                        @else
+                                            <i class="far fa-star"></i>
+                                        @endif
+                                    @endfor
+                                    <span class="badge bg-primary">{{ number_format($feedback->rating, 1) }}</span>
+                                </div>
+                            </td>
+                            <td>{{ Str::limit($feedback->feedback, 50) }}</td>
+                            <td>
+                                @if($feedback->booking->homeowner)
+                                    <span class="badge bg-info">Homeowner: {{ $feedback->booking->homeowner->name }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($feedback->booking->gardener)
+                                    <span class="badge bg-success">Gardener: {{ $feedback->booking->gardener->name }}</span>
+                                @endif
+                                @if($feedback->booking->serviceProvider)
+                                    <span class="badge bg-warning text-dark">Service Provider: {{ $feedback->booking->serviceProvider->name }}</span>
+                                @endif
+                            </td>
+                            <td>{{ $feedback->created_at->format('M d, Y') }}</td>
+                            <td class="feedback-actions">
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#feedbackModal{{ $feedback->id }}">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <a href="#" onclick="confirmDelete({{ $feedback->id }})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
 
-            <!-- Total Earnings Card -->
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Total Earnings</h5>
-                    <p class="card-text">${{ number_format($totalEarnings, 2) }}</p>
+                        <!-- Feedback Modal -->
+                        <div class="modal fade" id="feedbackModal{{ $feedback->id }}" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="feedbackModalLabel">Feedback Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <strong>Rating:</strong>
+                                            <div class="rating-stars">
+                                                @for($i = 1; $i <= 5; $i++)
+                                                    @if($i <= $feedback->rating)
+                                                        <i class="fas fa-star"></i>
+                                                    @else
+                                                        <i class="far fa-star"></i>
+                                                    @endif
+                                                @endfor
+                                                <span class="badge bg-primary">{{ number_format($feedback->rating, 1) }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>Booking ID:</strong> {{ $feedback->booking_id }}
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>From:</strong> 
+                                            @if($feedback->booking->homeowner)
+                                                {{ $feedback->booking->homeowner->name }} (Homeowner)
+                                            @endif
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>To:</strong> 
+                                            @if($feedback->booking->gardener)
+                                                {{ $feedback->booking->gardener->name }} (Gardener)<br>
+                                            @endif
+                                            @if($feedback->booking->serviceProvider)
+                                                {{ $feedback->booking->serviceProvider->name }} (Service Provider)
+                                            @endif
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>Date:</strong> {{ $feedback->created_at->format('M d, Y H:i') }}
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>Feedback:</strong>
+                                            <div class="p-3 bg-light rounded">
+                                                {{ $feedback->feedback }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </tbody>
+                </table>
+                
+                <!-- Pagination -->
+                <div class="pagination">
+                    {{ $feedbacks->links() }}
                 </div>
             </div>
-
-            <!-- Total Services Card -->
-            <a href="{{ route('admin.manageServices') }}" class="text-decoration-none">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Total Services</h5>
-                        <p class="card-text">{{ $services->count() }}</p>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Feedback Management Card -->
-            <a href="{{ route('admin.manageFeedback') }}" class="text-decoration-none">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Feedback Management</h5>
-                        <p class="card-text">{{ $feedbacks->count() }} Feedbacks</p>
-                    </div>
-                </div>
-            </a>
         </div>
     </div>
 
-    <!-- Bootstrap JS (optional) -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function confirmDelete(feedbackId) {
+            if (confirm('Are you sure you want to delete this feedback?')) {
+                // You'll need to implement this endpoint in your controller
+                fetch(`/admin/feedback/${feedbackId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Failed to delete feedback');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting feedback');
+                });
+            }
+        }
+    </script>
 </body>
 </html>
