@@ -157,7 +157,7 @@
             <a href="{{ route('admin.manageFeedback') }}" class="text-decoration-none">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Feedback Management</h5>
+                        <h5 class="card-title">View Feedback</h5>
                         <p class="card-text">{{ $feedbacks->count() }} Feedbacks</p>
                     </div>
                 </div>
