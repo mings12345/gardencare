@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('booking_id')->constrained()->onDelete('cascade');
             $table->decimal('amount_paid', 11, 2);
-            $table->decimal('admin_fee', 11, 2);
+            $table->decimal('admin_fee', 11, 2)->default(0.00);
             $table->timestamp('payment_date');
             $table->string('sender_no');
             $table->enum('payment_status',['Pending', 'Received'])->default('Pending');
