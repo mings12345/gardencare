@@ -84,6 +84,9 @@ class BookingController extends Controller
             'sender_no' => $request->input('payment.sender_no'),
         ]);
 
+        // Update the homeowner's balance
+        User::where('id', $request->homeowner_id)->decrement('balance', $request->input('payment.amount_paid'));
+
         // Broadcast the event to both homeowner and service provider
           event(new NewBooking($booking));
 
@@ -144,9 +147,6 @@ class BookingController extends Controller
                         'amount_paid'  => $amount_paid  - $admin_fee,
                         'admin_fee' => $admin_fee
                     ]);
-
-                    //credit full amount to homeowner
-                    $payment->homeowner->decrement('balance', $amount_paid);
 
                     //add the to the provider 
                     $payment->serviceProvider->increment('balance', $amount_paid-$admin_fee);
