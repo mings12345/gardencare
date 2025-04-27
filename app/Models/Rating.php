@@ -2,30 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Rating extends Model
 {
-    protected $fillable = [
-        'booking_id',
-        'homeowner_id',
-        'gardener_id',
-        'rating',
-        'feedback'
-    ];
+    use HasFactory;
 
+    protected $guarded = [];
+
+    // Define relationships if needed
     public function booking()
     {
         return $this->belongsTo(Booking::class);
-    }
-
-    public function homeowner()
-    {
-        return $this->belongsTo(User::class, 'homeowner_id');
-    }
-
-    public function gardener()
-    {
-        return $this->belongsTo(User::class, 'gardener_id');
     }
 }

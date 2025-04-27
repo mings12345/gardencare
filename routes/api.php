@@ -11,6 +11,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Broadcast;
+use App\Http\Controllers\RatingController;
 
 
 // Broadcasting Authentication
@@ -80,6 +81,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Profile Routes
     Route::post('/profile/update', [AuthController::class, 'updateProfile']);
     Route::get('/profile/{userId}', [AuthController::class, 'getProfileData']);
+    Route::post('bookings/{bookingId}/rate', [RatingController::class, 'submitRating'])->middleware('auth:api');
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
