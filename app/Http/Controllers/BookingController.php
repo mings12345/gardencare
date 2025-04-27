@@ -243,7 +243,7 @@ protected function handleCompletedStatus($booking, $admin_fee_percent, $admin_wa
             'payment_date' => now(),
             'admin_fee' => $admin_fee,
             'payment_status' => 'Received',
-            'sender_no' => $booking->payments->first()->sender_no,
+            'sender_no' => User::find($booking->home_homeowner_id)?->account,
             'receiver_no' => auth()->user()->account ?? '09xxxxxxxx',
         ]);
 
