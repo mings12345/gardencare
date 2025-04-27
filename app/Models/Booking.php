@@ -20,15 +20,13 @@ class Booking extends Model
     // Define the relationship with the Gardener (assuming it's also a User)
     public function gardener()
     {
-        return $this->hasOne(User::class, 'id', 'gardener_id')
-        ->where('type', 'Gardening');
+        return $this->hasOne(User::class, 'id', 'gardener_id');
     }
 
     // Define the relationship with the Service Provider (assuming it's also a User)
     public function serviceProvider()
     {
-        return $this->hasOne(User::class,  'id', 'serviceprovider_id')
-        ->where('type', 'Landscaping');
+        return $this->hasOne(User::class,  'id', 'serviceprovider_id');
     }
     public function payments()
     {
