@@ -78,7 +78,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     });
     
     // Feedback Management
-   
+    Route::delete('/admin/ratings/{rating}', [AdminDashboardController::class, 'deleteRating'])->name('admin.deleteRating');
     
     // Reports
     Route::get('/generate-report', [ReportController::class, 'generateReport'])->name('admin.generateReport');
