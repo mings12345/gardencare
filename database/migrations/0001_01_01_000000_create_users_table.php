@@ -26,7 +26,7 @@ return new class extends Migration
             $table->integer('completed_jobs')->nullable()->default(0); // removed ->after()
             $table->text('bio')->nullable(); // removed ->after()
             $table->string('fcm_token')->nullable();
-            $table->string('acount', 11)->nullable()->unique();
+            $table->string('account', 11)->nullable()->unique();
             $table->decimal('balance', 11, 2)->default(0.00);
             $table->rememberToken();
             $table->timestamps();
