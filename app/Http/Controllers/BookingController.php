@@ -195,7 +195,7 @@ protected function handleAcceptedStatus($booking, $admin_fee_percent, $admin_wal
         $payment->update([
             'payment_status' => 'Received',
             'receiver_no' => auth()->user()->account ?? '09xxxxxxxx',
-            'amount_paid' => $provider_amount,
+            'amount_paid' => $amount_paid,
             'admin_fee' => $admin_fee
         ]);
 
@@ -230,10 +230,7 @@ protected function handleCompletedStatus($booking, $admin_fee_percent, $admin_wa
     $total_price = $booking->total_price;
     $total_paid = Payment::where('booking_id', $booking->id)
     ->where('payment_status', 'Received')
-    ->sum('amount_paid') 
-    + Payment::where('booking_id', $booking->id)
-    ->where('payment_status', 'Received')
-    ->sum('admin_fee');
+    ->sum('amount_paid');
     $total_balance = $total_price - $total_paid; 
     
     if($total_balance > 0) {
@@ -242,7 +239,7 @@ protected function handleCompletedStatus($booking, $admin_fee_percent, $admin_wa
 
         $payment = Payment::create([
             'booking_id' => $booking->id,
-            'amount_paid' => $provider_amount,
+            'amount_paid' => $total_balance,
             'payment_date' => now(),
             'admin_fee' => $admin_fee,
             'payment_status' => 'Received',
