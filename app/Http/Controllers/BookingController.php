@@ -134,8 +134,8 @@ class BookingController extends Controller
         ]);
 
         $setting = Setting::first()?->admin_admin_fee_percentage??3;
-        $admin_fee_percent = $setting->admin_admin_fee_percentage??3;
-        $admin_wallet = User::findOrFail($setting->admin_user_wallet);
+        $admin_fee_percent = $setting?->admin_admin_fee_percentage??3;
+        $admin_wallet = User::find($setting->admin_user_wallet);
         if($request->status == 'accepted'){
             $booking->payments->each(function($payment) use($admin_fee_percent) {
                 $amount_paid = $payment->amount_paid;
@@ -155,7 +155,7 @@ class BookingController extends Controller
                     $payment->gardener->increment('balance', $amount_paid-$admin_fee);
 
                     //Debit Admin fee to admin wallet
-                    $admin_wallet->increment('balance', $admin_fee);
+                    $admin_wallet?->increment('balance', $admin_fee);
             });
         }elseif($request->status == 'completed'){
             $total_price = $booking->total_price;
@@ -183,7 +183,7 @@ class BookingController extends Controller
                 $payment->gardener->increment('balance', $total_balance-$admin_fee);
 
                 //Debit Admin fee to admin wallet
-                $admin_wallet->increment('balance', $admin_fee);
+                $admin_wallet?->increment('balance', $admin_fee);
             }
         }
         
