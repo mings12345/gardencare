@@ -15,10 +15,18 @@ class WalletController extends Controller
         $transactions = WalletTransaction::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->get();
-
+    
         return response()->json([
-            'balance' => $user->balance,
-            'transactions' => $transactions
+            'balance' => (float) $user->balance, // Explicitly cast to float
+            'transactions' => $transactions->map(function ($transaction) {
+                return [
+                    'id' => $transaction->id,
+                    'amount' => (float) $transaction->amount, // Cast to float
+                    'transaction_type' => $transaction->transaction_type,
+                    'description' => $transaction->description,
+                    'created_at' => $transaction->created_at->format('Y-m-d H:i:s'),
+                ];
+            })
         ]);
     }
 
