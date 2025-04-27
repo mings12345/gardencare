@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Ratings - Admin Dashboard</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome for icons -->
@@ -38,18 +39,6 @@
 </head>
 <body>
     <div class="container-fluid">
-        <div class="row mb-4">
-            <div class="col-12">
-                <h1>Admin Dashboard</h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Manage Ratings</li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
