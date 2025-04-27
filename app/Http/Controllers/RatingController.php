@@ -51,7 +51,7 @@ class RatingController extends Controller
                 ])
                 ->when($user->user_type === 'service_provider', function($q) use ($user) {
                     $q->whereHas('booking', function($q) use ($user) {
-                        $q->where('service_provider_id', $user->id);
+                        $q->where('serviceprovider_id', $user->id);
                     });
                 })
                 ->when($user->user_type === 'gardener', function($q) use ($user) {
