@@ -47,16 +47,5 @@ class AdminDashboardController extends Controller
         ));
     }
 
-    // Add this new method for managing ratings/feedback
-    public function manageRatings()
-    {
-        $ratings = Rating::with(['booking.gardener', 'booking.homeowner', 'booking.serviceProvider'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
-        return view('admin.manageRatings', [
-            'ratings' => $ratings,
-            'totalRatings' => Rating::count(),
-        ]);
-    }
+   
 }
