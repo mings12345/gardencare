@@ -147,7 +147,7 @@ class AuthController extends Controller
         }
 
         // Update user profile
-        $user->update($request->only(['name', 'email', 'phone', 'address,', 'account']));
+        $user->update($request->only(['name', 'email', 'phone', 'address', 'account']));
 
         return response()->json([
             'message' => 'Profile updated successfully.',
