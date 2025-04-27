@@ -1,4 +1,4 @@
-@extends('layouts.app') <!-- Or your admin layout -->
+@extends('dashboard') <!-- Or your admin layout -->
 
 @section('content')
 <div class="container-fluid">
