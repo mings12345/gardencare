@@ -1,7 +1,15 @@
-@extends('layouts.app') <!-- Or your admin layout -->
+@extends('dashboard') <!-- Or your admin layout -->
 
 @section('content')
-<div class="container-fluid">
+
+<div class="main-content">
+    
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Ratings & Feedback Management</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <span class="badge bg-primary">Total Ratings: {{ $totalRatings }}</span>
+        </div>
+    </div>
     <div class="row">
         <!-- Sidebar -->
         <div class="col-md-3 col-lg-2 d-md-block sidebar">
