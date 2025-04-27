@@ -12,6 +12,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\WalletController;
 
 
 // Broadcasting Authentication
@@ -84,6 +85,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('bookings/{bookingId}/rate', [RatingController::class, 'submitRating']);
     Route::get('/ratings', [RatingController::class, 'index']);
 
+    Route::prefix('wallet')->group(function () {
+        Route::get('/', [WalletController::class, 'index']);
+        Route::post('/cash-in', [WalletController::class, 'cashIn']);
+        Route::post('/withdraw', [WalletController::class, 'withdraw']);
+    });
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
   
