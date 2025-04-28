@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\GardeningTipController;
+use App\Http\Controllers\BroadcastController;
 
 
 // Broadcasting Authentication
@@ -31,9 +32,6 @@ Route::get('/notifications', [NotificationController::class, 'index'])->middlewa
 Route::post('/store-token', [NotificationController::class, 'storeToken']); // Store FCM token
 Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->middleware('auth:sanctum');
 
-// Seasonal Tips Routes
-Route::get('/seasonal-tips', [SeasonalTipController::class, 'index']);
-Route::get('/seasonal-tips/{plantId}/{region}/{season}', [SeasonalTipController::class, 'getTipsByPlantRegionAndSeason']);
 
 // Authentication Routes
 Route::post('/login', [AuthController::class, 'login']);
@@ -50,7 +48,7 @@ Route::get('/test', function () {
 Route::get('/services', [ServiceController::class, 'getServices']); // Get all services
 Route::get('/services/gardening', [ServiceController::class, 'getGardeningServices']);
 
-
+Route::get('/location-tips', [GeolocationController::class, 'getTipsByLocation']);
 Route::get('/gardening-tips', [GardeningTipController::class, 'getTips']);
 
 // Payment Routes
