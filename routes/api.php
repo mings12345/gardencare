@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\GardeningTipController;
-use App\Http\Controllers\BroadcastController;
+use App\Http\Controllers\GeolocationController;
 
 
 // Broadcasting Authentication
