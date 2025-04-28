@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('seasonal_tips', function (Blueprint $table) {
+        Schema::create('tips', function (Blueprint $table) {
             $table->id();
-            $table->string('season');
-            $table->string('region');
+            $table->string('season'); // 'dry' or 'wet'
             $table->text('tip');
-            $table->foreignId('plant_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('seasonal_tips');
+        Schema::dropIfExists('tips');
     }
 };

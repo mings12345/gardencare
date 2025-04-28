@@ -13,6 +13,7 @@ use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\GardeningTipController;
 
 
 // Broadcasting Authentication
@@ -50,6 +51,7 @@ Route::get('/services', [ServiceController::class, 'getServices']); // Get all s
 Route::get('/services/gardening', [ServiceController::class, 'getGardeningServices']);
 
 
+Route::get('/gardening-tips', [GardeningTipController::class, 'getTips']);
 
 // Payment Routes
 Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
