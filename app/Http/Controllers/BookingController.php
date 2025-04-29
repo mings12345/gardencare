@@ -281,7 +281,39 @@ protected function handleCompletedStatus($booking, $admin_fee_percent, $admin_wa
         }
     }
 }
+    
+public function getAllBookings($userId)
+{
+    $user = User::findOrFail($userId);
+    
+    $query = function($userId, $userType) {
+        return Booking::with(['homeowner', 'gardener', 'serviceProvider', 'services'])
+            ->when($userType === 'gardener', function($q) use ($userId) {
+                return $q->where('gardener_id', $userId);
+            })
+            ->when($userType === 'service_provider', function($q) use ($userId) {
+                return $q->where('serviceprovider_id', $userId);
+            })
+            ->when($userType === 'homeowner', function($q) use ($userId) {
+                return $q->where('homeowner_id', $userId);
+            })
+            ->orderBy('date', 'desc');
+    };
+    
+    $recent = (clone $query($userId, $user->user_type))
+        ->whereIn('status', ['pending', 'accepted'])
+        ->get();
+        
+    $past = (clone $query($userId, $user->user_type))
+        ->whereIn('status', ['completed', 'declined'])
+        ->get();
 
+    return response()->json([
+        'message' => 'All bookings retrieved successfully.',
+        'recent_bookings' => $recent,
+        'past_bookings' => $past,
+    ], 200);
+}
     // Get gardener's bookings
     public function getGardenerBookings($gardenerId)
     {
