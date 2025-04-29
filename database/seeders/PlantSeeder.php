@@ -81,7 +81,6 @@ class PlantSeeder extends Seeder
             'soil' => 'Well-draining potting mix',
             'fertilizer' => 'Monthly in growing season',
             'common_problems' => 'Yellow leaves from overwatering',
-            'type' => 'indoor',
         ]);
 
         Plant::create([
@@ -91,7 +90,6 @@ class PlantSeeder extends Seeder
             'soil' => 'Well-draining potting mix',
             'fertilizer' => 'Every 2 months',
             'common_problems' => 'Brown tips from fluoride in water',
-            'type' => 'indoor',
         ]);
 
         Plant::create([
@@ -101,7 +99,6 @@ class PlantSeeder extends Seeder
             'soil' => 'Well-draining potting mix',
             'fertilizer' => 'Monthly in spring/summer',
             'common_problems' => 'Spider mites, leaf drop',
-            'type' => 'indoor',
         ]);
     }
 }
