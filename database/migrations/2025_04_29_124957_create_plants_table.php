@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tips', function (Blueprint $table) {
+        Schema::create('plants', function (Blueprint $table) {
             $table->id();
-            $table->string('season'); // 'dry' or 'wet'
-            $table->text('tip');
+            $table->string('name');
+            $table->string('watering_frequency');
+            $table->string('sunlight');
+            $table->string('soil');
+            $table->string('fertilizer');
+            $table->text('common_problems');
             $table->timestamps();
         });
     }
@@ -24,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tips');
+        Schema::dropIfExists('plants');
     }
 };

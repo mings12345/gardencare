@@ -13,8 +13,7 @@ use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\WalletController;
-use App\Http\Controllers\GardeningTipController;
-use App\Http\Controllers\GeolocationController;
+use App\Http\Controllers\PlantController;
 
 
 // Broadcasting Authentication
@@ -48,8 +47,9 @@ Route::get('/test', function () {
 Route::get('/services', [ServiceController::class, 'getServices']); // Get all services
 Route::get('/services/gardening', [ServiceController::class, 'getGardeningServices']);
 
-Route::get('/location-tips', [GeolocationController::class, 'getTipsByLocation']);
-Route::get('/gardening-tips', [GardeningTipController::class, 'getTips']);
+Route::get('/plants', [PlantController::class, 'index']);
+Route::get('/plants/{id}', [PlantController::class, 'show']);
+Route::post('/plants', [PlantController::class, 'store']);
 
 // Payment Routes
 Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);

@@ -9,10 +9,6 @@ class Plant extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $guarded = [];
 
-    public function seasonalTips()
-    {
-        return $this->hasMany(SeasonalTip::class);
-    }
 }
