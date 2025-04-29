@@ -17,7 +17,6 @@ class PlantSeeder extends Seeder
             'soil' => 'Well-draining potting mix',
             'fertilizer' => 'Monthly during growing season',
             'common_problems' => 'Root rot from overwatering',
-            'type' => 'indoor',
         ]);
 
         Plant::create([
@@ -27,7 +26,6 @@ class PlantSeeder extends Seeder
             'soil' => 'Well-draining potting mix',
             'fertilizer' => 'Every 2-3 months',
             'common_problems' => 'Yellowing leaves from overwatering',
-            'type' => 'indoor',
         ]);
 
         Plant::create([
@@ -37,7 +35,6 @@ class PlantSeeder extends Seeder
             'soil' => 'Peat-based potting mix',
             'fertilizer' => 'Every 6-8 weeks',
             'common_problems' => 'Brown leaf tips from low humidity',
-            'type' => 'indoor',
         ]);
 
         // Outdoor Plants
@@ -48,7 +45,6 @@ class PlantSeeder extends Seeder
             'soil' => 'Well-draining, slightly acidic',
             'fertilizer' => 'High-phosphorus monthly during bloom',
             'common_problems' => 'Leaf spot, root rot',
-            'type' => 'outdoor',
         ]);
 
         Plant::create([
@@ -58,7 +54,6 @@ class PlantSeeder extends Seeder
             'soil' => 'Well-draining, fertile',
             'fertilizer' => 'High-potassium monthly during bloom',
             'common_problems' => 'Aphids, Japanese beetles',
-            'type' => 'outdoor',
         ]);
 
         Plant::create([
@@ -68,7 +63,6 @@ class PlantSeeder extends Seeder
             'soil' => 'Well-draining, slightly acidic',
             'fertilizer' => 'Balanced monthly during growing season',
             'common_problems' => 'Aphids and whiteflies',
-            'type' => 'outdoor',
         ]);
 
         Plant::create([
@@ -78,7 +72,6 @@ class PlantSeeder extends Seeder
             'soil' => 'Orchid bark mix',
             'fertilizer' => 'Weak solution weekly',
             'common_problems' => 'Root rot, scale insects',
-            'type' => 'outdoor',
         ]);
 
         Plant::create([
