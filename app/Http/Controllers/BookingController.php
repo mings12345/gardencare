@@ -286,13 +286,28 @@ public function getAllBookings($userId)
 {
     $user = User::findOrFail($userId);
     
+    // Print the user data to debug the issue
+    \Log::info("User data for ID {$userId}:", [
+        'user_type' => $user->user_type,
+        'token' => auth()->user()->id == $userId ? 'Valid token' : 'Invalid token match'
+    ]);
+    
+    // Make sure the authenticated user can only access their own bookings
+    if (auth()->user()->id != $userId) {
+        return response()->json(['message' => 'Unauthorized access.'], 403);
+    }
+    
     $query = function($userId, $userType) {
+        // Debug the query parameters
+        \Log::info("Building query with:", ['userId' => $userId, 'userType' => $userType]);
+        
         return Booking::with(['homeowner', 'gardener', 'serviceProvider', 'services'])
             ->when($userType === 'gardener', function($q) use ($userId) {
                 return $q->where('gardener_id', $userId);
             })
             ->when($userType === 'service_provider', function($q) use ($userId) {
-                return $q->where('serviceprovider_id', $userId);
+                // Make sure the column name matches what's in your database
+                return $q->where('service_provider_id', $userId); // Changed from serviceprovider_id
             })
             ->when($userType === 'homeowner', function($q) use ($userId) {
                 return $q->where('homeowner_id', $userId);
