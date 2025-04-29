@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\PlantController;
+use App\Http\Controllers\UserPlantController;
 
 
 // Broadcasting Authentication
@@ -93,5 +94,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Seasonal Tips
+    Route::post('/user/plants', [UserPlantController::class, 'store']);
   
 });
