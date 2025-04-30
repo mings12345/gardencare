@@ -305,9 +305,9 @@ public function getAllBookings($userId)
             ->when($userType === 'gardener', function($q) use ($userId) {
                 return $q->where('gardener_id', $userId);
             })
-            ->when($userType === 'service_provider', function($q) use ($userId) {
+            ->when($userType === 'serviceprovider_id', function($q) use ($userId) {
                 // Make sure the column name matches what's in your database
-                return $q->where('service_provider_id', $userId); // Changed from serviceprovider_id
+                return $q->where('serviceprovider_id', $userId); // Changed from serviceprovider_id
             })
             ->when($userType === 'homeowner', function($q) use ($userId) {
                 return $q->where('homeowner_id', $userId);
