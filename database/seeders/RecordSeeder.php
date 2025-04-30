@@ -123,7 +123,7 @@ class RecordSeeder extends Seeder
             'type' => 'Landscaping',
             'description' => 'Custom garden design services to create beautiful and functional outdoor spaces.',
             'price' => 500,
-            'image' => 'garden-design.jpg'
+            'image' => 'garden_design.jpg'
         ]);
 
         Service::create([
@@ -147,7 +147,7 @@ class RecordSeeder extends Seeder
             'type' => 'Landscaping',
             'description' => 'Selection and installation of weather-resistant outdoor furniture to complement your garden design.',
             'price' => 500,
-            'image' => 'outdoor-furniture.jpg'
+            'image' => 'outdoor.jpg'
         ]);
     }
 }

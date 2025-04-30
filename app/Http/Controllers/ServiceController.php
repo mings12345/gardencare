@@ -80,17 +80,32 @@ class ServiceController extends Controller
     }
 
     public function getGardeningServices()
-{
-    $gardeningServices = Service::where('type', 'Gardening')->get();
-    
-    // Transform the image paths to full URLs
-    $gardeningServices->transform(function ($service) {
-        if ($service->image) {
-            $service->image = asset('images/services/' . basename($service->image));
-        }
-        return $service;
-    });
+    {
+        $gardeningServices = Service::where('type', 'Gardening')->get();
+        
+        // Transform the image paths to full URLs
+        $gardeningServices->transform(function ($service) {
+            if ($service->image) {
+                $service->image = asset('images/services/' . basename($service->image));
+            }
+            return $service;
+        });
 
-    return response()->json(['services' => $gardeningServices]);
-}
+        return response()->json(['services' => $gardeningServices]);
+    }
+
+    public function getLandscapingServices()
+    {
+        $landscapingServices = Service::where('type', 'Landscaping')->get();
+        
+        // Transform the image paths to full URLs
+        $landscapingServices->transform(function ($service) {
+            if ($service->image) {
+                $service->image = asset('images/services/' . basename($service->image));
+            }
+            return $service;
+        });
+
+        return response()->json(['services' => $landscapingServices]);
+    }
 }
