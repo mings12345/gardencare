@@ -86,7 +86,7 @@ class ServiceController extends Controller
     // Transform the image paths to full URLs
     $gardeningServices->transform(function ($service) {
         if ($service->image) {
-            $service->image = asset('storage/' . $service->image);
+            $service->image = asset('images/services/' . basename($service->image));
         }
         return $service;
     });
