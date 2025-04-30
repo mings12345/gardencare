@@ -106,6 +106,46 @@ class BookingController extends Controller
     }
         
 
+    public function getEarningsSummary()
+{
+    $user = auth()->user();
+    
+    // Get all completed bookings where user is either gardener or service provider
+    $bookings = Booking::with(['homeowner', 'services', 'payments'])
+        ->where(function($query) use ($user) {
+            $query->where('gardener_id', $user->id)
+                  ->orWhere('serviceprovider_id', $user->id);
+        })
+        ->where('status', 'completed')
+        ->orderBy('date', 'desc')
+        ->get();
+
+    // Calculate total earnings and prepare earnings list
+    $totalEarnings = 0;
+    $earningsList = [];
+    
+    foreach ($bookings as $booking) {
+        foreach ($booking->payments as $payment) {
+            if ($payment->payment_status === 'Received') {
+                $amount = $payment->amount_paid - $payment->admin_fee;
+                $totalEarnings += $amount;
+                
+                $earningsList[] = [
+                    'service_name' => $booking->services->pluck('name')->join(', '),
+                    'amount' => $amount,
+                    'completed_at' => $booking->date,
+                    'client_name' => $booking->homeowner->name,
+                ];
+            }
+        }
+    }
+
+    return response()->json([
+        'total_earnings' => $totalEarnings,
+        'earnings' => $earningsList,
+    ]);
+}
+
     public function getTotalEarnings()
 {
     $user = auth()->user();
