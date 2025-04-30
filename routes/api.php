@@ -80,8 +80,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         return $request->user();
     });
 
-    Route::get('/bookings/earnings', [BookingController::class, 'getEarningsData']);
-    Route::get('/bookings/earnings/breakdown', [BookingController::class, 'getEarningsBreakdown']);
+    
     Route::get('/get_total_earnings', [BookingController::class, 'getTotalEarnings']);
    
     Route::post('/update_account', [AuthController::class, 'updateAccount']); // Create a booking

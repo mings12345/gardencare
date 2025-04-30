@@ -12,8 +12,6 @@ use  App\Models\Payment;
 use  App\Models\Setting;
 use App\Models\WalletTransaction;   
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-
 class BookingController extends Controller
 {
     // Display a list of bookings
@@ -106,115 +104,7 @@ class BookingController extends Controller
             'booking' => $booking->load(['homeowner', 'services']),
         ], 201);
     }
-
-    public function getEarningsData()
-    {
-        $user = auth()->user();
         
-        // Validate user role
-        if (!in_array($user->user_type, ['gardener', 'service_provider'])) {
-            return response()->json([
-                'message' => 'Earnings data is only available for gardeners and service providers'
-            ], 403);
-        }
-
-        try {
-            // Total earnings (all time)
-            $totalEarnings = $this->calculateEarnings($user, null, null);
-            
-            // Weekly earnings
-            $startOfWeek = Carbon::now()->startOfWeek();
-            $weeklyEarnings = $this->calculateEarnings($user, $startOfWeek, null);
-            
-            // Monthly earnings
-            $startOfMonth = Carbon::now()->startOfMonth();
-            $monthlyEarnings = $this->calculateEarnings($user, $startOfMonth, null);
-            
-            // Earnings history (last 30 completed bookings)
-            $earningsHistory = Payment::whereHas('booking', function($query) use ($user) {
-                    $query->whereAny(['gardener_id', 'serviceprovider_id'], $user->id)
-                          ->where('status', 'completed');
-                })
-                ->where('payment_status', 'Received')
-                ->with(['booking' => function($q) {
-                    $q->select('id', 'date', 'type');
-                }])
-                ->orderBy('created_at', 'desc')
-                ->take(30)
-                ->get()
-                ->map(function($payment) {
-                    return [
-                        'date' => $payment->booking->date,
-                        'amount' => $payment->amount_paid - $payment->admin_fee,
-                        'service_name' => $payment->booking->type,
-                        'booking_id' => $payment->booking_id,
-                    ];
-                });
-
-            return response()->json([
-                'total_earnings' => (float)$totalEarnings,
-                'weekly_earnings' => (float)$weeklyEarnings,
-                'monthly_earnings' => (float)$monthlyEarnings,
-                'history' => $earningsHistory,
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Error fetching earnings data: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Helper method to calculate earnings for a period
-     */
-    protected function calculateEarnings($user, $startDate = null, $endDate = null)
-    {
-        $query = Payment::whereHas('booking', function($query) use ($user) {
-                $query->whereAny(['gardener_id', 'serviceprovider_id'], $user->id)
-                      ->where('status', 'completed');
-            })
-            ->where('payment_status', 'Received');
-
-        if ($startDate) {
-            $query->where('created_at', '>=', $startDate);
-        }
-        if ($endDate) {
-            $query->where('created_at', '<=', $endDate);
-        }
-
-        return $query->sum(DB::raw('amount_paid - admin_fee'));
-    }
-
-    /**
-     * Get earnings breakdown by service type
-     */
-    public function getEarningsBreakdown()
-    {
-        $user = auth()->user();
-        
-        $breakdown = Booking::where(function($query) use ($user) {
-                $query->where('gardener_id', $user->id)
-                      ->orWhere('serviceprovider_id', $user->id);
-            })
-            ->where('status', 'completed')
-            ->with(['payments' => function($q) {
-                $q->where('payment_status', 'Received');
-            }])
-            ->select('type', DB::raw('SUM(total_price) as total'))
-            ->groupBy('type')
-            ->get()
-            ->map(function($item) {
-                return [
-                    'service_type' => $item->type,
-                    'total_earnings' => (float)$item->total,
-                ];
-            });
-
-        return response()->json([
-            'breakdown' => $breakdown,
-        ]);
-    }
 
     public function getTotalEarnings()
 {
