@@ -34,7 +34,6 @@ class RecordSeeder extends Seeder
             'user_type' => 'homeowner'
         ]);
         
-        
         User::create([
             'name' => 'Gardener user',
             'email' => 'gardener@gardencare.com',
@@ -93,47 +92,62 @@ class RecordSeeder extends Seeder
         Service::create([
             'name' => 'Plant Care',
             'type' => 'Gardening',
-            'price' => 500
+            'description' => 'Professional care for your plants including pruning, fertilizing, and overall health assessment.',
+            'price' => 500,
+            'image' => 'services/plant_care.jpg'
         ]);
         Service::create([
             'name' => 'Watering',
             'type' => 'Gardening',
-            'price' => 500
+            'description' => 'Regular watering service to keep your plants hydrated and healthy, with customized schedules.',
+            'price' => 500,
+            'image' => 'services/watering.jpg'
         ]);
         Service::create([
             'name' => 'Pest Control',
             'type' => 'Gardening',
-            'price' => 500
+            'description' => 'Eco-friendly pest control solutions to protect your plants from harmful insects and diseases.',
+            'price' => 500,
+            'image' => 'services/pest_control.jpg'
         ]);
         Service::create([
             'name' => 'Lawn Mowing',
             'type' => 'Gardening',
-            'price' => 500
+            'description' => 'Professional lawn mowing service to keep your grass at the perfect height and looking neat.',
+            'price' => 500,
+            'image' => 'services/lawn_mowing.jpg'
         ]);
         
         Service::create([
             'name' => 'Garden Design',
             'type' => 'Landscaping',
-            'price' => 500
+            'description' => 'Custom garden design services to create beautiful and functional outdoor spaces.',
+            'price' => 500,
+            'image' => 'services/garden-design.jpg'
         ]);
 
         Service::create([
             'name' => 'Pathway Construction',
             'type' => 'Landscaping',
-            'price' => 500
+            'description' => 'Design and construction of beautiful pathways using various materials like stone, brick, or gravel.',
+            'price' => 500,
+            'image' => 'services/pathway.jpg'
         ]);
         
         Service::create([
             'name' => 'Fencing',
             'type' => 'Landscaping',
-            'price' => 500
+            'description' => 'Installation of durable and attractive fences to enhance privacy and security in your garden.',
+            'price' => 500,
+            'image' => 'services/fencing.jpg'
         ]);
         
         Service::create([
             'name' => 'Outdoor Furniture',
             'type' => 'Landscaping',
-            'price' => 500
+            'description' => 'Selection and installation of weather-resistant outdoor furniture to complement your garden design.',
+            'price' => 500,
+            'image' => 'services/outdoor-furniture.jpg'
         ]);
-
     }
 }
