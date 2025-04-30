@@ -115,7 +115,7 @@ class RecordSeeder extends Seeder
             'type' => 'Gardening',
             'description' => 'Professional lawn mowing service to keep your grass at the perfect height and looking neat.',
             'price' => 500,
-            'image' => 'lawn_mowing.jpg'
+            'image' => 'lawn mowing.jpg'
         ]);
         
         Service::create([
