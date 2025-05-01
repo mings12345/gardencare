@@ -108,4 +108,16 @@ class ServiceController extends Controller
 
         return response()->json(['services' => $landscapingServices]);
     }
+
+    public function countServices()
+    {
+        $gardeningCount = Service::where('type', 'Gardening')->count();
+        $landscapingCount = Service::where('type', 'Landscaping')->count();
+
+        return response()->json([
+            'gardening_count' => $gardeningCount,
+            'landscaping_count' => $landscapingCount,
+            'total_services' => $gardeningCount + $landscapingCount
+        ]);
+    }
 }
