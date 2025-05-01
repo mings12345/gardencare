@@ -332,7 +332,7 @@
                                             <div class="payment-details mb-2">
                                                 <div>
                                                     <strong>Amount:</strong> 
-                                                    {{ number_format($payment->amount_paid, 2) }}
+                                                    ₱{{ number_format($payment->amount_paid, 2) }}
                                                 </div>
                                                 <div>
                                                     <strong>Status:</strong> 
@@ -347,7 +347,7 @@
                                                 @if($payment->admin_fee)
                                                 <div>
                                                     <strong>Admin Fee:</strong> 
-                                                    {{ number_format($payment->admin_fee, 2) }}
+                                                    ₱{{ number_format($payment->admin_fee, 2) }}
                                                 </div>
                                                 @endif
                                             </div>
@@ -357,7 +357,7 @@
                                     @endif
                                 </td>
                                 <td data-label="Total">
-                                    {{ number_format($booking->total_price, 2) }}
+                                ₱{{ number_format($booking->total_price, 2) }}
                                 </td>
                                 <td data-label="Status">
                                     <span class="status-badge status-{{ $booking->status }}">
