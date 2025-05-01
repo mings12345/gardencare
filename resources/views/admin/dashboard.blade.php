@@ -253,7 +253,7 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h3>GreenThumb Admin</h3>
+            <h3>GardenCare Admin</h3>
         </div>
         <a href="{{ route('admin.dashboard') }}" class="active">
             <i class="fas fa-home"></i> <span>Dashboard</span>
