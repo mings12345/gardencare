@@ -300,49 +300,55 @@
         @else
             <div class="table-responsive">
                 <table class="table table-hover">
-                <thead>
-    <tr>
-        <th>ID</th>
-        <th>Service Type</th> <!-- Changed from "Type" to "Service Type" for clarity -->
-        <th>Customer</th>
-        <th>Professional</th>
-        <th>Date & Time</th>
-        <th>Services</th>
-        <th>Payment</th>
-        <th>Total</th>
-        <th>Status</th>
-        <th>Actions</th>
-    </tr>
-</thead>
-
-<!-- In the table body -->
-@foreach($bookings as $booking)
-    <tr>
-        <td data-label="ID">#{{ $booking->id }}</td>
-        <td data-label="Service Type">
-            @if($booking->gardener)
-                <span class="badge badge-gardening">Gardening</span>
-            @elseif($booking->serviceProvider)
-                <span class="badge badge-landscaping">Landscaping</span>
-            @else
-                <span class="badge bg-secondary">Unknown</span>
-            @endif
-        </td>
-        <td data-label="Customer">
-            <strong>{{ optional($booking->homeowner)->name ?? 'N/A' }}</strong>
-            <div class="text-muted small">{{ $booking->address }}</div>
-        </td>
-        <td data-label="Professional">
-            @if($booking->gardener)
-                <span class="badge bg-success">Gardener</span>
-                {{ $booking->gardener->name }}
-            @elseif($booking->serviceProvider)
-                <span class="badge bg-info">Service Provider</span>
-                {{ $booking->serviceProvider->name }}
-            @else
-                N/A
-            @endif
-        </td>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Customer</th>
+                            <th>Professional</th>
+                            <th>Date & Time</th>
+                            <th>Services</th>
+                            <th>Payment</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead> 
+                    <tbody>
+                        @foreach($bookings as $booking)
+                            <tr>
+                                <td data-label="ID">#{{ $booking->id }}</td>
+                                <td data-label="Type">
+                                    @if($booking->type == 'gardening')
+                                        <span class="badge badge-gardening">Gardening</span>
+                                    @else
+                                        <span class="badge badge-landscaping">Landscaping</span>
+                                    @endif
+                                </td>
+                                <td data-label="Customer">
+                                    <strong>{{ optional($booking->homeowner)->name ?? 'N/A' }}</strong>
+                                    <div class="text-muted small">{{ $booking->address }}</div>
+                                </td>
+                                <td data-label="Professional">
+                                    @if($booking->gardener)
+                                        <span class="badge bg-success">Gardener</span>
+                                        {{ $booking->gardener->name }}
+                                    @elseif($booking->serviceProvider)
+                                        <span class="badge bg-info">Service Provider</span>
+                                        {{ $booking->serviceProvider->name }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
+                                <td data-label="Date & Time">
+                                    <strong>{{ \Carbon\Carbon::parse($booking->date)->format('M d, Y') }}</strong>
+                                    <div class="text-muted small">{{ $booking->time }}</div>
+                                </td>
+                                <td data-label="Services">
+                                    @foreach($booking->services as $service)
+                                        <span class="badge badge-service">{{ $service->name }}</span>
+                                    @endforeach
+                                </td>
                                 <td data-label="Payment">
                                     @if($booking->payments->isNotEmpty())
                                         @foreach($booking->payments as $payment)
