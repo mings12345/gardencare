@@ -48,6 +48,8 @@ Route::get('/test', function () {
 Route::get('/services', [ServiceController::class, 'getServices']); // Get all services
 Route::get('/services/gardening', [ServiceController::class, 'getGardeningServices']);
 Route::get('/services/landscaping', [ServiceController::class, 'getLandscapingServices']);
+Route::get('/services/count', [ServiceController::class, 'countServices']);
+
 
 
 Route::get('/plants', [PlantController::class, 'index']);
@@ -82,7 +84,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         return $request->user();
     });
 
-    Route::get('/services/count', [ServiceController::class, 'countServices']);
     
     Route::get('/earnings/summary', [BookingController::class, 'getEarningsSummary']);
     Route::get('/get_total_earnings', [BookingController::class, 'getTotalEarnings']);
