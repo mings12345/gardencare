@@ -48,10 +48,6 @@
             font-size: 28px;
         }
 
-        .action-buttons .btn {
-            margin-left: 10px;
-        }
-
         .status-badge {
             padding: 5px 10px;
             border-radius: 20px;
@@ -245,21 +241,13 @@
     <div class="container-fluid">
         <div class="page-header">
             <h1><i class="fas fa-calendar-alt me-2"></i> Bookings Management</h1>
-            <div class="action-buttons">
-                <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newBookingModal">
-                    <i class="fas fa-plus me-2"></i>New Booking
-                </a>
-                <a href="#" class="btn btn-outline-secondary">
-                    <i class="fas fa-download me-2"></i>Export
-                </a>
-            </div>
         </div>
 
         <!-- Filter Section -->
         <div class="filter-section">
             <h5 class="filter-title"><i class="fas fa-filter me-2"></i>Filter Bookings</h5>
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-6">
                     <label for="statusFilter" class="form-label">Status</label>
                     <select class="form-select" id="statusFilter">
                         <option value="">All Statuses</option>
@@ -269,21 +257,13 @@
                         <option value="declined">Declined</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6">
                     <label for="typeFilter" class="form-label">Service Type</label>
                     <select class="form-select" id="typeFilter">
                         <option value="">All Types</option>
                         <option value="gardening">Gardening</option>
                         <option value="landscaping">Landscaping</option>
                     </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="dateFrom" class="form-label">From Date</label>
-                    <input type="date" class="form-control" id="dateFrom">
-                </div>
-                <div class="col-md-3">
-                    <label for="dateTo" class="form-label">To Date</label>
-                    <input type="date" class="form-control" id="dateTo">
                 </div>
             </div>
         </div>
@@ -292,10 +272,7 @@
             <div class="empty-state">
                 <i class="fas fa-calendar-times"></i>
                 <h3>No Bookings Found</h3>
-                <p>There are currently no bookings in the system. You can create a new booking by clicking the button above.</p>
-                <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newBookingModal">
-                    <i class="fas fa-plus me-2"></i>Create New Booking
-                </a>
+                <p>There are currently no bookings in the system.</p>
             </div>
         @else
             <div class="table-responsive">
@@ -369,7 +346,7 @@
                                                 </div>
                                                 @if($payment->admin_fee)
                                                 <div>
-                                                    <strong>Fee:</strong> 
+                                                    <strong>Admin Fee:</strong> 
                                                     ${{ number_format($payment->admin_fee, 2) }}
                                                 </div>
                                                 @endif
@@ -405,103 +382,7 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Pagination -->
-            <nav aria-label="Page navigation" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">Next</a>
-                    </li>
-                </ul>
-            </nav>
         @endif
-    </div>
-
-    <!-- New Booking Modal -->
-    <div class="modal fade" id="newBookingModal" tabindex="-1" aria-labelledby="newBookingModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="newBookingModalLabel">Create New Booking</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="bookingType" class="form-label">Service Type</label>
-                                <select class="form-select" id="bookingType" required>
-                                    <option value="">Select Type</option>
-                                    <option value="gardening">Gardening</option>
-                                    <option value="landscaping">Landscaping</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="customerSelect" class="form-label">Customer</label>
-                                <select class="form-select" id="customerSelect" required>
-                                    <option value="">Select Customer</option>
-                                    @foreach($customers as $customer)
-                                        <option value="{{ $customer->id }}">{{ $customer->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="serviceDate" class="form-label">Service Date</label>
-                                <input type="date" class="form-control" id="serviceDate" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="serviceTime" class="form-label">Service Time</label>
-                                <input type="time" class="form-control" id="serviceTime" required>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="serviceAddress" class="form-label">Service Address</label>
-                            <textarea class="form-control" id="serviceAddress" rows="2" required></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Select Services</label>
-                            <div class="row">
-                                @foreach($services as $service)
-                                    <div class="col-md-4 mb-2">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="{{ $service->id }}" id="service{{ $service->id }}">
-                                            <label class="form-check-label" for="service{{ $service->id }}">
-                                                {{ $service->name }} (${{ number_format($service->price, 2) }})
-                                            </label>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="paymentMethod" class="form-label">Payment Method</label>
-                            <select class="form-select" id="paymentMethod">
-                                <option value="credit_card">Credit Card</option>
-                                <option value="bank_transfer">Bank Transfer</option>
-                                <option value="cash">Cash</option>
-                                <option value="paypal">PayPal</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="specialInstructions" class="form-label">Special Instructions</label>
-                            <textarea class="form-control" id="specialInstructions" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-success">Create Booking</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Bootstrap JS Bundle with Popper -->
