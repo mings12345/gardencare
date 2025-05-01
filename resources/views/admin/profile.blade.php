@@ -196,7 +196,6 @@
 
                 <form method="POST" action="{{ route('admin.profile.update') }}" enctype="multipart/form-data">
                     @csrf
-                    @method('PUT')
 
                     <div class="avatar-container">
                         @if($user->avatar)
