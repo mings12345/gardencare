@@ -358,33 +358,6 @@
                 </div>
             </a>
         </div>
-
-        <!-- Recent Activity Section -->
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title" style="color: var(--primary-color);">Recent Activity</h5>
-                <div class="list-group">
-                    <div class="list-group-item border-0">
-                        <div class="d-flex w-100 justify-content-between">
-                            <small class="text-muted">Today, 10:45 AM</small>
-                        </div>
-                        <p class="mb-1"><i class="fas fa-user-plus text-success me-2"></i> New user registered: John Doe</p>
-                    </div>
-                    <div class="list-group-item border-0">
-                        <div class="d-flex w-100 justify-content-between">
-                            <small class="text-muted">Today, 09:30 AM</small>
-                        </div>
-                        <p class="mb-1"><i class="fas fa-calendar-check text-primary me-2"></i> New booking for Lawn Mowing</p>
-                    </div>
-                    <div class="list-group-item border-0">
-                        <div class="d-flex w-100 justify-content-between">
-                            <small class="text-muted">Yesterday, 4:15 PM</small>
-                        </div>
-                        <p class="mb-1"><i class="fas fa-star text-warning me-2"></i> New 5-star rating received</p>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Bootstrap JS Bundle with Popper -->
