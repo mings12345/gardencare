@@ -10,30 +10,117 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary-green: #2e7d32;
+            --light-green: #81c784;
+            --lighter-green: #e8f5e9;
+            --accent-green: #4caf50;
+            --dark-green: #1b5e20;
+        }
+        
         body {
-            background-color: #f8f9fa;
+            background-color: #f5f9f5;
             padding-top: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        
         .card {
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.15);
+            box-shadow: 0 0.25rem 1rem rgba(46, 125, 50, 0.15);
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
         }
+        
         .card-header {
             font-weight: 600;
-            background-color: rgba(0, 0, 0, 0.03);
+            background-color: var(--primary-green);
+            color: white;
+            border-bottom: none;
+            padding: 1.25rem 1.5rem;
         }
+        
+        .card-title {
+            margin: 0;
+            font-size: 1.4rem;
+        }
+        
         .rating-display {
             display: flex;
             align-items: center;
         }
+        
         .rating-display i {
             font-size: 1rem;
             color: #ffc107;
         }
+        
         .table-responsive {
             overflow-x: auto;
+            border-radius: 8px;
         }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table thead {
+            background-color: var(--lighter-green);
+            color: var(--dark-green);
+        }
+        
+        .table th {
+            border-bottom: 2px solid var(--light-green);
+            padding: 12px 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(129, 199, 132, 0.1);
+        }
+        
         .pagination {
             justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .page-item.active .page-link {
+            background-color: var(--primary-green);
+            border-color: var(--primary-green);
+        }
+        
+        .page-link {
+            color: var(--primary-green);
+        }
+        
+        .card-footer {
+            background-color: white;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .badge-green {
+            background-color: var(--light-green);
+            color: var(--dark-green);
+        }
+        
+        .empty-state {
+            padding: 3rem;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--light-green);
+            margin-bottom: 1rem;
         }
     </style>
 </head>
@@ -43,12 +130,12 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="card-title">Manage Ratings (Total: {{ $totalRatings }})</h3>
+                        <h3 class="card-title">Manage Ratings <span class="badge badge-green bg-light text-dark ms-2">{{ $totalRatings }} total</span></h3>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-hover">
-                                <thead class="table-light">
+                            <table class="table table-hover mb-0">
+                                <thead>
                                     <tr>
                                         <th>ID</th>
                                         <th>Booking ID</th>
@@ -82,35 +169,41 @@
                                             @if ($rating->booking->homeowner)
                                                 {{ $rating->booking->homeowner->name }}
                                             @else
-                                                N/A
+                                                <span class="text-muted">N/A</span>
                                             @endif
                                         </td>
                                         <td>
                                             @if ($rating->booking->gardener)
                                                 {{ $rating->booking->gardener->name }}
                                             @else
-                                                N/A
+                                                <span class="text-muted">N/A</span>
                                             @endif
                                         </td>
                                         <td>
                                             @if ($rating->booking->serviceProvider)
                                                 {{ $rating->booking->serviceProvider->name }}
                                             @else
-                                                N/A
+                                                <span class="text-muted">N/A</span>
                                             @endif
                                         </td>
                                         <td>{{ $rating->created_at->format('M d, Y H:i') }}</td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="8" class="text-center py-4">No ratings found</td>
+                                        <td colspan="8" class="text-center py-4">
+                                            <div class="empty-state">
+                                                <i class="far fa-star"></i>
+                                                <h4>No ratings found</h4>
+                                                <p class="text-muted">When ratings are submitted, they will appear here.</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     @endforelse
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    <div class="card-footer d-flex justify-content-center">
+                    <div class="card-footer">
                         {{ $ratings->links() }}
                     </div>
                 </div>
