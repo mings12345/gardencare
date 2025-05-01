@@ -138,7 +138,7 @@
             <!-- Total Earnings Card -->
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Total Earnings</h5>
+                    <h5 class="card-title">My Earnings</h5>
                     <p class="card-text">${{ number_format($totalEarnings, 2) }}</p>
                 </div>
             </div>
