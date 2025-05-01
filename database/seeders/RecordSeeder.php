@@ -35,6 +35,13 @@ class RecordSeeder extends Seeder
         ]);
         
         User::create([
+            'name' => 'Nikks',
+            'email' => 'nikks@gardencare.com',
+            'password' => bcrypt('LLCC@2025'),
+            'user_type' => 'homeowner'
+        ]);
+        
+        User::create([
             'name' => 'Gardener user',
             'email' => 'gardener@gardencare.com',
             'password' => bcrypt('LLCC@2025'),
