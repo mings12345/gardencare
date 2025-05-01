@@ -75,19 +75,17 @@
             z-index: 5;
         }
         
-        .btn-success {
+        .btn-primary {
             background-color: var(--primary-green);
             border-color: var(--primary-green);
             padding: 0.75rem 1.5rem;
             font-weight: 500;
-            width: 100%;
-            margin-top: 1rem;
             border-radius: 8px;
             transition: all 0.3s;
             letter-spacing: 0.5px;
         }
         
-        .btn-success:hover {
+        .btn-primary:hover {
             background-color: var(--dark-green);
             border-color: var(--dark-green);
             transform: translateY(-2px);
@@ -95,8 +93,9 @@
         }
         
         .btn-secondary {
-            background-color: #6c757d;
-            border-color: #6c757d;
+            background-color: white;
+            border-color: var(--primary-green);
+            color: var(--primary-green);
             padding: 0.75rem 1.5rem;
             font-weight: 500;
             border-radius: 8px;
@@ -105,10 +104,8 @@
         }
         
         .btn-secondary:hover {
-            background-color: #5a6268;
-            border-color: #545b62;
+            background-color: var(--light-green);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
         }
         
         .form-section {
@@ -127,7 +124,7 @@
             align-items: center;
         }
         
-        .leaf-icon {
+        .gardener-icon {
             color: var(--primary-green);
             margin-right: 10px;
         }
@@ -144,19 +141,18 @@
         
         .alert {
             border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            border-left: 4px solid;
-        }
-        
-        .alert-danger {
-            background-color: #f8d7da;
-            border-color: #dc3545;
         }
         
         .alert-success {
             background-color: #d4edda;
-            border-color: var(--primary-green);
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
         }
         
         @media (max-width: 768px) {
@@ -174,7 +170,7 @@
             }
         }
         
-        /* Nature-inspired decorative elements */
+        /* Nature decorative elements */
         .nature-decoration {
             position: absolute;
             opacity: 0.1;
@@ -199,15 +195,16 @@
 <body>
     <!-- Nature decorative elements -->
     <i class="fas fa-leaf nature-decoration leaf-1"></i>
-    <i class="fas fa-leaf nature-decoration leaf-2"></i>
+    <i class="fas fa-seedling nature-decoration leaf-2"></i>
 
     <div class="container mt-5">
         <h1><i class="fas fa-user-shield header-icon"></i>Add Gardener</h1>
-        
+
         <!-- Display validation errors (if any) -->
         @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul class="mb-0">
+            <div class="alert alert-danger mb-4">
+                <strong>Whoops!</strong> There were some problems with your input.
+                <ul class="mt-2 mb-0">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -217,20 +214,20 @@
 
         <!-- Display success message (if any) -->
         @if(session('success'))
-            <div class="alert alert-success">
+            <div class="alert alert-success mb-4">
                 <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
             </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.storeGardener') }}">
+        <form action="{{ route('admin.storeGardener') }}" method="POST">
             @csrf
             
             <div class="form-section">
-                <h5><i class="fas fa-user-circle leaf-icon"></i>Personal Information</h5>
+                <h5><i class="fas fa-user-tie gardener-icon"></i>Gardener Information</h5>
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="name" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" placeholder="Enter full name" required>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" placeholder="Enter gardener's full name" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="email" class="form-label">Email</label>
@@ -241,7 +238,7 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="phone" class="form-label">Phone Number</label>
-                        <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone') }}" placeholder="Enter phone number">
+                        <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone') }}" placeholder="Enter contact number">
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="address" class="form-label">Address</label>
@@ -250,24 +247,24 @@
                 </div>
             </div>
             
-            <div class="form-section">
-                <h5><i class="fas fa-lock leaf-icon"></i>Account Security</h5>
+            <div class="form-section mb-4">
+                <h5><i class="fas fa-lock gardener-icon"></i>Account Security</h5>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
                     <div class="password-input-group">
                         <input type="password" class="form-control" id="password" name="password" placeholder="Create password (min 8 chars)" required>
                         <i class="fas fa-eye password-toggle" onclick="togglePassword('password')"></i>
                     </div>
-                    <small class="text-muted">Include numbers and special characters</small>
+                    <small class="text-muted">Include numbers and special characters for security</small>
                 </div>
             </div>
             
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                <a href="{{ route('admin.manageGardeners') }}" class="btn btn-secondary me-2">
-                    <i class="fas fa-times me-2"></i>Cancel
+            <div class="d-flex justify-content-between">
+                <a href="{{ route('admin.manageGardeners') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Cancel
                 </a>
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-user-plus me-2"></i>Add Gardener
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-user-plus me-2"></i>Register Gardener
                 </button>
             </div>
         </form>
@@ -287,5 +284,6 @@
             }
         }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
