@@ -247,23 +247,25 @@
                 </div>
             </div>
             
-            <div class="form-section mb-4">
-                <h5><i class="fas fa-lock gardener-icon"></i>Account Security</h5>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <div class="password-input-group">
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Create password (min 8 chars)" required>
-                        <i class="fas fa-eye password-toggle" onclick="togglePassword('password')"></i>
+            <div class="form-section">
+                <h5><i class="fas fa-lock leaf-icon"></i>Account Security</h5>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="password-input-group">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Create password (min 8 chars)" required>
+                            <i class="fas fa-eye password-toggle" onclick="togglePassword('password')"></i>
+                        </div>
+                        <small class="text-muted">Include numbers and special characters</small>
                     </div>
-                    <small class="text-muted">Include numbers and special characters for security</small>
-                </div>
-                <div class="col-md-6 mb-3">
+                    <div class="col-md-6 mb-3">
                         <label for="password_confirmation" class="form-label">Confirm Password</label>
                         <div class="password-input-group">
                             <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Confirm your password" required>
                             <i class="fas fa-eye password-toggle" onclick="togglePassword('password_confirmation')"></i>
                         </div>
                     </div>
+                </div>
             </div>
             
             <div class="d-flex justify-content-between">
