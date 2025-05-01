@@ -79,23 +79,14 @@ class AdminDashboardController extends Controller
     {
         $user = Auth::user();
 
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'email' => 'required|email|unique:users,email,'.auth()->id(),
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        $data = [
-            'name' => $request->name,
-            'email' => $request->email,
-        ];
-
+    
+        $user = auth()->user();
+        
         if ($request->hasFile('avatar')) {
             // Delete old avatar if exists
             if ($user->avatar) {
@@ -103,14 +94,13 @@ class AdminDashboardController extends Controller
             }
             
             // Store new avatar
-            $path = $request->file('avatar')->store('avatars');
-            $data['avatar'] = $path;
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar'] = $path;
         }
-
-        $user->update($data);
-
-        return redirect()->route('admin.profile')
-            ->with('success', 'Profile updated successfully!');
+    
+        $user->update($validated);
+    
+        return back()->with('success', 'Profile updated successfully!');
     }
 
     /**
