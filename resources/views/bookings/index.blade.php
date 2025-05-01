@@ -264,9 +264,9 @@
                     <select class="form-select" id="statusFilter">
                         <option value="">All Statuses</option>
                         <option value="pending">Pending</option>
-                        <option value="confirmed">Accepted</option>
+                        <option value="accepted">Accepted</option>
                         <option value="completed">Completed</option>
-                        <option value="cancelled">Declined</option>
+                        <option value="declined">Declined</option>
                     </select>
                 </div>
                 <div class="col-md-3">
