@@ -75,14 +75,16 @@ class AdminDashboardController extends Controller
     /**
      * Update the admin profile
      */
-        public function updateProfile(Request $request)
+    public function updateProfile(Request $request)
     {
         $user = Auth::user();
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+            'password' => 'nullable|string|min:6|confirmed',
         ]);
 
         if ($validator->fails()) {
@@ -94,17 +96,12 @@ class AdminDashboardController extends Controller
         $data = [
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
         ];
 
-        if ($request->hasFile('avatar')) {
-            // Delete old avatar if exists
-            if ($user->avatar) {
-                Storage::delete($user->avatar);
-            }
-            
-            // Store new avatar
-            $path = $request->file('avatar')->store('avatars');
-            $data['avatar'] = $path;
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
         }
 
         $user->update($data);
