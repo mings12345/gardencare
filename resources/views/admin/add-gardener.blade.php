@@ -257,6 +257,13 @@
                     </div>
                     <small class="text-muted">Include numbers and special characters for security</small>
                 </div>
+                <div class="col-md-6 mb-3">
+                        <label for="password_confirmation" class="form-label">Confirm Password</label>
+                        <div class="password-input-group">
+                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Confirm your password" required>
+                            <i class="fas fa-eye password-toggle" onclick="togglePassword('password_confirmation')"></i>
+                        </div>
+                    </div>
             </div>
             
             <div class="d-flex justify-content-between">
