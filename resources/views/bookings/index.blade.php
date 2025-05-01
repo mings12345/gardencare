@@ -319,7 +319,7 @@
                             <tr>
                                 <td data-label="ID">#{{ $booking->id }}</td>
                                 <td data-label="Type">
-                                    @if($booking->type == 'gardening')
+                                @if(strtolower($booking->type) == 'gardening')
                                         <span class="badge badge-gardening">Gardening</span>
                                     @else
                                         <span class="badge badge-landscaping">Landscaping</span>
