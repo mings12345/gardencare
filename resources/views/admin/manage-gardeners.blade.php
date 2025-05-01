@@ -63,10 +63,6 @@
             transform: translateY(-2px);
         }
 
-        .alert-success {
-            border-left: 4px solid var(--secondary-color);
-        }
-
         .table-responsive {
             border-radius: 10px;
             overflow: hidden;
@@ -97,7 +93,6 @@
         .action-buttons {
             display: flex;
             gap: 8px;
-            flex-wrap: wrap;
         }
 
         .action-buttons .btn {
@@ -112,7 +107,12 @@
 
         .action-buttons .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .alert {
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
         }
 
         .empty-state {
@@ -134,23 +134,6 @@
             margin-bottom: 15px;
         }
 
-        .badge-status {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-active {
-            background-color: #D4EDDA;
-            color: #155724;
-        }
-
-        .status-inactive {
-            background-color: #FFF3CD;
-            color: #856404;
-        }
-
         @media (max-width: 768px) {
             .header-container {
                 flex-direction: column;
@@ -160,6 +143,11 @@
             
             .header-container h1 {
                 margin-bottom: 0;
+            }
+            
+            .action-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
             }
             
             .table-responsive {
@@ -198,10 +186,6 @@
                 border-bottom: none;
                 justify-content: center;
             }
-            
-            .action-buttons {
-                justify-content: center;
-            }
         }
     </style>
 </head>
@@ -211,7 +195,7 @@
         <div class="header-container">
             <div>
                 <a href="{{ route('admin.manageUsers') }}" class="btn btn-outline-secondary btn-back">
-                    <i class="fas fa-arrow-left me-2"></i> Back to Users
+                    <i class="fas fa-arrow-left me-2"></i> Back
                 </a>
             </div>
             <h1><i class="fas fa-leaf me-2"></i> Manage Gardeners</h1>
@@ -222,14 +206,14 @@
             </div>
         </div>
 
-        <!-- Success Message -->
+        <!-- Success Message (if any) -->
         @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show mb-4">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
             </div>
         @endif
 
+        <!-- Gardeners Table -->
         @if($gardeners->isEmpty())
             <div class="empty-state">
                 <i class="fas fa-leaf"></i>
@@ -248,7 +232,7 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
-                            <th>Status</th>
+                            <th>Address</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -259,11 +243,7 @@
                             <td data-label="Name">{{ $gardener->name }}</td>
                             <td data-label="Email">{{ $gardener->email }}</td>
                             <td data-label="Phone">{{ $gardener->phone ?? 'N/A' }}</td>
-                            <td data-label="Status">
-                                <span class="badge-status status-{{ $gardener->is_active ? 'active' : 'inactive' }}">
-                                    {{ $gardener->is_active ? 'Active' : 'Inactive' }}
-                                </span>
-                            </td>
+                            <td data-label="Address">{{ $gardener->address ?? 'N/A' }}</td>
                             <td data-label="Actions" class="action-buttons">
                                 <!-- View Button -->
                                 <a href="{{ route('admin.viewGardener', $gardener->id) }}" class="btn btn-info btn-sm" title="View">
@@ -294,19 +274,5 @@
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Simple animation for alert dismissal
-        document.addEventListener('DOMContentLoaded', function() {
-            const alert = document.querySelector('.alert');
-            if (alert) {
-                setTimeout(() => {
-                    alert.classList.add('fade');
-                    setTimeout(() => {
-                        alert.remove();
-                    }, 150);
-                }, 5000);
-            }
-        });
-    </script>
 </body>
 </html>
