@@ -317,16 +317,17 @@
             <div class="user-profile" onclick="toggleDropdown()">
                 <img src="https://ui-avatars.com/api/?name=Admin&background=4CAF50&color=fff" alt="Admin">
                 <span>Admin</span>
-                <div class="user-profile-dropdown" id="profileDropdown">
-                    <a href="#"><i class="fas fa-user"></i> Profile</a>
-                    <a href="{{ route('logout') }}" 
-                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                       <i class="fas fa-sign-out-alt"></i> Logout
-                    </a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                        @csrf
-                    </form>
-                </div>
+                <!-- Update the user-profile-dropdown div in dashboard.blade.php -->
+            <div class="user-profile-dropdown" id="profileDropdown">
+                <a href="{{ route('admin.profile') }}"><i class="fas fa-user"></i> Profile</a>
+                <a href="{{ route('logout') }}" 
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+                <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+            </div>
             </div>
         </div>
 

@@ -22,6 +22,13 @@ Route::post('/admin/login', [AuthController::class, 'adminLogin'])->name('admin.
 
 // Admin Protected Routes
 Route::middleware(['auth'])->prefix('admin')->group(function () {
+
+    // Profile routes
+    Route::get('/admin/profile', [AdminDashboardController::class, 'showProfile'])->name('admin.profile');
+    Route::post('/admin/profile/update', [AdminDashboardController::class, 'updateProfile'])->name('admin.profile.update');
+    
+    // Admin logout route
+    Route::post('/admin/logout', [AdminDashboardController::class, 'logout'])->name('admin.logout');
     // Dashboard
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     
