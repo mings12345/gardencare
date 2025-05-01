@@ -281,7 +281,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Type</th>
-                            <th>Customer</th>
+                            <th>Homeowner</th>
                             <th>Professional</th>
                             <th>Date & Time</th>
                             <th>Services</th>
@@ -302,7 +302,7 @@
                                         <span class="badge badge-landscaping">Landscaping</span>
                                     @endif
                                 </td>
-                                <td data-label="Customer">
+                                <td data-label="Homeowner">
                                     <strong>{{ optional($booking->homeowner)->name ?? 'N/A' }}</strong>
                                     <div class="text-muted small">{{ $booking->address }}</div>
                                 </td>
