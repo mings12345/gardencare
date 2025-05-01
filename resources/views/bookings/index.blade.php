@@ -25,8 +25,10 @@
                         <th>Date</th>
                         <th>Time</th>
                         <th>Total Price</th>
+                        <th>Status</th>
                         <th>Special Instructions</th>
                         <th>Datetime Submitted</th>
+                        <th>Payments</th>
                         <th>Services</th>
                     </tr>
                 </thead> 
@@ -42,8 +44,27 @@
                             <td>{{ $booking->date }}</td>
                             <td>{{ $booking->time }}</td>
                             <td>{{ $booking->total_price }}</td>
+                            <td>{{ ucfirst($booking->status) }}</td>
                             <td>{{ $booking->special_instructions ?? 'None' }}</td>
-                            <td>{{ $booking->created_at}}</td>
+                            <td>{{ $booking->created_at }}</td>
+                            <td>
+                                @if($booking->payments->isNotEmpty())
+                                    <ul>
+                                        @foreach($booking->payments as $payment)
+                                            <li>
+                                                Amount: {{ $payment->amount_paid }}<br>
+                                                Status: {{ ucfirst($payment->payment_status) }}<br>
+                                                Date: {{ $payment->payment_date }}<br>
+                                                @if($payment->admin_fee)
+                                                    Admin Fee: {{ $payment->admin_fee }}
+                                                @endif
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    No payments
+                                @endif
+                            </td>
                             <td>
                                 <ul>
                                     @foreach($booking->services as $service)
