@@ -115,6 +115,16 @@
             display: inline-block;
         }
 
+        .badge-gardening {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .badge-landscaping {
+            background-color: #2196F3;
+            color: white;
+        }
+
         .payment-details {
             background-color: #f8f9fa;
             padding: 10px;
@@ -125,6 +135,21 @@
         .payment-details strong {
             display: inline-block;
             width: 80px;
+        }
+
+        .payment-status-paid {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .payment-status-pending {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
+        .payment-status-failed {
+            color: #dc3545;
+            font-weight: bold;
         }
 
         .empty-state {
@@ -245,11 +270,11 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label for="typeFilter" class="form-label">Type</label>
+                    <label for="typeFilter" class="form-label">Service Type</label>
                     <select class="form-select" id="typeFilter">
                         <option value="">All Types</option>
-                        <option value="regular">Regular</option>
-                        <option value="emergency">Emergency</option>
+                        <option value="gardening">Gardening</option>
+                        <option value="landscaping">Landscaping</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -283,6 +308,7 @@
                             <th>Professional</th>
                             <th>Date & Time</th>
                             <th>Services</th>
+                            <th>Payment</th>
                             <th>Total</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -293,10 +319,10 @@
                             <tr>
                                 <td data-label="ID">#{{ $booking->id }}</td>
                                 <td data-label="Type">
-                                    @if($booking->type == 'emergency')
-                                        <span class="badge bg-danger">Emergency</span>
+                                    @if($booking->type == 'gardening')
+                                        <span class="badge badge-gardening">Gardening</span>
                                     @else
-                                        <span class="badge bg-primary">Regular</span>
+                                        <span class="badge badge-landscaping">Landscaping</span>
                                     @endif
                                 </td>
                                 <td data-label="Customer">
@@ -322,6 +348,36 @@
                                     @foreach($booking->services as $service)
                                         <span class="badge badge-service">{{ $service->name }}</span>
                                     @endforeach
+                                </td>
+                                <td data-label="Payment">
+                                    @if($booking->payments->isNotEmpty())
+                                        @foreach($booking->payments as $payment)
+                                            <div class="payment-details mb-2">
+                                                <div>
+                                                    <strong>Amount:</strong> 
+                                                    ${{ number_format($payment->amount_paid, 2) }}
+                                                </div>
+                                                <div>
+                                                    <strong>Status:</strong> 
+                                                    <span class="payment-status-{{ $payment->payment_status }}">
+                                                        {{ ucfirst($payment->payment_status) }}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <strong>Date:</strong> 
+                                                    {{ \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') }}
+                                                </div>
+                                                @if($payment->admin_fee)
+                                                <div>
+                                                    <strong>Fee:</strong> 
+                                                    ${{ number_format($payment->admin_fee, 2) }}
+                                                </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <span class="text-muted">No payments</span>
+                                    @endif
                                 </td>
                                 <td data-label="Total">
                                     ${{ number_format($booking->total_price, 2) }}
@@ -379,15 +435,16 @@
                     <form>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="bookingType" class="form-label">Booking Type</label>
-                                <select class="form-select" id="bookingType">
-                                    <option value="regular">Regular</option>
-                                    <option value="emergency">Emergency</option>
+                                <label for="bookingType" class="form-label">Service Type</label>
+                                <select class="form-select" id="bookingType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="gardening">Gardening</option>
+                                    <option value="landscaping">Landscaping</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
                                 <label for="customerSelect" class="form-label">Customer</label>
-                                <select class="form-select" id="customerSelect">
+                                <select class="form-select" id="customerSelect" required>
                                     <option value="">Select Customer</option>
                                     @foreach($customers as $customer)
                                         <option value="{{ $customer->id }}">{{ $customer->name }}</option>
@@ -398,16 +455,16 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="serviceDate" class="form-label">Service Date</label>
-                                <input type="date" class="form-control" id="serviceDate">
+                                <input type="date" class="form-control" id="serviceDate" required>
                             </div>
                             <div class="col-md-6">
                                 <label for="serviceTime" class="form-label">Service Time</label>
-                                <input type="time" class="form-control" id="serviceTime">
+                                <input type="time" class="form-control" id="serviceTime" required>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label for="serviceAddress" class="form-label">Service Address</label>
-                            <textarea class="form-control" id="serviceAddress" rows="2"></textarea>
+                            <textarea class="form-control" id="serviceAddress" rows="2" required></textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Select Services</label>
@@ -423,6 +480,15 @@
                                     </div>
                                 @endforeach
                             </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="paymentMethod" class="form-label">Payment Method</label>
+                            <select class="form-select" id="paymentMethod">
+                                <option value="credit_card">Credit Card</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                                <option value="cash">Cash</option>
+                                <option value="paypal">PayPal</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="specialInstructions" class="form-label">Special Instructions</label>
