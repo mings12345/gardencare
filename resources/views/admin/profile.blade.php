@@ -169,24 +169,11 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <i class="fas fa-leaf"></i> GreenSpace Admin
+                <i class="fas fa-leaf"></i> GardenCare Admin
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#"><i class="fas fa-user-circle"></i> Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                    </li>
-                </ul>
-            </div>
         </div>
     </nav>
 
@@ -257,7 +244,7 @@
 
     <footer>
         <div class="container">
-            <p class="mb-0">&copy; 2025 GreenSpace Admin Panel. All rights reserved.</p>
+            <p class="mb-0">&copy; 2025 GardenCare Admin Panel. All rights reserved.</p>
         </div>
     </footer>
 
