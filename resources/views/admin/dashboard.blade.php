@@ -112,6 +112,8 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            cursor: pointer;
+            position: relative;
         }
 
         .user-profile img {
@@ -120,6 +122,42 @@
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid var(--accent-color);
+        }
+
+        .user-profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            min-width: 200px;
+            z-index: 100;
+            overflow: hidden;
+            display: none;
+        }
+
+        .user-profile-dropdown.show {
+            display: block;
+        }
+
+        .user-profile-dropdown a {
+            padding: 10px 15px;
+            display: block;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .user-profile-dropdown a:hover {
+            background-color: var(--light-color);
+            color: var(--primary-color);
+        }
+
+        .user-profile-dropdown a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
         }
 
         /* Card grid styling */
@@ -276,9 +314,19 @@
     <div class="main-content">
         <div class="header">
             <h1>Admin Dashboard</h1>
-            <div class="user-profile">
+            <div class="user-profile" onclick="toggleDropdown()">
                 <img src="https://ui-avatars.com/api/?name=Admin&background=4CAF50&color=fff" alt="Admin">
                 <span>Admin</span>
+                <div class="user-profile-dropdown" id="profileDropdown">
+                    <a href="#"><i class="fas fa-user"></i> Profile</a>
+                    <a href="{{ route('logout') }}" 
+                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                       <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -372,6 +420,25 @@
                     card.style.transform = 'translateY(0)';
                 }, index * 100);
             });
+        });
+
+        // Toggle profile dropdown
+        function toggleDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close the dropdown if clicked outside
+        window.addEventListener('click', function(event) {
+            if (!event.target.matches('.user-profile') && !event.target.closest('.user-profile')) {
+                const dropdowns = document.getElementsByClassName('user-profile-dropdown');
+                for (let i = 0; i < dropdowns.length; i++) {
+                    const openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
         });
     </script>
 </body>
