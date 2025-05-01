@@ -74,5 +74,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Booking::class, 'homeowner_id');
     }
-  
+    
+            public function bookings()
+        {
+            return $this->hasMany(Booking::class, 'gardener_id');
+        }
 }

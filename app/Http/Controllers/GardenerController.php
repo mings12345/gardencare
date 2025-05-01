@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Models\Booking;
 use Illuminate\Support\Facades\Hash;
 
 class GardenerController extends Controller
@@ -93,12 +92,15 @@ class GardenerController extends Controller
     {
         $gardener = User::findOrFail($id);
         
-        // Delete related bookings first
-        $gardener->bookings()->delete();
+        // Check if gardener has bookings
+        if ($gardener->bookings()->exists()) {
+            return redirect()->route('admin.manageGardeners')
+                ->with('error', 'Cannot delete gardener because they have associated bookings.');
+        }
         
         $gardener->delete();
-    
+
         return redirect()->route('admin.manageGardeners')
-            ->with('success', 'Gardener and related bookings deleted successfully.');
+            ->with('success', 'Gardener deleted successfully.');
     }
 }
