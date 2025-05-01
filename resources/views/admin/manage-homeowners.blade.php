@@ -3,49 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Homeowners</title>
+    <title>Manage Homeowners | GreenThumb</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome for Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .action-buttons .btn {
-            margin-right: 5px;
+        :root {
+            --primary-color: #2E7D32;
+            --secondary-color: #4CAF50;
+            --accent-color: #8BC34A;
+            --light-color: #F1F8E9;
+            --dark-color: #1B5E20;
+            --text-color: #333;
+            --text-light: #666;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
         }
-        .action-buttons .btn:last-child {
-            margin-right: 0;
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9f9f9;
+            color: var(--text-color);
         }
+
+        .container {
+            padding: 30px;
+            max-width: 1200px;
+        }
+
         .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .header-container h1 {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .btn-back {
+            transition: var(--transition);
+        }
+
+        .btn-back:hover {
+            transform: translateX(-3px);
+        }
+
+        .btn-add {
+            transition: var(--transition);
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+        }
+
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            vertical-align: middle;
+            padding: 15px;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: 12px 15px;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(139, 195, 74, 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-buttons .btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .action-buttons .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .empty-state i {
+            font-size: 50px;
+            color: var(--accent-color);
             margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .header-container h1 {
+                margin-bottom: 0;
+            }
+            
+            .action-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .table-responsive {
+                overflow-x: auto;
+            }
+            
+            .table thead {
+                display: none;
+            }
+            
+            .table tbody tr {
+                display: block;
+                margin-bottom: 20px;
+                border: 1px solid #eee;
+                border-radius: 8px;
+                box-shadow: var(--shadow);
+            }
+            
+            .table tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 15px;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            
+            .table tbody td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--primary-color);
+                margin-right: 15px;
+                flex: 0 0 120px;
+            }
+            
+            .table tbody td:last-child {
+                border-bottom: none;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container mt-5">
+    <div class="container">
         <!-- Header with Back Button and Title -->
         <div class="header-container">
             <div>
-                <a href="{{ route('admin.manageUsers') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Back </a>
+                <a href="{{ route('admin.manageUsers') }}" class="btn btn-outline-secondary btn-back">
+                    <i class="fas fa-arrow-left me-2"></i> Back
+                </a>
             </div>
-            <h1>Manage Homeowners</h1>
+            <h1><i class="fas fa-home me-2"></i> Manage Homeowners</h1>
             <div>
-                <!-- Add Homeowner Button -->
-                <a href="{{ route('admin.addHomeowner') }}" class="btn btn-success">
-                    <i class="fas fa-plus"></i> Add Homeowner
+                <a href="{{ route('admin.addHomeowner') }}" class="btn btn-success btn-add">
+                    <i class="fas fa-plus me-2"></i> Add Homeowner
                 </a>
             </div>
         </div>
 
         <!-- Homeowners Table -->
         @if($homeowners->isEmpty())
-            <div class="alert alert-info">No homeowners found.</div>
+            <div class="empty-state">
+                <i class="fas fa-home"></i>
+                <h3>No Homeowners Found</h3>
+                <p>There are currently no homeowners registered in the system.</p>
+                <a href="{{ route('admin.addHomeowner') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i> Add Homeowner
+                </a>
+            </div>
         @else
             <div class="table-responsive">
-                <table class="table table-bordered table-hover">
-                    <thead class="table-light">
+                <table class="table table-hover">
+                    <thead>
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
@@ -58,12 +226,12 @@
                     <tbody>
                         @foreach ($homeowners as $homeowner)
                         <tr>
-                            <td>{{ $homeowner->id }}</td>
-                            <td>{{ $homeowner->name }}</td>
-                            <td>{{ $homeowner->email }}</td>
-                            <td>{{ $homeowner->phone ?? 'N/A' }}</td>
-                            <td>{{ $homeowner->address ?? 'N/A' }}</td>
-                            <td class="action-buttons">
+                            <td data-label="ID">{{ $homeowner->id }}</td>
+                            <td data-label="Name">{{ $homeowner->name }}</td>
+                            <td data-label="Email">{{ $homeowner->email }}</td>
+                            <td data-label="Phone">{{ $homeowner->phone ?? 'N/A' }}</td>
+                            <td data-label="Address">{{ $homeowner->address ?? 'N/A' }}</td>
+                            <td data-label="Actions" class="action-buttons">
                                 <!-- View Button -->
                                 <a href="{{ route('admin.viewHomeowner', $homeowner->id) }}" class="btn btn-info btn-sm" title="View">
                                     <i class="fas fa-eye"></i>
@@ -91,7 +259,7 @@
         @endif
     </div>
 
-    <!-- Bootstrap JS (optional) -->
+    <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
