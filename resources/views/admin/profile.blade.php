@@ -198,8 +198,8 @@
                     @csrf
 
                     <div class="avatar-container">
-                    @if($user->avatar)
-                    <img src="{{ asset('storage/'.$user->avatar) }}" alt="Profile Picture" class="img-thumbnail">
+                        @if($user->avatar)
+                            <img src="{{ Storage::url($user->avatar) }}" alt="Profile Picture" class="img-thumbnail">
                         @else
                             <div style="width: 120px; height: 120px; border-radius: 50%; background-color: var(--accent-green); display: inline-flex; justify-content: center; align-items: center; font-size: 3rem; color: white;">
                                 <i class="fas fa-user"></i>
@@ -248,36 +248,5 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-    // Avatar preview functionality
-    document.getElementById('avatar').addEventListener('change', function(e) {
-        if (e.target.files && e.target.files[0]) {
-            const reader = new FileReader();
-            
-            reader.onload = function(event) {
-                // If there's an existing image, update it
-                const existingImg = document.querySelector('.img-thumbnail');
-                if (existingImg) {
-                    existingImg.src = event.target.result;
-                } 
-                // Otherwise create a new image element
-                else {
-                    const avatarContainer = document.querySelector('.avatar-container');
-                    const placeholder = avatarContainer.querySelector('div');
-                    placeholder.style.display = 'none';
-                    
-                    const img = document.createElement('img');
-                    img.src = event.target.result;
-                    img.className = 'img-thumbnail';
-                    avatarContainer.insertBefore(img, placeholder);
-                }
-            }
-            
-            reader.readAsDataURL(e.target.files[0]);
-        }
-    });
-</script>
-
 </body>
 </html>
