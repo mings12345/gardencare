@@ -91,8 +91,13 @@ class GardenerController extends Controller
     public function destroy($id)
     {
         $gardener = User::findOrFail($id);
+        
+        // Delete related bookings first
+        $gardener->bookings()->delete();
+        
         $gardener->delete();
-
-        return redirect()->route('admin.manageGardeners')->with('success', 'Gardener deleted successfully.');
+    
+        return redirect()->route('admin.manageGardeners')
+            ->with('success', 'Gardener and related bookings deleted successfully.');
     }
 }

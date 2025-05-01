@@ -16,9 +16,9 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
             $table->enum('type',['Landscaping','Gardening']);
-            $table->foreignId('serviceprovider_id')->nullable()->references('id')->on('users');
-            $table->foreignId('homeowner_id')->references('id')->on('users');
-            $table->foreignId('gardener_id')->nullable()->references('id')->on('users');
+            $table->foreignId('serviceprovider_id')->nullable()->references('id')->on('users')->onDelete('cascade');;
+            $table->foreignId('homeowner_id')->references('id')->on('users')->onDelete('cascade');;
+            $table->foreignId('gardener_id')->nullable()->references('id')->on('users')->onDelete('cascade');;
             $table->string('address');
             $table->enum('status', ['pending','declined','accepted', 'completed'])->default('pending');
             $table->date('date'); // Add date field
