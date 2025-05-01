@@ -49,65 +49,6 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function showAdminProfile()
-    {
-        $user = auth()->user();
-        return view('admin.profile', compact('user'));
-    }
-
-    /**
-     * Update admin profile
-     */
-    public function updateAdminProfile(Request $request)
-    {
-        $user = auth()->user();
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        $data = [
-            'name' => $request->name,
-            'email' => $request->email,
-        ];
-
-        // Handle avatar upload
-        if ($request->hasFile('avatar')) {
-            // Delete old avatar if exists
-            if ($user->avatar) {
-                Storage::delete($user->avatar);
-            }
-            
-            $path = $request->file('avatar')->store('avatars');
-            $data['avatar'] = $path;
-        }
-
-        $user->update($data);
-
-        return redirect()->route('admin.profile')
-            ->with('success', 'Profile updated successfully');
-    }
-
-    /**
-     * Admin logout
-     */
-    public function adminLogout(Request $request)
-    {
-        Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect('/admin/login');
-    }
-    
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
