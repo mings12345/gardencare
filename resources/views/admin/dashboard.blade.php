@@ -321,9 +321,9 @@
             <!-- Total Earnings Card -->
             <div class="card card-earnings">
                 <div class="card-body">
-                    <i class="fas fa-dollar-sign card-icon"></i>
+                    <span class="card-icon">₱</span>
                     <h5 class="card-title">Total Earnings</h5>
-                    <div class="card-value">${{ number_format($totalEarnings, 2) }}</div>
+                    <div class="card-value">₱{{ number_format($totalEarnings, 2) }}</div>
                     <p class="card-text">
                         <i class="fas fa-chart-line"></i> 8% growth this month
                     </p>
