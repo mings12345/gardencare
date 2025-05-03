@@ -89,7 +89,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     ->name('admin.manageRatings');
     
     // Reports
-    Route::get('/admin/reports', [AdminController::class, 'reports'])->name('admin.reports');
+    Route::get('/admin/reports', [AdminDashboardController::class, 'reports'])->name('admin.reports');
 });
 
 // System Routes
