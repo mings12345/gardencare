@@ -308,6 +308,9 @@
         <a href="{{ route('admin.manageRatings') }}">
             <i class="fas fa-comments"></i> <span>Manage Ratings</span>
         </a>
+        <a href="{{ route('admin.reports') }}">
+            <i class="fas fa-chart-bar"></i> <span>Reports</span>
+        </a>
     </div>
 
     <!-- Main Content -->
