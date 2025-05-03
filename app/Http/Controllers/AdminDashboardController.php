@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 use App\Models\Booking;
 use App\Models\Rating;
 use App\Models\User;
@@ -121,4 +122,43 @@ class AdminDashboardController extends Controller
         
         return redirect('/admin/login');
     }
+
+
+public function exportReports(Request $request)
+{
+    $request->validate([
+        'type' => 'required|in:bookings,earnings,users,services',
+        'start_date' => 'nullable|date',
+        'end_date' => 'nullable|date|after_or_equal:start_date'
+    ]);
+
+    $type = $request->type;
+    $fileName = $type . '_report_' . now()->format('Y-m-d') . '.csv';
+    
+    $headers = [
+        "Content-type"        => "text/csv",
+        "Content-Disposition" => "attachment; filename=$fileName",
+        "Pragma"              => "no-cache",
+        "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+        "Expires"             => "0"
+    ];
+
+    $callback = function() use ($type, $request) {
+        $file = fopen('php://output', 'w');
+        
+        // Header row
+        if ($type === 'bookings') {
+            fputcsv($file, ['ID', 'Customer', 'Service', 'Date', 'Status', 'Amount']);
+            // Add your actual booking data here
+        } elseif ($type === 'earnings') {
+            fputcsv($file, ['Date', 'Total Earnings', 'Completed Bookings']);
+            // Add your actual earnings data here
+        }
+        // Add other report types as needed
+        
+        fclose($file);
+    };
+
+    return Response::stream($callback, 200, $headers);
+}
 }
