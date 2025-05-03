@@ -124,6 +124,22 @@ class AdminDashboardController extends Controller
     }
 
 
+    public function reports()
+{
+    // Sample data - replace with your actual data queries
+    $bookingData = [
+        'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        'data' => [65, 59, 80, 81, 56, 55]
+    ];
+
+    $earningsData = [
+        'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        'data' => [12000, 19000, 15000, 18000, 22000, 25000]
+    ];
+
+    return view('admin.reports', compact('bookingData', 'earningsData'));
+}
+
 public function exportReports(Request $request)
 {
     $request->validate([
