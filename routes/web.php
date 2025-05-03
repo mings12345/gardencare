@@ -90,7 +90,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     
     // Reports
     Route::get('/admin/reports', [AdminDashboardController::class, 'reports'])->name('admin.reports');
-    Route::post('/admin/export-reports', [AdminDashboardController::class, 'exportReports'])->name('exportReports');
+    Route::post('/admin/export-reports', [AdminDashboardController::class, 'exportReports'])->name('admin.exportReports');
 });
 
 // System Routes

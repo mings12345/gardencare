@@ -146,7 +146,7 @@ class AdminDashboardController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date'
         ]);
-
+    
         $type = $request->type;
         $fileName = $type . '_report_' . now()->format('Y-m-d') . '.csv';
         
@@ -157,23 +157,39 @@ class AdminDashboardController extends Controller
             "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
             "Expires"             => "0"
         ];
-
+    
         $callback = function() use ($type, $request) {
             $file = fopen('php://output', 'w');
             
             // Header row
             if ($type === 'bookings') {
                 fputcsv($file, ['ID', 'Customer', 'Service', 'Date', 'Status', 'Amount']);
-                // Add your actual booking data here
-            } elseif ($type === 'earnings') {
+                // Add actual booking data
+                $bookings = Booking::with(['user', 'service'])
+                    ->when($request->start_date, fn($q) => $q->where('date', '>=', $request->start_date))
+                    ->when($request->end_date, fn($q) => $q->where('date', '<=', $request->end_date))
+                    ->get();
+                
+                foreach ($bookings as $booking) {
+                    fputcsv($file, [
+                        $booking->id,
+                        $booking->user->name,
+                        $booking->service->name,
+                        $booking->date,
+                        $booking->status,
+                        $booking->amount
+                    ]);
+                }
+            } 
+            elseif ($type === 'earnings') {
                 fputcsv($file, ['Date', 'Total Earnings', 'Completed Bookings']);
-                // Add your actual earnings data here
+                // Implement earnings data export
             }
             // Add other report types as needed
             
             fclose($file);
         };
-
+    
         return Response::stream($callback, 200, $headers);
     }
 }

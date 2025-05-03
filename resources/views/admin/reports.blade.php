@@ -77,34 +77,31 @@
                 <h5 class="card-title">Export Reports</h5>
                 <form action="{{ route('admin.exportReports') }}" method="POST">
                     @csrf
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="reportType" class="form-label">Report Type</label>
-                                <select class="form-select" id="reportType" name="type">
-                                    <option value="bookings">Bookings</option>
-                                    <option value="earnings">Earnings</option>
-                                    <option value="users">Users</option>
-                                    <option value="services">Services</option>
-                                </select>
-                            </div>
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <label for="type">Report Type</label>
+                            <select name="type" id="type" class="form-select" required>
+                                <option value="">Select report type</option>
+                                <option value="bookings">Bookings</option>
+                                <option value="earnings">Earnings</option>
+                                <option value="users">Users</option>
+                                <option value="services">Services</option>
+                            </select>
                         </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="startDate" class="form-label">Start Date</label>
-                                <input type="date" class="form-control" id="startDate" name="start_date">
-                            </div>
+                        <div class="col-md-3">
+                            <label for="start_date">Start Date</label>
+                            <input type="date" name="start_date" id="start_date" class="form-control">
                         </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="endDate" class="form-label">End Date</label>
-                                <input type="date" class="form-control" id="endDate" name="end_date">
-                            </div>
+                        <div class="col-md-3">
+                            <label for="end_date">End Date</label>
+                            <input type="date" name="end_date" id="end_date" class="form-control">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-download me-2"></i> Export
+                            </button>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-download me-2"></i> Export Report
-                    </button>
                 </form>
             </div>
         </div>
