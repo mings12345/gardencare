@@ -14,6 +14,7 @@ use App\Http\Controllers\ServiceRequestController;
 
 
 Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
 
 // Admin Authentication Routes
 Route::redirect('/login','/admin/login');
@@ -89,7 +90,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     ->name('admin.manageRatings');
     
     // Reports
-    Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
     Route::post('/admin/export-reports', [AdminController::class, 'exportReports'])->name('exportReports');
 });
 

@@ -121,9 +121,4 @@ class AdminDashboardController extends Controller
         
         return redirect('/admin/login');
     }
-
-    public function reports()
-    {
-        return view('admin.reports');
-    }
 }
