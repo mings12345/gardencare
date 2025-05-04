@@ -167,7 +167,7 @@
                                 @foreach($bookings as $booking)
                                 <tr>
                                     <td>{{ $booking->id }}</td>
-                                    <td>{{ $booking->date->format('M d, Y') }}</td>
+                                    <td>{{ $booking->date ? date('M d, Y', strtotime($booking->date)) : 'N/A' }}</td>
                                     <td>{{ $booking->homeowner->name }}</td>
                                     <td>
                                         @if($booking->gardener_id)
