@@ -120,4 +120,54 @@ class ServiceController extends Controller
             'total_services' => $gardeningCount + $landscapingCount
         ]);
     }
+
+    public function userCreate()
+{
+    $serviceTypes = ['Gardening', 'Landscaping'];
+    return view('user.add-service', compact('serviceTypes'));
+}
+
+// Store service from user
+public function userStore(Request $request)
+{
+    $validated = $request->validate([
+        'type' => 'required|in:Gardening,Landscaping',
+        'name' => 'required|string|max:255',
+        'price' => 'required|numeric|min:0',
+        'description' => 'nullable|string',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+    ]);
+
+    // Handle image upload
+    if ($request->hasFile('image')) {
+        $image = $request->file('image');
+        $imageName = time().'.'.$image->getClientOriginalExtension();
+        $image->move(public_path('images/services'), $imageName);
+        $validated['image'] = $imageName;
+    }
+
+    // Associate service with the authenticated user
+    $validated['user_id'] = auth()->id();
+    
+    Service::create($validated);
+
+    return redirect()->route('user.services')
+        ->with('success', 'Service added successfully. It will be reviewed by admin.');
+}
+
+// Get services created by user
+public function getUserServices()
+{
+    $services = Service::where('user_id', auth()->id())->get();
+    
+    // Transform image paths
+    $services->transform(function ($service) {
+        if ($service->image) {
+            $service->image = asset('images/services/' . basename($service->image));
+        }
+        return $service;
+    });
+
+    return response()->json(['services' => $services]);
+}
 }

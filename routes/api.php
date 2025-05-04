@@ -84,6 +84,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         return $request->user();
     });
 
+    Route::post('/user/services', [ServiceController::class, 'userStore']);
+    Route::get('/user/services', [ServiceController::class, 'getUserServices']);
+
     
     Route::get('/earnings/summary', [BookingController::class, 'getEarningsSummary']);
     Route::get('/get_total_earnings', [BookingController::class, 'getTotalEarnings']);
