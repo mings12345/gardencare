@@ -6,6 +6,7 @@
     <title>Reports | GardenCare Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: #2E7D32;
@@ -15,19 +16,36 @@
             --dark-color: #1B5E20;
             --text-color: #333;
             --text-light: #666;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
         }
         
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Poppins', sans-serif;
             background-color: #f9f9f9;
             color: var(--text-color);
         }
 
+        /* Sidebar styling */
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--dark-color) 100%);
+        }
+
+        .main-content {
+            background-color: #f8fafc;
+        }
+
         .card {
-            border-radius: 8px;
+            border-radius: 12px;
             border: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
             margin-bottom: 1.5rem;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
         }
 
         .card-header {
@@ -43,10 +61,25 @@
             padding: 1rem;
         }
 
+        .report-filter-card {
+            background-color: white;
+            border-left: 4px solid var(--accent-color);
+        }
+
         .export-btn {
             background-color: var(--primary-color);
             border: none;
             padding: 0.5rem 1.5rem;
+            transition: var(--transition);
+        }
+
+        .export-btn:hover {
+            background-color: var(--dark-color);
+            transform: translateY(-2px);
+        }
+
+        .stat-card {
+            border-top: 4px solid var(--accent-color);
         }
 
         .stat-card .stat-value {
@@ -60,44 +93,80 @@
             font-size: 0.9rem;
         }
 
-        @media print {
-            .no-print {
-                display: none !important;
+        .stat-card i {
+            font-size: 2.5rem;
+            opacity: 0.2;
+            position: absolute;
+            right: 1.5rem;
+            top: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 250px;
             }
-            body {
-                background-color: white;
-                color: black;
-            }
-            .card {
-                box-shadow: none;
-                border: 1px solid #ddd;
+            
+            .stat-card .stat-value {
+                font-size: 1.5rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid py-4">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Your existing sidebar content -->
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1><i class="fas fa-chart-line me-3"></i> Reports Dashboard</h1>
+            <!-- User profile dropdown -->
+        </div>
+
+        <!-- Welcome Alert -->
+        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <div>
+                <strong>Analytics Ready!</strong> View and export system reports and statistics.
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <!-- Quick Stats Row -->
         <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body position-relative">
+                        <i class="fas fa-calendar-check"></i>
                         <div class="stat-value">{{ $totalBookings }}</div>
                         <div class="stat-label">Total Bookings</div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body position-relative">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-value">{{ $totalUsers }}</div>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body position-relative">
+                        <i class="fas fa-peso-sign"></i>
                         <div class="stat-value">₱{{ number_format($totalEarnings, 2) }}</div>
                         <div class="stat-label">Total Earnings</div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body position-relative">
+                        <i class="fas fa-star"></i>
                         <div class="stat-value">{{ number_format($averageRating, 1) }}/5</div>
                         <div class="stat-label">Average Rating</div>
                     </div>
@@ -105,21 +174,72 @@
             </div>
         </div>
 
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i> Bookings Overview</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="bookingsDropdown" data-bs-toggle="dropdown">
+                                This Month
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">This Week</a></li>
+                                <li><a class="dropdown-item" href="#">This Month</a></li>
+                                <li><a class="dropdown-item" href="#">This Year</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="bookingsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-peso-sign me-2"></i> Earnings Overview</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="earningsDropdown" data-bs-toggle="dropdown">
+                                This Month
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">This Week</a></li>
+                                <li><a class="dropdown-item" href="#">This Month</a></li>
+                                <li><a class="dropdown-item" href="#">This Year</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="earningsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Export Reports Card -->
-        <div class="card no-print">
+        <div class="card report-filter-card">
             <div class="card-header">
                 <h5 class="mb-0"><i class="fas fa-file-export me-2"></i> Export Reports</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('admin.exportReports') }}" method="POST" id="reportForm">
+                <form action="{{ route('admin.exportReports') }}" method="POST">
                     @csrf
                     <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label for="type" class="form-label">Report Type</label>
                             <select name="type" id="type" class="form-select" required>
-                                <option value="bookings">Bookings Report</option>
-                                <option value="earnings">Earnings Report</option>
-                                <option value="ratings">Ratings Report</option>
+                                <option value="">Select report type</option>
+                                <option value="bookings">Bookings</option>
+                                <option value="earnings">Earnings</option>
+                                <option value="users">Users</option>
+                                <option value="services">Services</option>
+                                <option value="ratings">Ratings</option>
                             </select>
                         </div>
                         <div class="col-md-3">
@@ -130,9 +250,9 @@
                             <label for="end_date" class="form-label">End Date</label>
                             <input type="date" name="end_date" id="end_date" class="form-control">
                         </div>
-                        <div class="col-md-2">
-                            <button type="button" onclick="generatePDF()" class="btn btn-primary w-100">
-                                <i class="fas fa-file-pdf me-2"></i> PDF
+                        <div class="col-md-3">
+                            <button type="submit" class="btn export-btn w-100">
+                                <i class="fas fa-download me-2"></i> Export Report
                             </button>
                         </div>
                     </div>
@@ -140,118 +260,35 @@
             </div>
         </div>
 
-        <!-- Report Content -->
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0" id="reportTitle">Bookings Report</h5>
-                <button class="btn btn-sm btn-outline-secondary no-print" onclick="window.print()">
-                    <i class="fas fa-print me-1"></i> Print
-                </button>
+        <!-- Recent Activity Section -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i> Recent Activity</h5>
             </div>
             <div class="card-body">
-                <!-- Bookings Report -->
-                <div id="bookingsReport">
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Booking ID</th>
-                                    <th>Date</th>
-                                    <th>Homeowner</th>
-                                    <th>Service Provider</th>
-                                    <th>Total Price</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($bookings as $booking)
-                                <tr>
-                                    <td>{{ $booking->id }}</td>
-                                    <td>{{ $booking->date->format('M d, Y') }}</td>
-                                    <td>{{ $booking->homeowner->name }}</td>
-                                    <td>
-                                        @if($booking->gardener_id)
-                                            {{ $booking->gardener->name }} (Gardener)
-                                        @elseif($booking->serviceprovider_id)
-                                            {{ $booking->serviceProvider->name }} (Service Provider)
-                                        @endif
-                                    </td>
-                                    <td>₱{{ number_format($booking->total_price, 2) }}</td>
-                                    <td>
-                                        <span class="badge bg-{{ $booking->status === 'completed' ? 'success' : ($booking->status === 'pending' ? 'warning' : 'danger') }}">
-                                            {{ ucfirst($booking->status) }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Earnings Report (hidden by default) -->
-                <div id="earningsReport" style="display:none;">
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Booking ID</th>
-                                    <th>Date</th>
-                                    <th>Amount</th>
-                                    <th>Admin Fee</th>
-                                    <th>Provider Earnings</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($bookings as $booking)
-                                    @foreach($booking->payments as $payment)
-                                    <tr>
-                                        <td>{{ $booking->id }}</td>
-                                        <td>{{ $payment->payment_date->format('M d, Y') }}</td>
-                                        <td>₱{{ number_format($payment->amount_paid, 2) }}</td>
-                                        <td>₱{{ number_format($payment->admin_fee, 2) }}</td>
-                                        <td>₱{{ number_format($payment->amount_paid - $payment->admin_fee, 2) }}</td>
-                                        <td>{{ ucfirst($payment->payment_status) }}</td>
-                                    </tr>
-                                    @endforeach
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Ratings Report (hidden by default) -->
-                <div id="ratingsReport" style="display:none;">
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Booking ID</th>
-                                    <th>Date</th>
-                                    <th>Rating</th>
-                                    <th>Feedback</th>
-                                    <th>Rated By</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($ratings as $rating)
-                                <tr>
-                                    <td>{{ $rating->booking_id }}</td>
-                                    <td>{{ $rating->created_at->format('M d, Y') }}</td>
-                                    <td>
-                                        @for($i = 1; $i <= 5; $i++)
-                                            <i class="fas fa-star{{ $i <= $rating->rating ? '' : '-empty' }} text-warning"></i>
-                                        @endfor
-                                        ({{ $rating->rating }})
-                                    </td>
-                                    <td>{{ $rating->feedback ?? 'No feedback' }}</td>
-                                    <td>{{ $rating->booking->homeowner->name }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Activity</th>
+                                <th>User</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($recentActivities as $activity)
+                            <tr>
+                                <td>{{ $activity->created_at->format('M d, Y H:i') }}</td>
+                                <td>{{ $activity->description }}</td>
+                                <td>{{ $activity->causer->name ?? 'System' }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">View</button>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -259,35 +296,92 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Toggle between report types
-        document.getElementById('type').addEventListener('change', function() {
-            const type = this.value;
-            document.getElementById('reportTitle').textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} Report`;
-            
-            // Hide all reports
-            document.getElementById('bookingsReport').style.display = 'none';
-            document.getElementById('earningsReport').style.display = 'none';
-            document.getElementById('ratingsReport').style.display = 'none';
-            
-            // Show selected report
-            document.getElementById(`${type}Report`).style.display = 'block';
+        // Initialize charts with your data
+        const bookingsCtx = document.getElementById('bookingsChart').getContext('2d');
+        const bookingsChart = new Chart(bookingsCtx, {
+            type: 'line',
+            data: {
+                labels: @json($bookingData['labels']),
+                datasets: [{
+                    label: 'Bookings',
+                    data: @json($bookingData['data']),
+                    backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                    borderColor: 'rgba(46, 125, 50, 1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
         });
 
-        // Generate PDF
-        function generatePDF() {
-            const element = document.getElementById('reportTitle').parentElement.parentElement;
-            const opt = {
-                margin: 10,
-                filename: `${document.getElementById('type').value}_report.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().from(element).set(opt).save();
-        }
+        const earningsCtx = document.getElementById('earningsChart').getContext('2d');
+        const earningsChart = new Chart(earningsCtx, {
+            type: 'bar',
+            data: {
+                labels: @json($earningsData['labels']),
+                datasets: [{
+                    label: 'Earnings (₱)',
+                    data: @json($earningsData['data']),
+                    backgroundColor: 'rgba(139, 195, 74, 0.7)',
+                    borderColor: 'rgba(139, 195, 74, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
 
         // Date range validation
         document.getElementById('end_date').addEventListener('change', function() {
