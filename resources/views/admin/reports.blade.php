@@ -208,7 +208,7 @@
                                     @foreach($booking->payments as $payment)
                                     <tr>
                                         <td>{{ $booking->id }}</td>
-                                        <td>{{ $payment->payment_date->format('M d, Y') }}</td>
+                                        <td>{{ date('M d, Y', strtotime($payment->payment_date)) }}</td>
                                         <td>₱{{ number_format($payment->amount_paid, 2) }}</td>
                                         <td>₱{{ number_format($payment->admin_fee, 2) }}</td>
                                         <td>₱{{ number_format($payment->amount_paid - $payment->admin_fee, 2) }}</td>
