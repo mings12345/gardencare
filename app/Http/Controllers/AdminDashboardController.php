@@ -47,7 +47,7 @@ class AdminDashboardController extends Controller
             'totalServiceProviders',
             'services',
             'ratings',
-            'bookings'
+            'bookings',
         ));
     }
 
@@ -123,73 +123,116 @@ class AdminDashboardController extends Controller
         return redirect('/admin/login');
     }
 
-        public function reports()
+    public function reports()
     {
-        // Sample data - replace with your actual data queries
-        $bookingData = [
-            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            'data' => [65, 59, 80, 81, 56, 55]
-        ];
-
-        $earningsData = [
-            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            'data' => [12000, 19000, 15000, 18000, 22000, 25000]
-        ];
-
-        return view('admin.reports', compact('bookingData', 'earningsData'));
+        // Get all bookings with related data
+        $bookings = Booking::with(['homeowner', 'gardener', 'serviceProvider', 'payments'])
+            ->orderBy('date', 'desc')
+            ->get();
+    
+        // Get all ratings with related booking data
+        $ratings = Rating::with(['booking.homeowner'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+    
+        // Calculate statistics
+        $totalBookings = Booking::count();
+        $totalEarnings = Payment::sum('amount_paid');
+        $averageRating = Rating::avg('rating') ?? 0;
+    
+        return view('admin.reports', compact(
+            'bookings',
+            'ratings',
+            'totalBookings',
+            'totalEarnings',
+            'averageRating'
+        ));
     }
 
     public function exportReports(Request $request)
-    {
-        $request->validate([
-            'type' => 'required|in:bookings,earnings,users,services',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date'
-        ]);
+{
+    $request->validate([
+        'type' => 'required|in:bookings,earnings,ratings',
+        'start_date' => 'nullable|date',
+        'end_date' => 'nullable|date|after_or_equal:start_date'
+    ]);
+
+    $type = $request->type;
+    $fileName = $type . '_report_' . now()->format('Y-m-d') . '.csv';
     
-        $type = $request->type;
-        $fileName = $type . '_report_' . now()->format('Y-m-d') . '.csv';
+    $headers = [
+        "Content-type"        => "text/csv",
+        "Content-Disposition" => "attachment; filename=$fileName",
+        "Pragma"              => "no-cache",
+        "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+        "Expires"             => "0"
+    ];
+
+    $callback = function() use ($type, $request) {
+        $file = fopen('php://output', 'w');
         
-        $headers = [
-            "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
-        ];
-    
-        $callback = function() use ($type, $request) {
-            $file = fopen('php://output', 'w');
+        // Header row
+        if ($type === 'bookings') {
+            fputcsv($file, ['Booking ID', 'Date', 'Homeowner', 'Service Provider', 'Total Price', 'Status']);
             
-            // Header row
-            if ($type === 'bookings') {
-                fputcsv($file, ['ID', 'Customer', 'Service', 'Date', 'Status', 'Amount']);
-                // Add actual booking data
-                $bookings = Booking::with(['user', 'service'])
-                    ->when($request->start_date, fn($q) => $q->where('date', '>=', $request->start_date))
-                    ->when($request->end_date, fn($q) => $q->where('date', '<=', $request->end_date))
-                    ->get();
-                
-                foreach ($bookings as $booking) {
-                    fputcsv($file, [
-                        $booking->id,
-                        $booking->user->name,
-                        $booking->service->name,
-                        $booking->date,
-                        $booking->status,
-                        $booking->amount
-                    ]);
-                }
-            } 
-            elseif ($type === 'earnings') {
-                fputcsv($file, ['Date', 'Total Earnings', 'Completed Bookings']);
-                // Implement earnings data export
+            $bookings = Booking::with(['homeowner', 'gardener', 'serviceProvider'])
+                ->when($request->start_date, fn($q) => $q->where('date', '>=', $request->start_date))
+                ->when($request->end_date, fn($q) => $q->where('date', '<=', $request->end_date))
+                ->get();
+            
+            foreach ($bookings as $booking) {
+                fputcsv($file, [
+                    $booking->id,
+                    $booking->date->format('M d, Y'),
+                    $booking->homeowner->name,
+                    $booking->gardener_id ? $booking->gardener->name . ' (Gardener)' : 
+                        ($booking->serviceprovider_id ? $booking->serviceProvider->name . ' (Service Provider)' : 'N/A'),
+                    '₱' . number_format($booking->total_price, 2),
+                    ucfirst($booking->status)
+                ]);
             }
-            // Add other report types as needed
+        } 
+        elseif ($type === 'earnings') {
+            fputcsv($file, ['Booking ID', 'Payment Date', 'Amount Paid', 'Admin Fee', 'Provider Earnings', 'Status']);
             
-            fclose($file);
-        };
-    
-        return Response::stream($callback, 200, $headers);
-    }
+            $payments = Payment::with(['booking'])
+                ->when($request->start_date, fn($q) => $q->where('payment_date', '>=', $request->start_date))
+                ->when($request->end_date, fn($q) => $q->where('payment_date', '<=', $request->end_date))
+                ->get();
+            
+            foreach ($payments as $payment) {
+                fputcsv($file, [
+                    $payment->booking_id,
+                    $payment->payment_date->format('M d, Y'),
+                    '₱' . number_format($payment->amount_paid, 2),
+                    '₱' . number_format($payment->admin_fee, 2),
+                    '₱' . number_format($payment->amount_paid - $payment->admin_fee, 2),
+                    ucfirst($payment->payment_status)
+                ]);
+            }
+        }
+        elseif ($type === 'ratings') {
+            fputcsv($file, ['Booking ID', 'Date', 'Rating', 'Feedback', 'Rated By']);
+            
+            $ratings = Rating::with(['booking.homeowner'])
+                ->when($request->start_date, fn($q) => $q->where('created_at', '>=', $request->start_date))
+                ->when($request->end_date, fn($q) => $q->where('created_at', '<=', $request->end_date))
+                ->get();
+            
+            foreach ($ratings as $rating) {
+                fputcsv($file, [
+                    $rating->booking_id,
+                    $rating->created_at->format('M d, Y'),
+                    $rating->rating . '/5',
+                    $rating->feedback ?? 'No feedback',
+                    $rating->booking->homeowner->name
+                ]);
+            }
+        }
+        
+        fclose($file);
+    };
+
+    return Response::stream($callback, 200, $headers);
+}
 }

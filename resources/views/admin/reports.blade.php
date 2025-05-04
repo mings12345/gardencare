@@ -297,6 +297,28 @@
                 this.value = '';
             }
         });
+
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+    // For PDF generation, we prevent the default form submission
+    e.preventDefault();
+});
+
+function exportReport(format) {
+    if (format === 'pdf') {
+        const element = document.getElementById('reportTitle').parentElement.parentElement;
+        const opt = {
+            margin: 10,
+            filename: `${document.getElementById('type').value}_report.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().from(element).set(opt).save();
+    } else if (format === 'csv') {
+        // Submit the form for CSV export
+        document.getElementById('reportForm').submit();
+    }
+}
     </script>
 </body>
 </html>
