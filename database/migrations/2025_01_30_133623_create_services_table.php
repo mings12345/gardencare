@@ -18,8 +18,6 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('price', 8, 2); // Price of the service
             $table->string('image')->nullable();
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
-            $table->boolean('approved')->default(false); 
             $table->timestamps();
         });
     }
