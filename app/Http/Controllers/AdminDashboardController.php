@@ -123,36 +123,40 @@ class AdminDashboardController extends Controller
         return redirect('/admin/login');
     }
 
-    public function reports()
-    {
-        // Get all bookings with related data
-        $bookings = Booking::with(['homeowner', 'gardener', 'serviceProvider', 'payments'])
-            ->orderBy('date', 'desc')
-            ->get();
-    
-        // Get all ratings with related booking data
-        $ratings = Rating::with(['booking.homeowner'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-    
-        // Calculate statistics
-        $totalBookings = Booking::count();
-        $totalEarnings = Payment::sum('amount_paid');
-        $averageRating = Rating::avg('rating') ?? 0;
-    
-        return view('admin.reports', compact(
-            'bookings',
-            'ratings',
-            'totalBookings',
-            'totalEarnings',
-            'averageRating'
-        ));
-    }
+            public function reports()
+        {
+            // Get all bookings with related data
+            $bookings = Booking::with(['homeowner', 'gardener', 'serviceProvider', 'payments'])
+                ->orderBy('date', 'desc')
+                ->get();
+
+            // Get all ratings with related booking data
+            $ratings = Rating::with(['booking.homeowner'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            // Get all users
+            $users = User::orderBy('created_at', 'desc')->get();
+
+            // Calculate statistics
+            $totalBookings = Booking::count();
+            $totalEarnings = Payment::sum('amount_paid');
+            $averageRating = Rating::avg('rating') ?? 0;
+
+            return view('admin.reports', compact(
+                'bookings',
+                'ratings',
+                'users',
+                'totalBookings',
+                'totalEarnings',
+                'averageRating'
+            ));
+        }
 
     public function exportReports(Request $request)
 {
     $request->validate([
-        'type' => 'required|in:bookings,earnings,ratings',
+        'type' => 'required|in:bookings,earnings,ratings,users',
         'start_date' => 'nullable|date',
         'end_date' => 'nullable|date|after_or_equal:start_date'
     ]);
@@ -229,7 +233,25 @@ class AdminDashboardController extends Controller
                 ]);
             }
         }
-        
+        elseif ($type === 'users') {
+            fputcsv($file, ['User ID', 'Name', 'Email', 'Phone', 'Type', 'Registration Date']);
+            
+            $users = User::query()
+                ->when($request->start_date, fn($q) => $q->where('created_at', '>=', $request->start_date))
+                ->when($request->end_date, fn($q) => $q->where('created_at', '<=', $request->end_date))
+                ->get();
+            
+            foreach ($users as $user) {
+                fputcsv($file, [
+                    $user->id,
+                    $user->name,
+                    $user->email,
+                    $user->phone ?? 'N/A',
+                    ucfirst(str_replace('_', ' ', $user->user_type)),
+                    $user->created_at->format('M d, Y')
+                ]);
+            }
+        }
         fclose($file);
     };
 

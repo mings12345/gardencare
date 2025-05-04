@@ -120,6 +120,7 @@
                                 <option value="bookings">Bookings Report</option>
                                 <option value="earnings">Earnings Report</option>
                                 <option value="ratings">Ratings Report</option>
+                                <option value="users">Users Report</option>
                             </select>
                         </div>
                         <div class="col-md-3">
@@ -139,7 +140,36 @@
                 </form>
             </div>
         </div>
-
+        
+        <!-- Add the Users Report section -->
+<div id="usersReport" style="display:none;">
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Type</th>
+                    <th>Registration Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($users as $user)
+                <tr>
+                    <td>{{ $user->id }}</td>
+                    <td>{{ $user->name }}</td>
+                    <td>{{ $user->email }}</td>
+                    <td>{{ $user->phone ?? 'N/A' }}</td>
+                    <td>{{ ucfirst(str_replace('_', ' ', $user->user_type)) }}</td>
+                    <td>{{ $user->created_at->format('M d, Y') }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
         <!-- Report Content -->
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -270,7 +300,7 @@
             document.getElementById('bookingsReport').style.display = 'none';
             document.getElementById('earningsReport').style.display = 'none';
             document.getElementById('ratingsReport').style.display = 'none';
-            
+            document.getElementById('usersReport').style.display = 'none';
             // Show selected report
             document.getElementById(`${type}Report`).style.display = 'block';
         });
