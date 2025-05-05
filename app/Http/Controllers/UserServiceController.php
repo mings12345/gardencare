@@ -40,7 +40,7 @@ class UserServiceController extends Controller
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120'
         ]);
 
         $user = User::findOrFail($validated['user_id']);
