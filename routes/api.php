@@ -15,6 +15,7 @@ use App\Http\Controllers\RatingController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\PlantController;
 use App\Http\Controllers\UserPlantController;
+use App\Http\Controllers\UserServiceController; 
 
 
 // Broadcasting Authentication
@@ -65,6 +66,10 @@ Route::get('/gardeners', [AuthController::class, 'getGardeners']);
 Route::get('/service_providers', [AuthController::class, 'getServiceProviders']); // Fetch only users with user_type = service provider
 Route::get('/homeowners', [AuthController::class, 'getHomeowners']); 
 
+Route::prefix('user-services')->group(function () {
+    Route::get('/{userType}', [UserServiceController::class, 'getByUserType']);
+    Route::post('/', [UserServiceController::class, 'store'])->middleware('auth:sanctum');
+});
 
 // Protected Routes (Require Authentication)
 Route::middleware(['auth:sanctum'])->group(function () {
