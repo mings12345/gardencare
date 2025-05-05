@@ -56,9 +56,16 @@ class UserServiceController extends Controller
 
         // Handle image upload
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('public/user-services');
-            $serviceData['image'] = str_replace('public/', '', $path);
+            // Store in public/images/services instead
+            $imageName = time().'.'.$request->image->extension();  
+            $request->image->move(public_path('images/services'), $imageName);
+            $serviceData['image'] = 'images/services/'.$imageName;
+            
+            // Or if you want to keep using storage:
+            // $path = $request->file('image')->store('services', 'public');
+            // $serviceData['image'] = 'storage/'.$path;
         }
+        
 
         $services = $user->services ? json_decode($user->services, true) : [];
         $services[] = $serviceData;
