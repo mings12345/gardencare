@@ -34,60 +34,68 @@ class UserServiceController extends Controller
     public function store(Request $request)
     {
         try {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'type' => 'required|in:Gardening,Landscaping',
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120'
-        ]);
+            $validated = $request->validate([
+                'user_id' => 'required|exists:users,id',
+                'type' => 'required|in:Gardening,Landscaping',
+                'name' => 'required|string|max:255',
+                'price' => 'required|numeric|min:0',
+                'description' => 'nullable|string',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120'
+            ]);
 
-        $user = User::findOrFail($validated['user_id']);
+            $user = User::findOrFail($validated['user_id']);
 
-        $serviceData = [
-            'type' => $validated['type'],
-            'name' => $validated['name'],
-            'price' => $validated['price'],
-            'description' => $validated['description'] ?? null,
-            'created_at' => now()->toDateTimeString(),
-            'updated_at' => now()->toDateTimeString()
-        ];
+            $serviceData = [
+                'type' => $validated['type'],
+                'name' => $validated['name'],
+                'price' => $validated['price'],
+                'description' => $validated['description'] ?? null,
+                'created_at' => now()->toDateTimeString(),
+                'updated_at' => now()->toDateTimeString()
+            ];
 
-        // Handle image upload
-        if ($request->hasFile('image')) {
-            // Store in public/images/services instead
-            $imageName = time().'.'.$request->image->extension();  
-            $request->image->move(public_path('images/services'), $imageName);
-            $serviceData['image'] = 'images/services/'.$imageName;
-            
-            // Or if you want to keep using storage:
-            // $path = $request->file('image')->store('services', 'public');
-            // $serviceData['image'] = 'storage/'.$path;
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                $imageName = time().'.'.$request->image->extension();  
+                $request->image->move(public_path('images/services'), $imageName);
+                $serviceData['image'] = 'images/services/'.$imageName;
+            }
+
+            $services = $user->services ? json_decode($user->services, true) : [];
+            $services[] = $serviceData;
+            $user->services = json_encode($services);
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'service' => $this->formatService($serviceData, $user)
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
         }
-        
-
-        $services = $user->services ? json_decode($user->services, true) : [];
-        $services[] = $serviceData;
-        $user->services = json_encode($services);
-        $user->save();
-
-        return response()->json([
-            'success' => true,
-            'service' => $this->formatService($serviceData, $user)
-        ]);
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Validation failed',
-            'errors' => $e->errors()
-        ], 422);
-    }
     }
 
     // Format service data consistently
     private function formatService(array $service, User $user): array
     {
+        // Fix: Check if image path already contains the full URL
+        $imagePath = isset($service['image']) ? $service['image'] : null;
+        $imageUrl = null;
+        
+        if ($imagePath) {
+            // If it's already a full URL, use it as is
+            if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
+                $imageUrl = $imagePath;
+            } else {
+                // Otherwise generate the proper URL based on the actual path
+                $imageUrl = asset($imagePath);
+            }
+        }
+
         return [
             'id' => 'user_'.$user->id.'_'.md5(json_encode($service)),
             'user_id' => $user->id,
@@ -95,7 +103,7 @@ class UserServiceController extends Controller
             'name' => $service['name'],
             'price' => $service['price'],
             'description' => $service['description'] ?? null,
-            'image' => isset($service['image']) ? asset('storage/'.$service['image']) : null,
+            'image' => $imageUrl,
             'created_at' => $service['created_at'] ?? now()->toDateTimeString(),
             'updated_at' => $service['updated_at'] ?? now()->toDateTimeString(),
             'user_name' => $user->name,
