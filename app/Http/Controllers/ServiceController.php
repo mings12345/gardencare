@@ -120,4 +120,67 @@ class ServiceController extends Controller
             'total_services' => $gardeningCount + $landscapingCount
         ]);
     }
+
+        public function getServicesByType($type)
+    {
+        // Get system services
+        $systemServices = Service::where('type', ucfirst($type))->get();
+        
+        // Get user services (from users table)
+        $userServices = User::where('user_type', $type === 'gardening' ? 'gardener' : 'service_provider')
+            ->whereNotNull('services')
+            ->get()
+            ->flatMap(function ($user) {
+                return json_decode($user->services, true);
+            });
+
+        // Combine and transform
+        $allServices = $systemServices->merge($userServices)->map(function ($service) {
+            if (isset($service['image']) && $service['image']) {
+                $service['image'] = asset('images/services/' . basename($service['image']));
+            }
+            return $service;
+        });
+
+        return response()->json(['services' => $allServices]);
+    }
+
+    // Add a new user service
+    public function addUserService(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'type' => 'required|in:Gardening,Landscaping',
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        $user = User::findOrFail($request->user_id);
+        
+        // Handle image upload if exists
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('services', 'public');
+        }
+
+        $newService = [
+            'type' => $request->type,
+            'name' => $request->name,
+            'price' => $request->price,
+            'description' => $request->description,
+            'image' => $imagePath,
+            'created_at' => now(),
+            'updated_at' => now()
+        ];
+
+        $services = $user->services ? json_decode($user->services, true) : [];
+        $services[] = $newService;
+        
+        $user->services = json_encode($services);
+        $user->save();
+
+        return response()->json(['success' => true, 'service' => $newService]);
+    }
 }

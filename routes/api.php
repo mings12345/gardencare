@@ -83,7 +83,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-
+    Route::get('/api/services/{type}', [ServiceController::class, 'getServicesByType']);
+    Route::post('/api/user-services', [ServiceController::class, 'addUserService']);
     
     Route::get('/earnings/summary', [BookingController::class, 'getEarningsSummary']);
     Route::get('/get_total_earnings', [BookingController::class, 'getTotalEarnings']);
