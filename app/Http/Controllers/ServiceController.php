@@ -122,27 +122,51 @@ class ServiceController extends Controller
         ]);
     }
 
-        public function getServicesByType($type)
+    public function getServicesByType($type)
     {
         // Get system services
-        $systemServices = Service::where('type', ucfirst($type))->get();
-        
-        // Get user services (from users table)
+        $systemServices = Service::where('type', ucfirst($type))->get()
+            ->map(function ($service) {
+                return [
+                    'id' => $service->id,
+                    'type' => $service->type,
+                    'name' => $service->name,
+                    'price' => $service->price,
+                    'description' => $service->description,
+                    'image' => $service->image ? asset('storage/'.$service->image) : null,
+                    'is_system' => true, // Add this flag
+                    'created_at' => $service->created_at,
+                    'updated_at' => $service->updated_at
+                ];
+            });
+    
+        // Get user services
         $userServices = User::where('user_type', $type === 'gardening' ? 'gardener' : 'service_provider')
             ->whereNotNull('services')
             ->get()
             ->flatMap(function ($user) {
-                return json_decode($user->services, true);
+                return collect(json_decode($user->services, true))
+                    ->map(function ($service) use ($user) {
+                        return [
+                            'id' => 'user_'.$user->id.'_'.md5(json_encode($service)), // Generate unique ID
+                            'type' => $service['type'],
+                            'name' => $service['name'],
+                            'price' => $service['price'],
+                            'description' => $service['description'] ?? null,
+                            'image' => isset($service['image']) ? asset('storage/'.$service['image']) : null,
+                            'is_system' => false, // Add this flag
+                            'created_at' => $service['created_at'] ?? now()->toDateTimeString(),
+                            'updated_at' => $service['updated_at'] ?? now()->toDateTimeString(),
+                            'user_id' => $user->id // Include user ID
+                        ];
+                    });
             });
-
-        // Combine and transform
-        $allServices = $systemServices->merge($userServices)->map(function ($service) {
-            if (isset($service['image']) && $service['image']) {
-                $service['image'] = asset('images/services/' . basename($service['image']));
-            }
-            return $service;
-        });
-
+    
+        // Combine and sort by newest first
+        $allServices = $systemServices->merge($userServices)
+            ->sortByDesc('created_at')
+            ->values();
+    
         return response()->json(['services' => $allServices]);
     }
 
