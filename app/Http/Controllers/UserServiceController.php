@@ -33,6 +33,7 @@ class UserServiceController extends Controller
     // Add a new service to a user's services
     public function store(Request $request)
     {
+        try {
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'type' => 'required|in:Gardening,Landscaping',
@@ -68,6 +69,13 @@ class UserServiceController extends Controller
             'success' => true,
             'service' => $this->formatService($serviceData, $user)
         ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $e->errors()
+        ], 422);
+    }
     }
 
     // Format service data consistently
