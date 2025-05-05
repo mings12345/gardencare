@@ -187,7 +187,8 @@ class ServiceController extends Controller
         // Handle image upload if exists
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('services', 'public');
+            $imagePath = $request->file('image')->store('public/services');
+            $imagePath = str_replace('public/', '', $imagePath);
         }
 
         $newService = [
