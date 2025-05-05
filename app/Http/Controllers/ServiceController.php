@@ -181,6 +181,10 @@ class ServiceController extends Controller
         $user->services = json_encode($services);
         $user->save();
 
-        return response()->json(['success' => true, 'service' => $newService]);
+        return response()->json([
+            'success' => true,
+            'service' => $newService,
+            'message' => 'Service added successfully'
+        ]);
     }
 }
