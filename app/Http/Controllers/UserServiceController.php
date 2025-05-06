@@ -55,10 +55,8 @@ class UserServiceController extends Controller
             ];
 
             // Handle image upload with Laravel's storage
-            if ($request->hasFile('image')) {
-                $path = $request->file('image')->store('services', 'public');
-                $serviceData['image'] = 'storage/' . $path; // store relative to public
-            }
+            $path = $request->file('image')->store('services', 'public');
+            $serviceData['image'] = $path;
 
             $services = $user->services ? json_decode($user->services, true) : [];
             $services[] = $serviceData;
@@ -82,7 +80,7 @@ class UserServiceController extends Controller
     private function formatService(array $service, User $user): array
     {
         $imagePath = $service['image'] ?? null;
-        $imageUrl = $imagePath ? url($imagePath) : null;
+        $imageUrl = $imagePath ? asset('storage/' . $imagePath) : null;
 
         return [
             'id' => 'user_'.$user->id.'_'.md5(json_encode($service)),
