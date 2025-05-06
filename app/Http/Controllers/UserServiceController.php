@@ -12,7 +12,7 @@ class UserServiceController extends Controller
     public function getByUserType($userType)
     {
         $validTypes = ['gardener', 'service_provider'];
-        
+
         if (!in_array($userType, $validTypes)) {
             return response()->json(['error' => 'Invalid user type'], 400);
         }
@@ -54,15 +54,10 @@ class UserServiceController extends Controller
                 'updated_at' => now()->toDateTimeString()
             ];
 
-            // Handle image upload
+            // Handle image upload with Laravel's storage
             if ($request->hasFile('image')) {
-                $imageName = time().'.'.$request->image->extension();  
-                
-                // Store in the public/images/services directory
-                $request->image->move(public_path('images/services'), $imageName);
-                
-                // Store the path relative to public directory
-                $serviceData['image'] = '/images/services/'.$imageName;
+                $path = $request->file('image')->store('services', 'public');
+                $serviceData['image'] = 'storage/' . $path; // store relative to public
             }
 
             $services = $user->services ? json_decode($user->services, true) : [];
@@ -86,22 +81,8 @@ class UserServiceController extends Controller
     // Format service data consistently
     private function formatService(array $service, User $user): array
     {
-        // Handle image path
         $imagePath = $service['image'] ?? null;
-        $imageUrl = null;
-        
-        if ($imagePath) {
-            // Ensure path starts with a slash
-            if (!str_starts_with($imagePath, '/')) {
-                $imagePath = '/' . $imagePath;
-            }
-            
-            // Generate full URL
-            $imageUrl = url($imagePath);
-            
-            // Debug the image URL
-            \Log::info("Service image URL: $imageUrl");
-        }
+        $imageUrl = $imagePath ? url($imagePath) : null;
 
         return [
             'id' => 'user_'.$user->id.'_'.md5(json_encode($service)),
@@ -117,4 +98,4 @@ class UserServiceController extends Controller
             'is_system' => false
         ];
     }
-} 
+}
