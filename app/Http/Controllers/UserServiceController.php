@@ -57,8 +57,12 @@ class UserServiceController extends Controller
             // Handle image upload
             if ($request->hasFile('image')) {
                 $imageName = time().'.'.$request->image->extension();  
+                
+                // Store in the public/images/services directory
                 $request->image->move(public_path('images/services'), $imageName);
-                $serviceData['image'] = 'images/services/'.$imageName;
+                
+                // Store the path relative to public directory
+                $serviceData['image'] = '/images/services/'.$imageName;
             }
 
             $services = $user->services ? json_decode($user->services, true) : [];
@@ -82,18 +86,21 @@ class UserServiceController extends Controller
     // Format service data consistently
     private function formatService(array $service, User $user): array
     {
-        // Fix: Check if image path already contains the full URL
-        $imagePath = isset($service['image']) ? $service['image'] : null;
+        // Handle image path
+        $imagePath = $service['image'] ?? null;
         $imageUrl = null;
         
         if ($imagePath) {
-            // If it's already a full URL, use it as is
-            if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
-                $imageUrl = $imagePath;
-            } else {
-                // Otherwise generate the proper URL based on the actual path
-                $imageUrl = asset($imagePath);
+            // Ensure path starts with a slash
+            if (!str_starts_with($imagePath, '/')) {
+                $imagePath = '/' . $imagePath;
             }
+            
+            // Generate full URL
+            $imageUrl = url($imagePath);
+            
+            // Debug the image URL
+            \Log::info("Service image URL: $imageUrl");
         }
 
         return [
