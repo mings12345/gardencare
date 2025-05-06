@@ -66,10 +66,7 @@ Route::get('/gardeners', [AuthController::class, 'getGardeners']);
 Route::get('/service_providers', [AuthController::class, 'getServiceProviders']); // Fetch only users with user_type = service provider
 Route::get('/homeowners', [AuthController::class, 'getHomeowners']); 
 
-Route::prefix('user-services')->group(function () {
-    Route::get('/{userType}', [UserServiceController::class, 'getByUserType']);
-    Route::post('/', [UserServiceController::class, 'store'])->middleware('auth:sanctum');
-});
+
 
 // Protected Routes (Require Authentication)
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -88,6 +85,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    Route::post('/services', [ServiceController::class, 'store']);
+    
     Route::get('/earnings/summary', [BookingController::class, 'getEarningsSummary']);
     Route::get('/get_total_earnings', [BookingController::class, 'getTotalEarnings']);
    
