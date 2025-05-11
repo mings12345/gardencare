@@ -222,38 +222,6 @@
                 gap: 1rem;
             }
         }
-
-        .service-image {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2px solid var(--light-green);
-            transition: transform 0.3s ease;
-        }
-        
-        .service-image:hover {
-            transform: scale(1.8);
-            z-index: 10;
-            position: relative;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        
-        .image-cell {
-            width: 80px;
-        }
-        
-        .no-image {
-            width: 60px;
-            height: 60px;
-            background-color: var(--light-green);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary-green);
-            font-size: 1.5rem;
-        }
     </style>
 </head>
 <body>
@@ -280,16 +248,16 @@
 
         <!-- Action Buttons -->
         <div class="action-buttons mb-4">
-            <a href="{{ route('admin.services.create') }}" class="btn btn-success">
+            <a href="{{ route('admin.addService') }}" class="btn btn-success">
                 <i class="fas fa-plus-circle me-1"></i> Add New Service
             </a>
         </div>
 
         <!-- Services Table -->
+        <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Image</th>
                         <th>ID</th>
                         <th>Service Name</th>
                         <th>Description</th>
@@ -301,17 +269,6 @@
                 <tbody>
                     @foreach ($services as $service)
                     <tr>
-                        <td class="image-cell">
-                            @if($service->image)
-                                <img src="{{ asset('storage/' . $service->image) }}" 
-                                     alt="{{ $service->name }}" 
-                                     class="service-image">
-                            @else
-                                <div class="no-image">
-                                    <i class="fas fa-image"></i>
-                                </div>
-                            @endif
-                        </td>
                         <td>{{ $service->id }}</td>
                         <td><strong>{{ $service->name }}</strong></td>
                         <td class="description-cell" title="{{ $service->description }}">
@@ -332,14 +289,14 @@
                         <td>
                             <div class="d-flex gap-2">
                                 <!-- Edit Button -->
-                                <a href="{{ route('admin.services.edit', $service->id) }}" 
+                                <a href="{{ route('admin.editService', $service->id) }}" 
                                    class="btn btn-warning btn-sm"
                                    title="Edit Service">
                                     <i class="fas fa-edit"></i>
                                 </a>
 
                                 <!-- Delete Button -->
-                                <form action="{{ route('admin.services.destroy', $service->id) }}" method="POST">
+                                <form action="{{ route('admin.deleteService', $service->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" 

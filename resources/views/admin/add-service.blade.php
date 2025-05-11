@@ -122,21 +122,6 @@
         textarea {
             min-height: 120px;
         }
-        
-        /* Preview image styling */
-        .image-preview {
-            max-width: 100%;
-            max-height: 200px;
-            margin-top: 10px;
-            display: none;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-        }
-        
-        .file-input-label {
-            cursor: pointer;
-            display: block;
-        }
     </style>
 </head>
 <body>
@@ -160,7 +145,7 @@
                 </div>
             @endif
 
-           <form action="{{ route('admin.services.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.storeService') }}" method="POST">
                 @csrf
                 
                 <!-- Service Type -->
@@ -205,19 +190,6 @@
                     </div>
                 </div>
 
-                <!-- Image Upload -->
-                <div class="mb-4">
-                    <label for="image" class="form-label">Service Image</label>
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="fas fa-image"></i>
-                        </span>
-                        <input type="file" class="form-control" id="image" name="image" 
-                               accept="image/*" onchange="previewImage(event)">
-                    </div>
-                    <img id="imagePreview" class="image-preview" src="#" alt="Image Preview">
-                </div>
-
                 <!-- Description -->
                 <div class="mb-4">
                     <label for="description" class="form-label">Description</label>
@@ -243,25 +215,5 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function previewImage(event) {
-            const input = event.target;
-            const preview = document.getElementById('imagePreview');
-            
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                }
-                
-                reader.readAsDataURL(input.files[0]);
-            } else {
-                preview.style.display = 'none';
-                preview.src = '#';
-            }
-        }
-    </script>
 </body>
 </html>
