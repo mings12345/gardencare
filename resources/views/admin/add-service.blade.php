@@ -145,7 +145,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.storeService') }}" method="POST">
+            <form action="{{ route('admin.storeService') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 
                 <!-- Service Type -->
@@ -201,6 +201,16 @@
                                   rows="3">{{ old('description') }}</textarea>
                     </div>
                 </div>
+                <div class="mb-4">
+                <label for="image" class="form-label">Service Image</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-image"></i>
+                    </span>
+                    <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                </div>
+                <small class="text-muted">Recommended size: 800x600px (Max 2MB)</small>
+            </div>
 
                 <div class="d-flex justify-content-between mt-4 pt-2">
                     <a href="{{ route('admin.manageServices') }}" class="btn btn-outline-secondary">

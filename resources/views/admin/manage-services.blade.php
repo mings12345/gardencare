@@ -118,6 +118,16 @@
             padding: 12px 15px;
             font-size: 0.95rem;
         }
+
+        .table img {
+            transition: transform 0.3s ease;
+        }
+
+        .table img:hover {
+            transform: scale(1.5);
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
         
         .table td {
             padding: 12px 15px;
@@ -263,6 +273,7 @@
                         <th>Description</th>
                         <th>Type</th>
                         <th>Price</th>
+                        <th>Image</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -283,6 +294,15 @@
                                 <span class="badge badge-landscaping rounded-pill">
                                     <i class="fas fa-tree me-1"></i> Landscaping
                                 </span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($service->image)
+                                <img src="{{ asset('images/services/' . $service->image) }}" 
+                                    alt="{{ $service->name }}" 
+                                    style="width: 80px; height: 60px; object-fit: cover; border-radius: 4px;">
+                            @else
+                                <span class="text-muted">No image</span>
                             @endif
                         </td>
                         <td>₱{{ number_format($service->price, 2) }}</td>
