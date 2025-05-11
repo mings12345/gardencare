@@ -71,8 +71,6 @@ Route::get('/homeowners', [AuthController::class, 'getHomeowners']);
 // Protected Routes (Require Authentication)
 Route::middleware(['auth:sanctum'])->group(function () {
 
-    Route::post('/add-service-to-user', [ServiceController::class, 'addServiceToUser']);
-    Route::get('/user-services/{userId}', [ServiceController::class, 'getUserServices']);
     // Bookings Routes
     Route::get('bookings/all/{userId}', [BookingController::class, 'getAllBookings']);
     Route::get('/bookings/count/{userId}', [BookingController::class, 'countBookings']);
