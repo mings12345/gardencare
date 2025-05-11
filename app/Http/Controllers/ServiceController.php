@@ -24,28 +24,28 @@ class ServiceController extends Controller
 
     // Store a new service
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'type' => 'required|in:Gardening,Landscaping',
-        'name' => 'required|string|max:255',
-        'price' => 'required|numeric|min:0',
-        'description' => 'nullable|string',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // 2MB max
-    ]);
+    {
+        $validated = $request->validate([
+            'type' => 'required|in:Gardening,Landscaping',
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // 2MB max
+        ]); 
 
-    // Handle image upload
-    if ($request->hasFile('image')) {
-        $image = $request->file('image');
-        $imageName = time().'.'.$image->getClientOriginalExtension();
-        $image->move(public_path('images/services'), $imageName);
-        $validated['image'] = $imageName;
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time().'.'.$image->getClientOriginalExtension();
+            $image->move(public_path('images/services'), $imageName);
+            $validated['image'] = $imageName;
+        }
+
+        Service::create($validated);
+
+        return redirect()->route('admin.manageServices')
+            ->with('success', 'Service added successfully.');
     }
-
-    Service::create($validated);
-
-    return redirect()->route('admin.manageServices')
-        ->with('success', 'Service added successfully.');
-}
 
     // Show the form to edit a service
     public function edit($id)
@@ -131,4 +131,69 @@ class ServiceController extends Controller
         ]);
     }
 
+    // New method: Add a service to user's services
+    public function addServiceToUser(Request $request)
+    {
+        $validated = $request->validate([
+            'service_id' => 'required|exists:services,id',
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::findOrFail($validated['user_id']);
+        $service = Service::findOrFail($validated['service_id']);
+        
+        // Get current services (if any) and convert to array
+        $currentServices = $user->services ? json_decode($user->services, true) : [];
+        
+        // Check if service is already added
+        if (in_array($validated['service_id'], $currentServices)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Service already added to user'
+            ], 400);
+        }
+        
+        // Add new service ID to the array
+        $currentServices[] = $validated['service_id'];
+        
+        // Save the updated services array back to user
+        $user->services = json_encode($currentServices);
+        $user->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Service added successfully',
+            'services' => $currentServices
+        ]);
+    }
+    
+    // Get services for a specific user
+    public function getUserServices(Request $request, $userId)
+    {
+        $user = User::findOrFail($userId);
+        
+        // Get services IDs from user
+        $serviceIds = $user->services ? json_decode($user->services, true) : [];
+        
+        if (empty($serviceIds)) {
+            return response()->json([
+                'services' => []
+            ]);
+        }
+        
+        // Get actual service objects
+        $services = Service::whereIn('id', $serviceIds)->get();
+        
+        // Transform the image paths to full URLs
+        $services->transform(function ($service) {
+            if ($service->image) {
+                $service->image = asset('images/services/' . basename($service->image));
+            }
+            return $service;
+        });
+        
+        return response()->json([
+            'services' => $services
+        ]);
+    }
 }
