@@ -272,8 +272,8 @@
                         <th>Service Name</th>
                         <th>Description</th>
                         <th>Type</th>
-                        <th>Price</th>
                         <th>Image</th>
+                        <th>Price</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
