@@ -184,7 +184,8 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.updateService', $service->id) }}" method="POST">
+            <form action="{{ route('admin.updateService', $service->id) }}" method="POST" enctype="multipart/form-data">
+
                 @csrf
                 @method('PUT')
                 
@@ -228,6 +229,24 @@
                                   rows="4" placeholder="Provide a detailed description of the service">{{ old('description', $service->description) }}</textarea>
                         <small class="text-muted">Optional: Detailed explanation of what this service includes</small>
                     </div>
+                    <div class="mb-4">
+                    <label for="image" class="form-label">Service Image</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-image"></i>
+                        </span>
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                    </div>
+                    @if($service->image)
+                        <div class="mt-2">
+                            <img src="{{ asset('images/services/' . $service->image) }}" 
+                                alt="Current image" 
+                                style="width: 120px; height: 90px; object-fit: cover; border-radius: 4px;">
+                            <p class="small text-muted mt-1">Current image</p>
+                        </div>
+                    @endif
+                    <small class="text-muted">Leave blank to keep current image</small>
+                </div>
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">
