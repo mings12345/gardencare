@@ -184,7 +184,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.updateService', $service->id) }}" method="POST">
+            <form action="{{ route('admin.services.edit', $service->id) }}" method="POST">
                 @csrf
                 @method('PUT')
                 
