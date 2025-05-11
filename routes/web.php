@@ -78,7 +78,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::prefix('services')->group(function() {
         Route::get('/', [ServiceController::class, 'index'])->name('admin.manageServices');
         Route::get('/create', [ServiceController::class, 'create'])->name('admin.addService');
-        Route::post('/', [ServiceController::class, 'store'])->name('admin.storeService');
+        Route::post('/services', [ServiceController::class, 'store'])->name('admin.services.store');
         Route::get('/{id}/edit', [ServiceController::class, 'edit'])->name('admin.editService');
         Route::put('/{id}', [ServiceController::class, 'update'])->name('admin.updateService');
         Route::delete('/{id}', [ServiceController::class, 'destroy'])->name('admin.deleteService');
