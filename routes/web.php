@@ -77,11 +77,11 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Services Management
     Route::prefix('services')->group(function() {
         Route::get('/', [ServiceController::class, 'index'])->name('admin.manageServices');
-        Route::get('/create', [ServiceController::class, 'create'])->name('admin.addService');
+        Route::get('/services/create', [ServiceController::class, 'create'])->name('admin.services.create');
         Route::post('/services', [ServiceController::class, 'store'])->name('admin.services.store');
         Route::get('/services/{service}/edit', [ServiceController::class, 'edit'])->name('admin.services.edit');
-        Route::put('/{id}', [ServiceController::class, 'update'])->name('admin.updateService');
-        Route::delete('/{id}', [ServiceController::class, 'destroy'])->name('admin.deleteService');
+        Route::put('/services/{service}', [ServiceController::class, 'update'])->name('admin.services.update');
+        Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('admin.services.destroy');
     });
     
     // Feedback Management
