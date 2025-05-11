@@ -280,7 +280,7 @@
 
         <!-- Action Buttons -->
         <div class="action-buttons mb-4">
-            <a href="{{ route('admin.add-service') }}" class="btn btn-success">
+            <a href="{{ route('admin.services.create') }}" class="btn btn-success">
                 <i class="fas fa-plus-circle me-1"></i> Add New Service
             </a>
         </div>
