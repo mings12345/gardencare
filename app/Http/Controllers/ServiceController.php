@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Service;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use App\Models\User;
 
 class ServiceController extends Controller
 {
@@ -29,15 +29,8 @@ class ServiceController extends Controller
             'type' => 'required|in:Gardening,Landscaping',
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // 2MB max
+            'description' => 'nullable|string'
         ]);
-
-        // Handle image upload
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('public/services');
-            $validated['image'] = str_replace('public/', '', $imagePath);
-        }
 
         Service::create($validated);
 
@@ -56,27 +49,14 @@ class ServiceController extends Controller
     // Update a service
     public function update(Request $request, $id)
     {
-        $service = Service::findOrFail($id);
-        
         $validated = $request->validate([
             'type' => 'required|in:Gardening,Landscaping',
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'description' => 'nullable|string'
         ]);
 
-        // Handle image upload
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($service->image) {
-                Storage::delete('public/' . $service->image);
-            }
-            
-            $imagePath = $request->file('image')->store('public/services');
-            $validated['image'] = str_replace('public/', '', $imagePath);
-        }
-
+        $service = Service::findOrFail($id);
         $service->update($validated);
 
         return redirect()->route('admin.manageServices')
@@ -87,12 +67,6 @@ class ServiceController extends Controller
     public function destroy($id)
     {
         $service = Service::findOrFail($id);
-        
-        // Delete associated image
-        if ($service->image) {
-            Storage::delete('public/' . $service->image);
-        }
-        
         $service->delete();
 
         return redirect()->route('admin.manageServices')
@@ -103,15 +77,6 @@ class ServiceController extends Controller
     public function getServices()
     {
         $services = Service::all();
-        
-        // Transform image paths to full URLs
-        $services->transform(function ($service) {
-            if ($service->image) {
-                $service->image = asset('storage/services/' . basename($service->image));
-            }
-            return $service;
-        });
-
         return response()->json(['services' => $services]);
     }
 
@@ -122,7 +87,7 @@ class ServiceController extends Controller
         // Transform the image paths to full URLs
         $gardeningServices->transform(function ($service) {
             if ($service->image) {
-                $service->image = asset('storage/services/' . basename($service->image));
+                $service->image = asset('images/services/' . basename($service->image));
             }
             return $service;
         });
@@ -137,7 +102,7 @@ class ServiceController extends Controller
         // Transform the image paths to full URLs
         $landscapingServices->transform(function ($service) {
             if ($service->image) {
-                $service->image = asset('storage/services/' . basename($service->image));
+                $service->image = asset('images/services/' . basename($service->image));
             }
             return $service;
         });
@@ -156,4 +121,5 @@ class ServiceController extends Controller
             'total_services' => $gardeningCount + $landscapingCount
         ]);
     }
+
 }
