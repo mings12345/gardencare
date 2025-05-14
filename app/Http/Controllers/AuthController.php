@@ -127,6 +127,39 @@ class AuthController extends Controller
         ]);
     }
 
+    public function uploadProfileImage(Request $request)
+{
+    $request->validate([
+        'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    $user = auth()->user();
+
+    if ($request->hasFile('profile_image')) {
+        // Delete old image if it exists
+        if ($user->profile_image && Storage::exists('public/profile_images/' . basename($user->profile_image))) {
+            Storage::delete('public/profile_images/' . basename($user->profile_image));
+        }
+
+        // Upload new image
+        $imagePath = $request->file('profile_image')->store('profile_images', 'public');
+        
+        // Update user record with new image path
+        $user->update([
+            'profile_image' => 'storage/' . $imagePath,
+        ]);
+
+        return response()->json([
+            'message' => 'Profile image uploaded successfully',
+            'image_path' => 'storage/' . $imagePath,
+        ]);
+    }
+
+    return response()->json([
+        'message' => 'No image uploaded',
+    ], 400);
+}
+
     public function updateProfile(Request $request)
     {
         $user = auth()->user(); // Get the authenticated user
