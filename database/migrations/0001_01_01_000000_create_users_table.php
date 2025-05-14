@@ -27,7 +27,7 @@ return new class extends Migration
             $table->text('bio')->nullable(); // removed ->after()
             $table->string('fcm_token')->nullable();
             $table->string('account', 11)->nullable()->unique();
-            $table->string('profile_image')->nullable()->after('account');
+            $table->string('profile_image')->nullable();
             $table->decimal('balance', 11, 2)->default(0.00);
             $table->json('services')->nullable(); 
             $table->rememberToken();
