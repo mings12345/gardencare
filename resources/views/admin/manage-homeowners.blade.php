@@ -128,6 +128,20 @@
             margin-bottom: 15px;
         }
 
+        .profile-image-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-color);
+        }
+
         @media (max-width: 768px) {
             .header-container {
                 flex-direction: column;
@@ -180,6 +194,16 @@
                 border-bottom: none;
                 justify-content: center;
             }
+
+            .profile-image-cell {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .profile-image-cell::before {
+                content: 'ID & Photo';
+            }
         }
     </style>
 </head>
@@ -215,7 +239,7 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>ID & Photo</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
@@ -226,7 +250,14 @@
                     <tbody>
                         @foreach ($homeowners as $homeowner)
                         <tr>
-                            <td data-label="ID">{{ $homeowner->id }}</td>
+                            <td data-label="ID & Photo" class="profile-image-cell">
+                                <span>{{ $homeowner->id }}</span>
+                                @if($homeowner->profile_image)
+                                    <img src="{{ asset('storage/' . $homeowner->profile_image) }}" alt="Profile Image" class="profile-image">
+                                @else
+                                    <img src="{{ asset('images/default-profile.png') }}" alt="Default Profile" class="profile-image">
+                                @endif
+                            </td>
                             <td data-label="Name">{{ $homeowner->name }}</td>
                             <td data-label="Email">{{ $homeowner->email }}</td>
                             <td data-label="Phone">{{ $homeowner->phone ?? 'N/A' }}</td>
