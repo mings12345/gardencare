@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class HomeownerController extends Controller
 {
@@ -59,7 +60,7 @@ class HomeownerController extends Controller
     }
 
     // Update the specified homeowner in the database
-    public function update(Request $request, $id)
+      public function update(Request $request, $id)
     {
         $homeowner = User::findOrFail($id);
 
@@ -69,19 +70,33 @@ class HomeownerController extends Controller
             'email' => 'required|email|unique:users,email,' . $homeowner->id,
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Update the homeowner's details
-        $homeowner->update([
+        $data = [
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
-        ]);
+        ];
+
+        // Handle profile image upload
+        if ($request->hasFile('profile_image')) {
+            // Delete old image if it exists
+            if ($homeowner->profile_image) {
+                Storage::delete('public/' . $homeowner->profile_image);
+            }
+            
+            // Store the new image
+            $path = $request->file('profile_image')->store('profile_images', 'public');
+            $data['profile_image'] = $path;
+        }
+
+        // Update the homeowner's details
+        $homeowner->update($data);
 
         return redirect()->route('admin.manageHomeowners')->with('success', 'Homeowner updated successfully.');
     }
-
     // Delete the specified homeowner from the database
     public function destroy($id)
     {
