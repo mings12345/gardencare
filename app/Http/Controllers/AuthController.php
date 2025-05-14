@@ -106,54 +106,67 @@ class AuthController extends Controller
     }
 
     public function getProfileData($userId)
-    {
-        \Log::info('Fetching profile data for user ID: ' . $userId); // Debugging line
+{
+    $user = User::find($userId);
 
-        $user = User::find($userId);
-
-        if (!$user) {
-            \Log::error('User not found for ID: ' . $userId); // Debugging line
-            return response()->json(['message' => 'User not found'], 404);
-        }
-
-        \Log::info('User found: ' . json_encode($user)); // Debugging line
-
-        return response()->json([
-            'name' => $user->name,
-            'email' => $user->email,
-            'phone' => $user->phone,
-            'address' => $user->address,
-            'account' => $user->account,
-        ]);
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
     }
+
+    return response()->json([
+        'name' => $user->name,
+        'email' => $user->email,
+        'phone' => $user->phone,
+        'address' => $user->address,
+        'account' => $user->account,
+        'profile_image' => $user->profile_image 
+            ? Storage::disk('public')->url($user->profile_image)
+            : null,
+    ]);
+}
 
     public function updateProfile(Request $request)
-    {
-        $user = auth()->user(); // Get the authenticated user
+{
+    $user = auth()->user();
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:50',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
-            'phone' => 'sometimes|string|max:15',
-            'address' => 'sometimes|string|max:255',
-            'account' => 'sometimes|string|max:11|unique:users,account,' . $user->id,
-        ]);
+    $validator = Validator::make($request->all(), [
+        'name' => 'sometimes|string|max:50',
+        'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+        'phone' => 'sometimes|string|max:15',
+        'address' => 'sometimes|string|max:255',
+        'account' => 'sometimes|string|max:11|unique:users,account,' . $user->id,
+        'profile_image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation Error',
-                'errors' => $validator->errors(),
-            ], 422);
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Validation Error',
+            'errors' => $validator->errors(),
+        ], 422);
+    }
+
+    $data = $request->only(['name', 'email', 'phone', 'address', 'account']);
+
+    // Handle profile image upload
+    if ($request->hasFile('profile_image')) {
+        // Delete old image if exists
+        if ($user->profile_image) {
+            Storage::disk('public')->delete($user->profile_image);
         }
 
-        // Update user profile
-        $user->update($request->only(['name', 'email', 'phone', 'address', 'account']));
-
-        return response()->json([
-            'message' => 'Profile updated successfully.',
-            'user' => $user,
-        ], 200);
+        // Store new image
+        $path = $request->file('profile_image')->store('profile_images', 'public');
+        $data['profile_image'] = $path;
     }
+
+    // Update user profile
+    $user->update($data);
+
+    return response()->json([
+        'message' => 'Profile updated successfully.',
+        'user' => $user,
+    ], 200);
+}
 
     public function logout(Request $request)
     {
