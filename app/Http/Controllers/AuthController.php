@@ -163,20 +163,30 @@ public function uploadProfileImage(Request $request)
 
     $user = auth()->user();
 
-    // Delete old image if exists
-    if ($user->profile_image) {
-        Storage::delete(str_replace('/storage', 'public', $user->profile_image));
+    try {
+        // Delete old image if exists
+        if ($user->profile_image) {
+            Storage::delete(str_replace('/storage', 'public', $user->profile_image));
+        }
+
+        // Store new image
+        $path = $request->file('profile_image')->store('public/profile_images');
+        $url = Storage::url($path);
+
+        // Update user record
+        $user->update(['profile_image' => $url]);
+
+        return response()->json([
+            'message' => 'Image uploaded successfully',
+            'image_url' => $url,
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Failed to upload image',
+            'error' => $e->getMessage()
+        ], 500);
     }
-
-    $path = $request->file('profile_image')->store('public/profile_images');
-    $url = Storage::url($path);
-
-    $user->update(['profile_image' => $url]);
-
-    return response()->json([
-        'message' => 'Image uploaded successfully',
-        'image_url' => $url,
-    ]);
 }
 
     public function logout(Request $request)
