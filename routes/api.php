@@ -91,6 +91,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/update_account', [AuthController::class, 'updateAccount']); // Create a booking
     // Profile Routes
     Route::post('/profile/update', [AuthController::class, 'updateProfile']);
+    Route::post('/profile/upload-image', [AuthController::class, 'uploadProfileImage']);
     Route::get('/profile/{userId}', [AuthController::class, 'getProfileData']);
     Route::post('bookings/{bookingId}/rate', [RatingController::class, 'submitRating']);
     Route::get('/ratings', [RatingController::class, 'index']);
