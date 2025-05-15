@@ -123,35 +123,114 @@ class AdminDashboardController extends Controller
         return redirect('/admin/login');
     }
 
-            public function reports()
-        {
-            // Get all bookings with related data
-            $bookings = Booking::with(['homeowner', 'gardener', 'serviceProvider', 'payments'])
-                ->orderBy('date', 'desc')
-                ->get();
+            // Add these methods to AdminDashboardController.php
 
-            // Get all ratings with related booking data
-            $ratings = Rating::with(['booking.homeowner'])
-                ->orderBy('created_at', 'desc')
-                ->get();
+public function reports()
+{
+    // Get all bookings with related data
+    $bookings = Booking::with(['homeowner', 'gardener', 'serviceProvider', 'payments'])
+        ->orderBy('date', 'desc')
+        ->get();
 
-            // Get all users
-            $users = User::orderBy('created_at', 'desc')->get();
+    // Get all ratings with related booking data
+    $ratings = Rating::with(['booking.homeowner'])
+        ->orderBy('created_at', 'desc')
+        ->get();
 
-            // Calculate statistics
-            $totalBookings = Booking::count();
-            $totalEarnings = Payment::sum('amount_paid');
-            $averageRating = Rating::avg('rating') ?? 0;
+    // Get all users
+    $users = User::orderBy('created_at', 'desc')->get();
 
-            return view('admin.reports', compact(
-                'bookings',
-                'ratings',
-                'users',
-                'totalBookings',
-                'totalEarnings',
-                'averageRating'
-            ));
-        }
+    // Calculate statistics
+    $totalBookings = Booking::count();
+    $totalEarnings = Payment::sum('amount_paid');
+    $averageRating = Rating::avg('rating') ?? 0;
+
+    // Get data for charts
+    $bookingData = $this->getBookingChartData();
+    $earningsData = $this->getEarningsChartData();
+    $userData = $this->getUserChartData();
+
+    return view('admin.reports', compact(
+        'bookings',
+        'ratings',
+        'users',
+        'totalBookings',
+        'totalEarnings',
+        'averageRating',
+        'bookingData',
+        'earningsData',
+        'userData'
+    ));
+}
+
+private function getBookingChartData()
+{
+    $bookings = Booking::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, COUNT(*) as count')
+        ->groupBy('month')
+        ->orderBy('month')
+        ->get();
+
+    $labels = [];
+    $data = [];
+
+    foreach ($bookings as $booking) {
+        $labels[] = date('M Y', strtotime($booking->month));
+        $data[] = $booking->count;
+    }
+
+    return [
+        'labels' => $labels,
+        'data' => $data,
+        'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
+        'borderColor' => 'rgba(54, 162, 235, 1)'
+    ];
+}
+
+private function getEarningsChartData()
+{
+    $earnings = Payment::selectRaw('DATE_FORMAT(payment_date, "%Y-%m") as month, SUM(amount_paid) as total')
+        ->groupBy('month')
+        ->orderBy('month')
+        ->get();
+
+    $labels = [];
+    $data = [];
+
+    foreach ($earnings as $earning) {
+        $labels[] = date('M Y', strtotime($earning->month));
+        $data[] = $earning->total;
+    }
+
+    return [
+        'labels' => $labels,
+        'data' => $data,
+        'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
+        'borderColor' => 'rgba(75, 192, 192, 1)'
+    ];
+}
+
+private function getUserChartData()
+{
+    $users = User::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, COUNT(*) as count')
+        ->groupBy('month')
+        ->orderBy('month')
+        ->get();
+
+    $labels = [];
+    $data = [];
+
+    foreach ($users as $user) {
+        $labels[] = date('M Y', strtotime($user->month));
+        $data[] = $user->count;
+    }
+
+    return [
+        'labels' => $labels,
+        'data' => $data,
+        'backgroundColor' => 'rgba(153, 102, 255, 0.2)',
+        'borderColor' => 'rgba(153, 102, 255, 1)'
+    ];
+}
 
     public function exportReports(Request $request)
 {
