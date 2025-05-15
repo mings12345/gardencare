@@ -504,23 +504,23 @@
             data: {
                 labels: ['Completed', 'Pending', 'Cancelled'],
                 datasets: [{
-                    data: [
-                        {{ Booking::where('status', 'completed')->count() }},
-                        {{ Booking::where('status', 'pending')->count() }},
-                        {{ Booking::where('status', 'cancelled')->count() }}
-                    ],
-                    backgroundColor: [
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(255, 99, 132, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(255, 99, 132, 1)'
-                    ],
-                    borderWidth: 1
-                }]
+                        data: [
+                            {{ $statusCounts['completed'] }},
+                            {{ $statusCounts['pending'] }},
+                            {{ $statusCounts['cancelled'] }}
+                        ],
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(255, 99, 132, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(255, 99, 132, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
             },
             options: {
                 responsive: true,

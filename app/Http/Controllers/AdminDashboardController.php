@@ -145,6 +145,12 @@ public function reports()
     $totalEarnings = Payment::sum('amount_paid');
     $averageRating = Rating::avg('rating') ?? 0;
 
+       $statusCounts = [
+        'completed' => Booking::where('status', 'completed')->count(),
+        'pending' => Booking::where('status', 'pending')->count(),
+        'cancelled' => Booking::where('status', 'cancelled')->count()
+    ];
+
     // Get data for charts
     $bookingData = $this->getBookingChartData();
     $earningsData = $this->getEarningsChartData();
@@ -159,7 +165,8 @@ public function reports()
         'averageRating',
         'bookingData',
         'earningsData',
-        'userData'
+        'userData',
+        'statusCounts' 
     ));
 }
 
