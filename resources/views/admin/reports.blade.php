@@ -37,25 +37,11 @@
             color: var(--primary-color);
         }
 
-         .chart-container {
-        position: relative;
-        height: 300px;
-        padding: 1rem;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .chart-container canvas {
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    @media print {
         .chart-container {
-            page-break-inside: avoid;
+            position: relative;
+            height: 300px;
+            padding: 1rem;
         }
-    }
 
         .export-btn {
             background-color: var(--primary-color);
@@ -118,36 +104,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="card mb-4">
-    <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i> Analytics</h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="chart-container">
-                    <canvas id="bookingsChart"></canvas>
-                </div>
-            </div>
-            <div class="col-md-6 mb-4">
-                <div class="chart-container">
-                    <canvas id="earningsChart"></canvas>
-                </div>
-            </div>
-            <div class="col-md-6 mb-4">
-                <div class="chart-container">
-                    <canvas id="usersChart"></canvas>
-                </div>
-            </div>
-            <div class="col-md-6 mb-4">
-                <div class="chart-container">
-                    <canvas id="statusChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
         <!-- Export Reports Card -->
         <div class="card no-print">
@@ -324,7 +280,6 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
@@ -368,184 +323,9 @@
         document.getElementById('reportForm').addEventListener('submit', function(e) {
     // For PDF generation, we prevent the default form submission
     e.preventDefault();
-  });
+});
 
-     document.addEventListener('DOMContentLoaded', function() {
-        // Bookings Chart
-        const bookingsCtx = document.getElementById('bookingsChart').getContext('2d');
-        const bookingsChart = new Chart(bookingsCtx, {
-            type: 'line',
-            data: {
-                labels: @json($bookingData['labels']),
-                datasets: [{
-                    label: 'Bookings Per Month',
-                    data: @json($bookingData['data']),
-                    backgroundColor: @json($bookingData['backgroundColor']),
-                    borderColor: @json($bookingData['borderColor']),
-                    borderWidth: 1,
-                    tension: 0.1,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.dataset.label}: ${context.raw}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0
-                        }
-                    }
-                }
-            }
-        });
-
-        // Earnings Chart
-        const earningsCtx = document.getElementById('earningsChart').getContext('2d');
-        const earningsChart = new Chart(earningsCtx, {
-            type: 'bar',
-            data: {
-                labels: @json($earningsData['labels']),
-                datasets: [{
-                    label: 'Earnings Per Month (₱)',
-                    data: @json($earningsData['data']),
-                    backgroundColor: @json($earningsData['backgroundColor']),
-                    borderColor: @json($earningsData['borderColor']),
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.dataset.label}: ₱${context.raw.toFixed(2)}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '₱' + value.toFixed(2);
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        // Users Chart
-        const usersCtx = document.getElementById('usersChart').getContext('2d');
-        const usersChart = new Chart(usersCtx, {
-            type: 'line',
-            data: {
-                labels: @json($userData['labels']),
-                datasets: [{
-                    label: 'New Users Per Month',
-                    data: @json($userData['data']),
-                    backgroundColor: @json($userData['backgroundColor']),
-                    borderColor: @json($userData['borderColor']),
-                    borderWidth: 1,
-                    tension: 0.1,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.dataset.label}: ${context.raw}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0
-                        }
-                    }
-                }
-            }
-        });
-
-        // Booking Status Chart (pie chart)
-        const statusCtx = document.getElementById('statusChart').getContext('2d');
-        const statusChart = new Chart(statusCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Completed', 'Pending', 'Cancelled'],
-                datasets: [{
-                        data: [
-                            {{ $statusCounts['completed'] }},
-                            {{ $statusCounts['pending'] }},
-                            {{ $statusCounts['cancelled'] }}
-                        ],
-                        backgroundColor: [
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(255, 99, 132, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(255, 99, 132, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.raw || 0;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = Math.round((value / total) * 100);
-                                return `${label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    });
-
- function exportReport(format) {
+function exportReport(format) {
     if (format === 'pdf') {
         const element = document.getElementById('reportTitle').parentElement.parentElement;
         const opt = {
@@ -560,7 +340,7 @@
         // Submit the form for CSV export
         document.getElementById('reportForm').submit();
     }
-  }
+}
     </script>
 </body>
 </html>
