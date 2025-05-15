@@ -39,8 +39,18 @@
 
         .chart-container {
             position: relative;
-            height: 300px;
+            height: 400px;
             padding: 1rem;
+        }
+
+        .btn-group .btn {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .btn-group .btn.active {
+            background-color: var(--primary-color);
+            color: white;
         }
 
         .export-btn {
@@ -104,6 +114,27 @@
                 </div>
             </div>
         </div>
+
+        <!-- Chart Visualization Row -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Reports Overview</h5>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary active" data-chart-type="bar">Bar</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-chart-type="line">Line</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-chart-type="pie">Pie</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="reportsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
         <!-- Export Reports Card -->
         <div class="card no-print">
@@ -280,6 +311,7 @@
     </div>
 
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
@@ -324,6 +356,194 @@
     // For PDF generation, we prevent the default form submission
     e.preventDefault();
 });
+    // Chart Visualization
+document.addEventListener('DOMContentLoaded', function() {
+    // Prepare data from PHP
+    const bookingsData = {
+        total: {{ $totalBookings }},
+        pending: {{ $bookings->where('status', 'pending')->count() }},
+        completed: {{ $bookings->where('status', 'completed')->count() }}
+    };
+
+    const earningsData = {
+        total: {{ $totalEarnings }},
+        adminFees: {{ $bookings->sum(function($booking) { return $booking->payments->sum('admin_fee'); }) }},
+        providerEarnings: {{ $bookings->sum(function($booking) { 
+            return $booking->payments->sum('amount_paid') - $booking->payments->sum('admin_fee'); 
+        }) }}
+    };
+
+    const usersData = {
+        homeowners: {{ $users->where('user_type', 'homeowner')->count() }},
+        gardeners: {{ $users->where('user_type', 'gardener')->count() }},
+        serviceProviders: {{ $users->where('user_type', 'service_provider')->count() }}
+    };
+
+    const ratingsData = {
+        average: {{ $averageRating }},
+        counts: [
+            {{ $ratings->where('rating', 1)->count() }},
+            {{ $ratings->where('rating', 2)->count() }},
+            {{ $ratings->where('rating', 3)->count() }},
+            {{ $ratings->where('rating', 4)->count() }},
+            {{ $ratings->where('rating', 5)->count() }}
+        ]
+    };
+
+    // Chart configuration
+    const ctx = document.getElementById('reportsChart').getContext('2d');
+    let chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Bookings', 'Earnings', 'Users', 'Ratings'],
+            datasets: [
+                {
+                    label: 'Total Bookings',
+                    data: [bookingsData.total, 0, 0, 0],
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Pending Bookings',
+                    data: [bookingsData.pending, 0, 0, 0],
+                    backgroundColor: 'rgba(255, 206, 86, 0.7)',
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Completed Bookings',
+                    data: [bookingsData.completed, 0, 0, 0],
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Total Earnings (₱)',
+                    data: [0, earningsData.total, 0, 0],
+                    backgroundColor: 'rgba(153, 102, 255, 0.7)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Admin Fees (₱)',
+                    data: [0, earningsData.adminFees, 0, 0],
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Homeowners',
+                    data: [0, 0, usersData.homeowners, 0],
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Gardeners',
+                    data: [0, 0, usersData.gardeners, 0],
+                    backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Service Providers',
+                    data: [0, 0, usersData.serviceProviders, 0],
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Average Rating',
+                    data: [0, 0, 0, ratingsData.average],
+                    backgroundColor: 'rgba(255, 206, 86, 0.7)',
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.dataset.label.includes('Earnings') || 
+                                context.dataset.label.includes('Fees')) {
+                                label += '₱' + context.raw.toLocaleString();
+                            } else {
+                                label += context.raw;
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Chart type toggle buttons
+    document.querySelectorAll('[data-chart-type]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Update active state
+            document.querySelectorAll('[data-chart-type]').forEach(b => {
+                b.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            // Change chart type
+            chart.destroy();
+            chart = new Chart(ctx, {
+                type: this.dataset.chartType,
+                data: chart.data,
+                options: chart.options
+            });
+        });
+    });
+
+    // Update chart when report type changes
+    document.getElementById('type').addEventListener('change', function() {
+        const type = this.value;
+        
+        // Hide all datasets initially
+        chart.data.datasets.forEach(dataset => {
+            dataset.hidden = true;
+        });
+        
+        // Show relevant datasets based on report type
+        if (type === 'bookings') {
+            chart.data.datasets.filter(d => d.label.includes('Booking')).forEach(d => {
+                d.hidden = false;
+            });
+        } else if (type === 'earnings') {
+            chart.data.datasets.filter(d => d.label.includes('Earnings') || d.label.includes('Fees')).forEach(d => {
+                d.hidden = false;
+            });
+        } else if (type === 'users') {
+            chart.data.datasets.filter(d => d.label.includes('Homeowner') || 
+                                          d.label.includes('Gardener') || 
+                                          d.label.includes('Service Provider')).forEach(d => {
+                d.hidden = false;
+            });
+        } else if (type === 'ratings') {
+            chart.data.datasets.filter(d => d.label.includes('Rating')).forEach(d => {
+                d.hidden = false;
+            });
+        }
+        
+        chart.update();
+    });
+});
 
 function exportReport(format) {
     if (format === 'pdf') {
@@ -340,7 +560,7 @@ function exportReport(format) {
         // Submit the form for CSV export
         document.getElementById('reportForm').submit();
     }
-}
+        }
     </script>
 </body>
 </html>
