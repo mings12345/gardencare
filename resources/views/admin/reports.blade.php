@@ -292,7 +292,7 @@
                                 @foreach($ratings as $rating)
                                 <tr>
                                     <td>{{ $rating->booking_id }}</td>
-                                    <td>{{ $rating->created_at->format('M d, Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($rating->created_at)->format('M d, Y') }}</td>
                                     <td>
                                         @for($i = 1; $i <= 5; $i++)
                                             <i class="fas fa-star{{ $i <= $rating->rating ? '' : '-empty' }} text-warning"></i>
