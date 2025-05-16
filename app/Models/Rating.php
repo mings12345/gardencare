@@ -16,8 +16,4 @@ class Rating extends Model
     {
         return $this->belongsTo(Booking::class);
     }
-
-    protected $casts = [
-    'created_at' => 'datetime',
-];
 }

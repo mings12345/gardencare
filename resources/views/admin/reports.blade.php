@@ -292,7 +292,7 @@
                                 @foreach($ratings as $rating)
                                 <tr>
                                     <td>{{ $rating->booking_id }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($rating->created_at)->format('M d, Y') }}</td>
+                                    <td>{{ $rating->created_at->format('M d, Y') }}</td>
                                     <td>
                                         @for($i = 1; $i <= 5; $i++)
                                             <i class="fas fa-star{{ $i <= $rating->rating ? '' : '-empty' }} text-warning"></i>
@@ -421,16 +421,22 @@
             // Earnings Chart (Monthly)
             const earningsCtx = document.getElementById('earningsChart').getContext('2d');
             @php
-                // Group earnings by month
-                $monthlyEarnings = [];
-                foreach($bookings as $booking) {
-                    if ($booking->payments->isNotEmpty()) {
-                        $month = $booking->payments->first()->payment_date->format('Y-m');
-                        $monthlyEarnings[$month] = ($monthlyEarnings[$month] ?? 0) + $booking->payments->first()->amount_paid;
-                    }
-                }
-                ksort($monthlyEarnings);
-            @endphp
+    // Group earnings by month
+    $monthlyEarnings = [];
+    foreach($bookings as $booking) {
+        if ($booking->payments->isNotEmpty()) {
+            $payment = $booking->payments->first();
+            // Make sure payment_date is a DateTime object before calling format()
+            $paymentDate = $payment->payment_date;
+            if (is_string($paymentDate)) {
+                $paymentDate = new DateTime($paymentDate);
+            }
+            $month = $paymentDate->format('Y-m');
+            $monthlyEarnings[$month] = ($monthlyEarnings[$month] ?? 0) + $payment->amount_paid;
+        }
+    }
+    ksort($monthlyEarnings);
+@endphp
             
             new Chart(earningsCtx, {
                 type: 'line',
