@@ -335,6 +335,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     borderWidth: 1
                 },
                 {
+                    label: 'Accepted Bookings',
+                    data: [{{ implode(',', $acceptedBookingsByMonth) }}],
+                    backgroundColor: '#2196F3', // Blue
+                    borderColor: '#0D47A1',
+                    borderWidth: 1
+                },
+                {
                     label: 'Pending Bookings',
                     data: [{{ implode(',', $pendingBookingsByMonth) }}],
                     backgroundColor: '#FFC107', // Yellow
@@ -351,14 +358,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 {
                     label: 'Total Earnings (₱)',
                     data: [{{ implode(',', $earningsByMonth) }}],
-                    backgroundColor: '#2196F3', // Blue
-                    borderColor: '#0D47A1',
-                    borderWidth: 2,
+                    backgroundColor: '#9C27B0', // Purple
+                    borderColor: '#6A1B9A',
+                    borderWidth: 3,
                     type: 'line',
                     yAxisID: 'y1',
-                    tension: 0.3, // Makes the line smoother
-                    pointRadius: 4, // Makes points more visible
-                    pointHoverRadius: 6
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    fill: false
                 }
             ]
         },
@@ -372,7 +380,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         display: true,
                         text: 'Number of Bookings'
                     },
-                    stacked: false // Change to true if you want stacked bars
+                    stacked: false // Set to true for stacked bars
                 },
                 y1: {
                     position: 'right',
@@ -386,6 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 x: {
+                    stacked: false, // Should match y.stacked value
                     grid: {
                         display: false
                     }
@@ -400,14 +409,28 @@ document.addEventListener('DOMContentLoaded', function() {
                                 return label + ': ₱' + context.raw.toLocaleString();
                             }
                             return label + ': ' + context.raw;
+                        },
+                        footer: function(tooltipItems) {
+                            let sum = 0;
+                            tooltipItems.forEach(function(tooltipItem) {
+                                // Don't include earnings in the total
+                                if (!tooltipItem.dataset.label.includes('Earnings')) {
+                                    sum += tooltipItem.parsed.y;
+                                }
+                            });
+                            return 'Total Bookings: ' + sum;
                         }
-                    }
+                    },
+                    mode: 'index',
+                    intersect: false
                 },
                 legend: {
                     position: 'top',
                     labels: {
                         boxWidth: 12,
-                        padding: 20
+                        padding: 20,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
                     }
                 }
             },

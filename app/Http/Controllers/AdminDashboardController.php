@@ -135,10 +135,11 @@ class AdminDashboardController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-                // Get data for the last 6 months
+               // Get data for the last 6 months
     $completedBookingsByMonth = [];
     $pendingBookingsByMonth = [];
-    $declinedBookingsByMonth = []; // New array for declined bookings
+    $acceptedBookingsByMonth = []; // New array for accepted bookings
+    $declinedBookingsByMonth = [];
     $earningsByMonth = [];
     
     for ($i = 5; $i >= 0; $i--) {
@@ -154,7 +155,11 @@ class AdminDashboardController extends Controller
             ->whereBetween('date', [$startOfMonth, $endOfMonth])
             ->count();
             
-        // Add declined bookings count
+        // Add accepted bookings count
+        $acceptedBookingsByMonth[] = Booking::where('status', 'accepted')
+            ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->count();
+            
         $declinedBookingsByMonth[] = Booking::where('status', 'declined')
             ->whereBetween('date', [$startOfMonth, $endOfMonth])
             ->count();
@@ -170,18 +175,19 @@ class AdminDashboardController extends Controller
             $totalEarnings = Payment::sum('amount_paid');
             $averageRating = Rating::avg('rating') ?? 0;
 
-                return view('admin.reports', compact(
-                    'bookings',
-                    'ratings',
-                    'users',
-                    'totalBookings',
-                    'totalEarnings',
-                    'averageRating',
-                    'completedBookingsByMonth',
-                    'pendingBookingsByMonth',
-                    'declinedBookingsByMonth', // Add this
-                    'earningsByMonth'
-                ));
+                   return view('admin.reports', compact(
+                'bookings',
+                'ratings',
+                'users',
+                'totalBookings',
+                'totalEarnings',
+                'averageRating',
+                'completedBookingsByMonth',
+                'pendingBookingsByMonth',
+                'acceptedBookingsByMonth', // Add this
+                'declinedBookingsByMonth',
+                'earningsByMonth'
+            ));
         }
 
     public function exportReports(Request $request)
