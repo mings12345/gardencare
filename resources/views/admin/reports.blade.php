@@ -306,91 +306,119 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
 
-          document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('bookingsChart').getContext('2d');
-            
-            // Get the last 6 months for labels
-            const months = [];
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            const currentDate = new Date();
-            
-            for (let i = 5; i >= 0; i--) {
-                const date = new Date();
-                date.setMonth(currentDate.getMonth() - i);
-                months.push(monthNames[date.getMonth()] + ' ' + date.getFullYear());
-            }
-            
-            // Create the chart
-            const bookingsChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: months,
-                    datasets: [
-                        {
-                            label: 'Completed Bookings',
-                            data: [{{ implode(',', $completedBookingsByMonth) }}],
-                            backgroundColor: '#4CAF50',
-                            borderColor: '#2E7D32',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'Pending Bookings',
-                            data: [{{ implode(',', $pendingBookingsByMonth) }}],
-                            backgroundColor: '#FFC107',
-                            borderColor: '#FFA000',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'Total Earnings (₱)',
-                            data: [{{ implode(',', $earningsByMonth) }}],
-                            backgroundColor: '#2196F3',
-                            borderColor: '#0D47A1',
-                            borderWidth: 1,
-                            type: 'line',
-                            yAxisID: 'y1'
-                        }
-                    ]
+          // Initialize and render the chart
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('bookingsChart').getContext('2d');
+    
+    // Get the last 6 months for labels
+    const months = [];
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const currentDate = new Date();
+    
+    for (let i = 5; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(currentDate.getMonth() - i);
+        months.push(monthNames[date.getMonth()] + ' ' + date.getFullYear());
+    }
+    
+    // Create the chart
+    const bookingsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [
+                {
+                    label: 'Completed Bookings',
+                    data: [{{ implode(',', $completedBookingsByMonth) }}],
+                    backgroundColor: '#4CAF50', // Green
+                    borderColor: '#2E7D32',
+                    borderWidth: 1
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Number of Bookings'
-                            }
-                        },
-                        y1: {
-                            position: 'right',
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Earnings (₱)'
-                            },
-                            grid: {
-                                drawOnChartArea: false
-                            }
-                        }
+                {
+                    label: 'Pending Bookings',
+                    data: [{{ implode(',', $pendingBookingsByMonth) }}],
+                    backgroundColor: '#FFC107', // Yellow
+                    borderColor: '#FFA000',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Declined Bookings',
+                    data: [{{ implode(',', $declinedBookingsByMonth) }}],
+                    backgroundColor: '#F44336', // Red
+                    borderColor: '#C62828',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Total Earnings (₱)',
+                    data: [{{ implode(',', $earningsByMonth) }}],
+                    backgroundColor: '#2196F3', // Blue
+                    borderColor: '#0D47A1',
+                    borderWidth: 2,
+                    type: 'line',
+                    yAxisID: 'y1',
+                    tension: 0.3, // Makes the line smoother
+                    pointRadius: 4, // Makes points more visible
+                    pointHoverRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Bookings'
                     },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label.includes('Earnings')) {
-                                        return label + ': ₱' + context.raw.toLocaleString();
-                                    }
-                                    return label + ': ' + context.raw;
-                                }
-                            }
-                        }
+                    stacked: false // Change to true if you want stacked bars
+                },
+                y1: {
+                    position: 'right',
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Earnings (₱)'
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
                     }
                 }
-            });
-        });
-        
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label.includes('Earnings')) {
+                                return label + ': ₱' + context.raw.toLocaleString();
+                            }
+                            return label + ': ' + context.raw;
+                        }
+                    }
+                },
+                legend: {
+                    position: 'top',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 20
+                    }
+                }
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false
+            }
+        }
+    });
+});
+
         // Toggle between report types
         document.getElementById('type').addEventListener('change', function() {
             const type = this.value;
