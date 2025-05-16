@@ -288,7 +288,6 @@
                             <th>Payment</th>
                             <th>Total</th>
                             <th>Status</th>
-                            <th>Actions</th>
                         </tr>
                     </thead> 
                     <tbody>
