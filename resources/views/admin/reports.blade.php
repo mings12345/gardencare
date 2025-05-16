@@ -115,6 +115,17 @@
             </div>
         </div>
 
+        <div class="card chart-card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i> <span id="chartTitle">Bookings Overview</span></h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="bookingsChart"></canvas>
+                    <canvas id="usersChart" style="display:none;"></canvas>
+                </div>
+            </div>
+        </div>
          <!-- Add a new Chart Card -->
         <div class="card chart-card">
             <div class="card-header">
@@ -305,12 +316,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
-
-          // Initialize and render the chart
 document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('bookingsChart').getContext('2d');
-    
-    // Get the last 6 months for labels
+    // Common months data
     const months = [];
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const currentDate = new Date();
@@ -321,52 +328,50 @@ document.addEventListener('DOMContentLoaded', function() {
         months.push(monthNames[date.getMonth()] + ' ' + date.getFullYear());
     }
     
-    // Create the chart
-    const bookingsChart = new Chart(ctx, {
+    // Bookings Chart
+    const bookingsCtx = document.getElementById('bookingsChart').getContext('2d');
+    const bookingsChart = new Chart(bookingsCtx, {
+        // Your existing bookings chart configuration
+        // ...
+    });
+    
+    // Users Chart
+    const usersCtx = document.getElementById('usersChart').getContext('2d');
+    const usersChart = new Chart(usersCtx, {
         type: 'bar',
         data: {
             labels: months,
             datasets: [
                 {
-                    label: 'Completed Bookings',
-                    data: [{{ implode(',', $completedBookingsByMonth) }}],
-                    backgroundColor: '#4CAF50', // Green
+                    label: 'Homeowners',
+                    data: [{{ implode(',', $userTypeRegistrations['homeowner']) }}],
+                    backgroundColor: '#4CAF50',
                     borderColor: '#2E7D32',
                     borderWidth: 1
                 },
                 {
-                    label: 'Accepted Bookings',
-                    data: [{{ implode(',', $acceptedBookingsByMonth) }}],
-                    backgroundColor: '#2196F3', // Blue
+                    label: 'Gardeners',
+                    data: [{{ implode(',', $userTypeRegistrations['gardener']) }}],
+                    backgroundColor: '#2196F3',
                     borderColor: '#0D47A1',
                     borderWidth: 1
                 },
                 {
-                    label: 'Pending Bookings',
-                    data: [{{ implode(',', $pendingBookingsByMonth) }}],
-                    backgroundColor: '#FFC107', // Yellow
-                    borderColor: '#FFA000',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Declined Bookings',
-                    data: [{{ implode(',', $declinedBookingsByMonth) }}],
-                    backgroundColor: '#F44336', // Red
-                    borderColor: '#C62828',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Total Earnings (₱)',
-                    data: [{{ implode(',', $earningsByMonth) }}],
-                    backgroundColor: '#9C27B0', // Purple
+                    label: 'Service Providers',
+                    data: [{{ implode(',', $userTypeRegistrations['service_provider']) }}],
+                    backgroundColor: '#9C27B0',
                     borderColor: '#6A1B9A',
-                    borderWidth: 3,
+                    borderWidth: 1
+                },
+                {
+                    label: 'Total Users',
+                    data: [{{ implode(',', $userRegistrationsByMonth) }}],
+                    backgroundColor: '#FF9800',
+                    borderColor: '#E65100',
+                    borderWidth: 2,
                     type: 'line',
-                    yAxisID: 'y1',
                     tension: 0.3,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                    fill: false
+                    pointRadius: 5
                 }
             ]
         },
@@ -378,23 +383,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Number of Bookings'
-                    },
-                    stacked: false // Set to true for stacked bars
-                },
-                y1: {
-                    position: 'right',
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Earnings (₱)'
-                    },
-                    grid: {
-                        drawOnChartArea: false
+                        text: 'Number of Users'
                     }
                 },
                 x: {
-                    stacked: false, // Should match y.stacked value
                     grid: {
                         display: false
                     }
@@ -403,42 +395,50 @@ document.addEventListener('DOMContentLoaded', function() {
             plugins: {
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label.includes('Earnings')) {
-                                return label + ': ₱' + context.raw.toLocaleString();
-                            }
-                            return label + ': ' + context.raw;
-                        },
                         footer: function(tooltipItems) {
                             let sum = 0;
                             tooltipItems.forEach(function(tooltipItem) {
-                                // Don't include earnings in the total
-                                if (!tooltipItem.dataset.label.includes('Earnings')) {
-                                    sum += tooltipItem.parsed.y;
-                                }
+                                sum += tooltipItem.parsed.y || 0;
                             });
-                            return 'Total Bookings: ' + sum;
+                            return 'Total: ' + sum;
                         }
-                    },
-                    mode: 'index',
-                    intersect: false
+                    }
                 },
                 legend: {
-                    position: 'top',
-                    labels: {
-                        boxWidth: 12,
-                        padding: 20,
-                        usePointStyle: true,
-                        pointStyle: 'circle'
-                    }
+                    position: 'top'
                 }
-            },
-            interaction: {
-                mode: 'index',
-                intersect: false
             }
         }
+    });
+    
+    // Report type change handler
+    document.getElementById('type').addEventListener('change', function() {
+        const type = this.value;
+        const chartTitle = document.getElementById('chartTitle');
+        const bookingsChartEl = document.getElementById('bookingsChart');
+        const usersChartEl = document.getElementById('usersChart');
+        
+        if (type === 'users') {
+            chartTitle.textContent = 'Users Registration Overview';
+            bookingsChartEl.style.display = 'none';
+            usersChartEl.style.display = 'block';
+        } else {
+            chartTitle.textContent = 'Bookings Overview';
+            bookingsChartEl.style.display = 'block';
+            usersChartEl.style.display = 'none';
+        }
+        
+        // Update the report title and content as before
+        document.getElementById('reportTitle').textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} Report`;
+        
+        // Hide all reports
+        document.getElementById('bookingsReport').style.display = 'none';
+        document.getElementById('earningsReport').style.display = 'none';
+        document.getElementById('ratingsReport').style.display = 'none';
+        document.getElementById('usersReport').style.display = 'none';
+        
+        // Show selected report
+        document.getElementById(`${type}Report`).style.display = 'block';
     });
 });
 

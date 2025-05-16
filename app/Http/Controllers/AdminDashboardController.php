@@ -167,6 +167,33 @@ class AdminDashboardController extends Controller
         $earningsByMonth[] = Payment::whereBetween('payment_date', [$startOfMonth, $endOfMonth])
             ->sum('amount_paid');
     }
+
+       // Get user registration data for the last 6 months
+    $userRegistrationsByMonth = [];
+    $userTypes = ['homeowner', 'gardener', 'service_provider'];
+    $userTypeRegistrations = [];
+    
+    foreach ($userTypes as $type) {
+        $userTypeRegistrations[$type] = [];
+    }
+    
+    for ($i = 5; $i >= 0; $i--) {
+        $month = now()->subMonths($i);
+        $startOfMonth = $month->copy()->startOfMonth();
+        $endOfMonth = $month->copy()->endOfMonth();
+        
+        // Total users
+        $userRegistrationsByMonth[] = User::whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->count();
+            
+        // Users by type
+        foreach ($userTypes as $type) {
+            $userTypeRegistrations[$type][] = User::where('user_type', $type)
+                ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+                ->count();
+        }
+    }
+
             // Get all users
             $users = User::orderBy('created_at', 'desc')->get();
 
@@ -186,7 +213,10 @@ class AdminDashboardController extends Controller
                 'pendingBookingsByMonth',
                 'acceptedBookingsByMonth', // Add this
                 'declinedBookingsByMonth',
-                'earningsByMonth'
+                'earningsByMonth',
+                'userRegistrationsByMonth',
+                'userTypeRegistrations',
+                'userTypes'
             ));
         }
 
