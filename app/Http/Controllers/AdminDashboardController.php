@@ -167,7 +167,7 @@ class AdminDashboardController extends Controller
         $earningsByMonth[] = Payment::whereBetween('payment_date', [$startOfMonth, $endOfMonth])
             ->sum('amount_paid');
     }
-            
+        
             // Get all users
             $users = User::orderBy('created_at', 'desc')->get();
 
