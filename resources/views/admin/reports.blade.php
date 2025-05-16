@@ -115,17 +115,6 @@
             </div>
         </div>
 
-        <div class="card chart-card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i> <span id="chartTitle">Bookings Overview</span></h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="bookingsChart"></canvas>
-                    <canvas id="usersChart" style="display:none;"></canvas>
-                </div>
-            </div>
-        </div>
          <!-- Add a new Chart Card -->
         <div class="card chart-card">
             <div class="card-header">
@@ -134,6 +123,7 @@
             <div class="card-body">
                 <div class="chart-container">
                     <canvas id="bookingsChart"></canvas>
+                    <canvas id="usersChart" style="display:none;"></canvas>
                 </div>
             </div>
         </div>
