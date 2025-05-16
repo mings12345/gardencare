@@ -137,7 +137,7 @@ class AuthController extends Controller
         'phone' => 'sometimes|string|max:15',
         'address' => 'sometimes|string|max:255',
         'account' => 'sometimes|string|max:11|unique:users,account,' . $user->id,
-        'profile_image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048', // Add image validation
+        'profile_image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
 
     if ($validator->fails()) {
@@ -147,7 +147,7 @@ class AuthController extends Controller
         ], 422);
     }
 
-    $data = $request->only(['name', 'email', 'phone', 'address', 'account']);
+    $data = $request->only(['name', 'email', 'phone', 'address', 'account', 'profile_image']);
 
     // Handle profile image upload
     if ($request->hasFile('profile_image')) {
