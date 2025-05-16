@@ -128,32 +128,45 @@ class AuthController extends Controller
     }
 
     public function updateProfile(Request $request)
-    {
-        $user = auth()->user(); // Get the authenticated user
+{
+    $user = auth()->user();
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:50',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
-            'phone' => 'sometimes|string|max:15',
-            'address' => 'sometimes|string|max:255',
-            'account' => 'sometimes|string|max:11|unique:users,account,' . $user->id,
-        ]);
+    $validator = Validator::make($request->all(), [
+        'name' => 'sometimes|string|max:50',
+        'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+        'phone' => 'sometimes|string|max:15',
+        'address' => 'sometimes|string|max:255',
+        'account' => 'sometimes|string|max:11|unique:users,account,' . $user->id,
+        'profile_image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048', // Add image validation
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation Error',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        // Update user profile
-        $user->update($request->only(['name', 'email', 'phone', 'address', 'account']));
-
+    if ($validator->fails()) {
         return response()->json([
-            'message' => 'Profile updated successfully.',
-            'user' => $user,
-        ], 200);
+            'message' => 'Validation Error',
+            'errors' => $validator->errors(),
+        ], 422);
     }
+
+    $data = $request->only(['name', 'email', 'phone', 'address', 'account']);
+
+    // Handle profile image upload
+    if ($request->hasFile('profile_image')) {
+        // Delete old image if exists
+        if ($user->profile_image) {
+            Storage::delete($user->profile_image);
+        }
+        
+        $path = $request->file('profile_image')->store('profile_images', 'public');
+        $data['profile_image'] = $path;
+    }
+
+    $user->update($data);
+
+    return response()->json([
+        'message' => 'Profile updated successfully.',
+        'user' => $user,
+    ], 200);
+}
 
     public function logout(Request $request)
     {
