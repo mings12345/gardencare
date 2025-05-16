@@ -420,7 +420,6 @@
 
             // Earnings Chart (Monthly)
             const earningsCtx = document.getElementById('earningsChart').getContext('2d');
-            @php
                 // Group earnings by month
                 $monthlyEarnings = [];
                 foreach($bookings as $booking) {
@@ -430,7 +429,6 @@
                     }
                 }
                 ksort($monthlyEarnings);
-            @endphp
             
             new Chart(earningsCtx, {
                 type: 'line',
