@@ -6,7 +6,17 @@
     <title>Reports | GardenCare Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Add Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+           .chart-card {
+            margin-top: 1.5rem;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            padding: 1rem;
+        }
         :root {
             --primary-color: #2E7D32;
             --secondary-color: #4CAF50;
@@ -101,6 +111,18 @@
                         <div class="stat-value">{{ number_format($averageRating, 1) }}/5</div>
                         <div class="stat-label">Average Rating</div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+         <!-- Add a new Chart Card -->
+        <div class="card chart-card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i> Bookings Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="bookingsChart"></canvas>
                 </div>
             </div>
         </div>
@@ -283,6 +305,92 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
+
+          document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('bookingsChart').getContext('2d');
+            
+            // Get the last 6 months for labels
+            const months = [];
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const currentDate = new Date();
+            
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date();
+                date.setMonth(currentDate.getMonth() - i);
+                months.push(monthNames[date.getMonth()] + ' ' + date.getFullYear());
+            }
+            
+            // Create the chart
+            const bookingsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Completed Bookings',
+                            data: [{{ implode(',', $completedBookingsByMonth) }}],
+                            backgroundColor: '#4CAF50',
+                            borderColor: '#2E7D32',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Pending Bookings',
+                            data: [{{ implode(',', $pendingBookingsByMonth) }}],
+                            backgroundColor: '#FFC107',
+                            borderColor: '#FFA000',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Total Earnings (₱)',
+                            data: [{{ implode(',', $earningsByMonth) }}],
+                            backgroundColor: '#2196F3',
+                            borderColor: '#0D47A1',
+                            borderWidth: 1,
+                            type: 'line',
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Bookings'
+                            }
+                        },
+                        y1: {
+                            position: 'right',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Earnings (₱)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label.includes('Earnings')) {
+                                        return label + ': ₱' + context.raw.toLocaleString();
+                                    }
+                                    return label + ': ' + context.raw;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+        
         // Toggle between report types
         document.getElementById('type').addEventListener('change', function() {
             const type = this.value;

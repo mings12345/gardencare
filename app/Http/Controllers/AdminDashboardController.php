@@ -135,6 +135,27 @@ class AdminDashboardController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
+                  // Get data for the last 6 months
+            $completedBookingsByMonth = [];
+            $pendingBookingsByMonth = [];
+            $earningsByMonth = [];
+
+              for ($i = 5; $i >= 0; $i--) {
+        $month = now()->subMonths($i);
+        $startOfMonth = $month->copy()->startOfMonth();
+        $endOfMonth = $month->copy()->endOfMonth();
+        
+        $completedBookingsByMonth[] = Booking::where('status', 'completed')
+            ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->count();
+            
+        $pendingBookingsByMonth[] = Booking::where('status', 'pending')
+            ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->count();
+            
+        $earningsByMonth[] = Payment::whereBetween('payment_date', [$startOfMonth, $endOfMonth])
+            ->sum('amount_paid');
+    }
             // Get all users
             $users = User::orderBy('created_at', 'desc')->get();
 
@@ -143,13 +164,16 @@ class AdminDashboardController extends Controller
             $totalEarnings = Payment::sum('amount_paid');
             $averageRating = Rating::avg('rating') ?? 0;
 
-            return view('admin.reports', compact(
+                return view('admin.reports', compact(
                 'bookings',
                 'ratings',
                 'users',
                 'totalBookings',
                 'totalEarnings',
-                'averageRating'
+                'averageRating',
+                'completedBookingsByMonth',
+                'pendingBookingsByMonth',
+                'earningsByMonth'
             ));
         }
 
