@@ -79,4 +79,10 @@ class User extends Authenticatable
         {
             return $this->hasMany(Booking::class, 'gardener_id');
         }
+
+        
+    public function services()
+    {
+        return $this->hasMany(Service::class);
+    }
 }

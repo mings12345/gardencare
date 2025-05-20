@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->enum('type',['Landscaping','Gardening']);
             $table->string('name'); // e.g., Lawn Mowing, Tree Trimming
             $table->text('description')->nullable();
