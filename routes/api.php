@@ -16,7 +16,6 @@ use App\Http\Controllers\WalletController;
 use App\Http\Controllers\PlantController;
 use App\Http\Controllers\UserPlantController;
 use App\Http\Controllers\UserServiceController; 
-use App\Http\Controllers\ApiServiceController;
 
 
 // Broadcasting Authentication
@@ -86,7 +85,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    Route::post('/user-services', [ApiServiceController::class, 'store']); 
     Route::get('/earnings/summary', [BookingController::class, 'getEarningsSummary']);
     Route::get('/get_total_earnings', [BookingController::class, 'getTotalEarnings']);
    
