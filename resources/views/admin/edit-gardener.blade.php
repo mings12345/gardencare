@@ -100,7 +100,10 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         @endif
-
+                    
+                       <form method="POST" action="{{ route('admin.updateGardener', $gardener->id) }}" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
                         <div class="text-center mb-4">
                         <div class="profile-image-container mx-auto">
                             @if($gardener->profile_image)
@@ -115,9 +118,6 @@
                         </label>
                     </div>
 
-                       <form method="POST" action="{{ route('admin.updateGardener', $gardener->id) }}" enctype="multipart/form-data">
-                            @csrf
-                            @method('PUT')
                             <div class="mb-4">
                                 <label for="name" class="form-label">Full Name</label>
                                 <input type="text" class="form-control" id="name" name="name" 
