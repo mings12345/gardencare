@@ -133,8 +133,7 @@
             color: var(--primary-color);
             margin-bottom: 15px;
         }
-        
-        /* Added profile image styles */
+
         .profile-image-cell {
             display: flex;
             align-items: center;
@@ -201,8 +200,7 @@
                 border-bottom: none;
                 justify-content: center;
             }
-            
-            /* Added profile image responsive styles */
+
             .profile-image-cell {
                 flex-direction: column;
                 align-items: flex-start;
