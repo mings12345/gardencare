@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Gardeners | GreenThumb</title>
+    <title>Manage Gardeners | GardenCare</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -133,6 +133,21 @@
             color: var(--primary-color);
             margin-bottom: 15px;
         }
+        
+        /* Added profile image styles */
+        .profile-image-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-color);
+        }
 
         @media (max-width: 768px) {
             .header-container {
@@ -186,6 +201,17 @@
                 border-bottom: none;
                 justify-content: center;
             }
+            
+            /* Added profile image responsive styles */
+            .profile-image-cell {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .profile-image-cell::before {
+                content: 'ID & Photo';
+            }
         }
     </style>
 </head>
@@ -228,7 +254,7 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>ID & Photo</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
@@ -239,7 +265,14 @@
                     <tbody>
                         @foreach ($gardeners as $gardener)
                         <tr>
-                            <td data-label="ID">{{ $gardener->id }}</td>
+                            <td data-label="ID & Photo" class="profile-image-cell">
+                                <span>{{ $gardener->id }}</span>
+                                @if($gardener->profile_image)
+                                    <img src="{{ asset('storage/' . $gardener->profile_image) }}" alt="Profile Image" class="profile-image">
+                                @else
+                                    <img src="{{ asset('images/default-profile.png') }}" alt="Default Profile" class="profile-image">
+                                @endif
+                            </td>
                             <td data-label="Name">{{ $gardener->name }}</td>
                             <td data-label="Email">{{ $gardener->email }}</td>
                             <td data-label="Phone">{{ $gardener->phone ?? 'N/A' }}</td>
