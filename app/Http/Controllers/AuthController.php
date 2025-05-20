@@ -147,7 +147,7 @@ class AuthController extends Controller
         ], 422);
     }
 
-    $data = $request->only(['name', 'email', 'phone', 'address', 'account', 'profile_image']);
+    $data = $request->only(['name', 'email', 'phone', 'address', 'account']);
 
     // Handle profile image upload
     if ($request->hasFile('profile_image')) {
@@ -162,10 +162,14 @@ class AuthController extends Controller
 
     $user->update($data);
 
-    return response()->json([
+    // Create a response array that includes the full public URL
+    $response = [
         'message' => 'Profile updated successfully.',
-        'user' => $user,
-    ], 200);
+        'user' => $user->toArray(),
+        'profile_image_url' => $user->profile_image ? Storage::url($user->profile_image) : null
+    ];
+
+    return response()->json($response, 200);
 }
 
     public function logout(Request $request)
