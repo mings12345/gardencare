@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Homeowner | Greenspace</title>
+    <title>Add Homeowner | GardenCare</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -124,6 +124,30 @@
             color: var(--muted-text) !important;
             font-size: 0.85rem;
         }
+
+        .profile-image-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--primary-green);
+            margin: 0 auto 1rem;
+        }
+        
+        .profile-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .btn-outline-primary {
+            border-color: var(--primary-green);
+            color: var(--primary-green);
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--light-green);
+        }
         
         @media (max-width: 768px) {
             .container {
@@ -170,8 +194,30 @@
     <div class="container mt-5">
         <h1><i class="fas fa-user-shield header-icon"></i>Add Homeowner</h1>
 
-        <form method="POST" action="{{ route('admin.storeHomeowner') }}">
+        @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('admin.storeHomeowner') }}" enctype="multipart/form-data">
             @csrf
+            
+            <div class="text-center mb-4">
+                <div class="profile-image-container">
+                    <img src="{{ asset('images/default-profile.png') }}" alt="Default Profile" id="profileImagePreview">
+                </div>
+                <label for="profile_image" class="btn btn-outline-primary btn-sm mt-2">
+                    <i class="fas fa-camera me-1"></i> Add Profile Photo
+                    <input type="file" id="profile_image" name="profile_image" class="d-none" accept="image/*">
+                </label>
+            </div>
             
             <div class="form-section">
                 <h5><i class="fas fa-user-circle leaf-icon"></i>Personal Information</h5>
@@ -220,6 +266,9 @@
             </div>
             
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{{ route('admin.manageHomeowners') }}" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
                 <button type="submit" class="btn btn-success">
                     <i class="fas fa-user-plus me-2"></i>Register Homeowner
                 </button>
@@ -240,6 +289,15 @@
                 icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
+
+        // Preview image before upload
+        document.getElementById('profile_image').addEventListener('change', function(event) {
+            const [file] = event.target.files;
+            if (file) {
+                const preview = document.getElementById('profileImagePreview');
+                preview.src = URL.createObjectURL(file);
+            }
+        });
     </script>
 </body>
 </html>

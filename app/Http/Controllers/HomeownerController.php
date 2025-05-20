@@ -24,6 +24,7 @@ class HomeownerController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         User::create([
@@ -35,6 +36,13 @@ class HomeownerController extends Controller
             'user_type' => 'homeowner',
         ]);
 
+          // Handle profile image upload
+    if ($request->hasFile('profile_image')) {
+        $path = $request->file('profile_image')->store('profile_images', 'public');
+        $data['profile_image'] = $path;
+    }
+            User::create($data);
+            
         return redirect()->route('admin.manageHomeowners')->with('success', 'Homeowner added successfully.');
     }
 
