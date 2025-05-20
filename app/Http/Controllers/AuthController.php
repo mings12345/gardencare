@@ -149,27 +149,25 @@ class AuthController extends Controller
 
     $data = $request->only(['name', 'email', 'phone', 'address', 'account']);
 
-    // Handle profile image upload
-     if ($request->hasFile('profile_image')) {
+    if ($request->hasFile('profile_image')) {
+        // Delete old image
         if ($user->profile_image) {
-            Storage::delete($user->profile_image);
+            Storage::disk('public')->delete($user->profile_image);
         }
         
+        // Store new image
         $path = $request->file('profile_image')->store('profile_images', 'public');
         $data['profile_image'] = $path;
     }
 
     $user->update($data);
 
-    // Get the full public URL
-    $profileImageUrl = $user->profile_image 
-        ? asset("storage/$user->profile_image") // This generates full http:// URL
-        : null;
-
     return response()->json([
         'message' => 'Profile updated successfully',
         'user' => $user,
-        'profile_image_url' => $profileImageUrl, // Send full URL to Flutter
+        'profile_image_url' => $user->profile_image 
+            ? asset("storage/$user->profile_image")
+            : null,
     ], 200);
 }
     public function logout(Request $request)
