@@ -80,11 +80,22 @@ class AuthController extends Controller
             }
 
             // Explicitly include user details with user_type
-            return response()->json([
-                'message' => 'Login successful.',
-                'token' => $token,
-                'user' => $user,
-            ], 200);
+             return response()->json([
+        'message' => 'Login successful.',
+        'token' => $token,
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'address' => $user->address,
+            'account' => $user->account,
+            'user_type' => $user->user_type,
+            'profile_image_url' => $user->profile_image 
+                ? asset("storage/$user->profile_image")
+                : null,
+        ],
+    ], 200);
 
         } catch (\Exception $e) {
             // Log the exception for debugging
