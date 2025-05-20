@@ -150,8 +150,7 @@ class AuthController extends Controller
     $data = $request->only(['name', 'email', 'phone', 'address', 'account']);
 
     // Handle profile image upload
-    if ($request->hasFile('profile_image')) {
-        // Delete old image if exists
+     if ($request->hasFile('profile_image')) {
         if ($user->profile_image) {
             Storage::delete($user->profile_image);
         }
@@ -162,16 +161,17 @@ class AuthController extends Controller
 
     $user->update($data);
 
-    // Create a response array that includes the full public URL
-    $response = [
-        'message' => 'Profile updated successfully.',
-        'user' => $user->toArray(),
-        'profile_image_url' => $user->profile_image ? Storage::url($user->profile_image) : null
-    ];
+    // Get the full public URL
+    $profileImageUrl = $user->profile_image 
+        ? asset("storage/$user->profile_image") // This generates full http:// URL
+        : null;
 
-    return response()->json($response, 200);
+    return response()->json([
+        'message' => 'Profile updated successfully',
+        'user' => $user,
+        'profile_image_url' => $profileImageUrl, // Send full URL to Flutter
+    ], 200);
 }
-
     public function logout(Request $request)
     {
         // Revoke the current user's token
