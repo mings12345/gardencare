@@ -206,8 +206,8 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.storeHomeowner') }}" enctype="multipart/form-data">
-            @csrf
+       <form method="POST" action="{{ route('admin.storeHomeowner') }}" enctype="multipart/form-data">
+        @csrf
             
             <div class="text-center mb-4">
                 <div class="profile-image-container">

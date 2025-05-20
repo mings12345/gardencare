@@ -17,34 +17,35 @@ class HomeownerController extends Controller
 
     // Store a new homeowner in the database
         public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
-            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|string|min:8|confirmed',
+        'phone' => 'required|string|max:20',
+        'address' => 'required|string|max:255',
+        'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'user_type' => 'homeowner',
-        ]);
+    $data = [
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => bcrypt($request->password),
+        'phone' => $request->phone,
+        'address' => $request->address,
+        'user_type' => 'homeowner',
+    ];
 
-          // Handle profile image upload
+    // Handle profile image upload
     if ($request->hasFile('profile_image')) {
         $path = $request->file('profile_image')->store('profile_images', 'public');
         $data['profile_image'] = $path;
     }
-            User::create($data);
-            
-        return redirect()->route('admin.manageHomeowners')->with('success', 'Homeowner added successfully.');
-    }
+
+    User::create($data);
+
+    return redirect()->route('admin.manageHomeowners')->with('success', 'Homeowner added successfully.');
+}
 
     // List all homeowners
     public function index()
