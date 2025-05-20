@@ -242,7 +242,9 @@
                 <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
             </div>
         @endif
-
+        
+        <form action="{{ route('admin.storeGardener') }}" method="POST" enctype="multipart/form-data">
+            @csrf
         <div class="text-center mb-4">
     <div class="profile-image-container mx-auto">
             <img src="{{ asset('images/default-profile.png') }}" alt="Default Profile" id="profileImagePreview">
@@ -253,8 +255,7 @@
         </label>
     </div>
 
-       <form action="{{ route('admin.storeGardener') }}" method="POST" enctype="multipart/form-data">
-            @csrf
+       
             
             <div class="form-section">
                 <h5><i class="fas fa-user-tie gardener-icon"></i>Gardener Information</h5>
