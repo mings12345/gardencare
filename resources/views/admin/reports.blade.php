@@ -143,6 +143,7 @@
                                 <option value="earnings">Earnings Report</option>
                                 <option value="ratings">Ratings Report</option>
                                 <option value="users">Users Report</option>
+                                <option value="services">Services Report</option>
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -184,6 +185,35 @@
         </table>
     </div>
 </div>
+
+<!-- Add the Services Report section -->
+<div id="servicesReport" style="display:none;">
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Service ID</th>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($services as $service)
+                <tr>
+                    <td>{{ $service->id }}</td>
+                    <td>{{ $service->type }}</td>
+                    <td>{{ $service->name }}</td>
+                    <td>₱{{ number_format($service->price, 2) }}</td>
+                    <td>{{ $service->description ?? 'No description' }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+
         <!-- Report Content -->
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -452,6 +482,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('earningsReport').style.display = 'none';
             document.getElementById('ratingsReport').style.display = 'none';
             document.getElementById('usersReport').style.display = 'none';
+            document.getElementById('servicesReport').style.display = 'none';
+            
             // Show selected report
             document.getElementById(`${type}Report`).style.display = 'block';
         });

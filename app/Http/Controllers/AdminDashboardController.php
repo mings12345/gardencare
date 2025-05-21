@@ -170,7 +170,7 @@ class AdminDashboardController extends Controller
         
             // Get all users
             $users = User::orderBy('created_at', 'desc')->get();
-
+            $services = Service::orderBy('type', 'asc')->get();
             // Calculate statistics
             $totalBookings = Booking::count();
             $totalEarnings = Payment::sum('amount_paid');
@@ -181,6 +181,7 @@ class AdminDashboardController extends Controller
                 'ratings',
                 'users',
                 'totalBookings',
+                  'services',  
                 'totalEarnings',
                 'averageRating',
                 'completedBookingsByMonth',
@@ -287,6 +288,22 @@ class AdminDashboardController extends Controller
                     $user->phone ?? 'N/A',
                     ucfirst(str_replace('_', ' ', $user->user_type)),
                     $user->created_at->format('M d, Y')
+                ]);
+            }
+        }
+
+         elseif ($type === 'services') {
+            fputcsv($file, ['Service ID', 'Type', 'Name', 'Price', 'Description']);
+            
+            $services = Service::all();
+            
+            foreach ($services as $service) {
+                fputcsv($file, [
+                    $service->id,
+                    $service->type,
+                    $service->name,
+                    '₱' . number_format($service->price, 2),
+                    $service->description ?? 'No description'
                 ]);
             }
         }
