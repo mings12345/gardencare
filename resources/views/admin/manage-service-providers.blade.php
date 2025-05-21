@@ -266,12 +266,13 @@
                         @foreach ($serviceProviders as $serviceProvider)
                         <tr>
                             <td data-label="ID & Photo" class="profile-image-cell">
-                                <span>{{ $serviceProvider->id }}</span>
-                                @if($serviceProvider->profile_image)
-                                    <img src="{{ asset('storage/' . $serviceProvider->profile_image) }}" alt="Profile Image" class="profile-image">
-                                @else
-                                    <img src="{{ asset('images/default-profile.png') }}" alt="Default Profile" class="profile-image">
-                                @endif
+                            <span>{{ $serviceProvider->id }}</span>
+                            @if($serviceProvider->profile_image)
+                                <img src="{{ asset('storage/' . $serviceProvider->profile_image) }}" alt="Profile Image" class="profile-image">
+                            @else
+                                <img src="{{ asset('images/default-profile.png') }}" alt="Default Profile" class="profile-image">
+                            @endif
+                        </td>
                             <td data-label="ID">{{ $serviceProvider->id }}</td>
                             <td data-label="Name">{{ $serviceProvider->name }}</td>
                             <td data-label="Email">{{ $serviceProvider->email }}</td>
