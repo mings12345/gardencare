@@ -182,6 +182,30 @@
                 padding: 1.25rem;
             }
         }
+
+        .profile-image-container {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                overflow: hidden;
+                border: 3px solid var(--primary-green);
+                margin: 0 auto 1rem;
+            }
+
+            .profile-image-container img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .btn-outline-primary {
+                border-color: var(--primary-green);
+                color: var(--primary-green);
+            }
+
+            .btn-outline-primary:hover {
+                background-color: var(--light-green);
+            }
     </style>
 </head>
 <body>
@@ -208,9 +232,17 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.storeServiceProvider') }}">
+        <form method="POST" action="{{ route('admin.storeServiceProvider') }}" enctype="multipart/form-data">
             @csrf
-            
+            <div class="text-center mb-4">
+            <div class="profile-image-container mx-auto">
+                <img src="{{ asset('images/default-profile.png') }}" alt="Default Profile" id="profileImagePreview">
+            </div>
+            <label for="profile_image" class="btn btn-outline-primary btn-sm mt-2">
+                <i class="fas fa-camera me-1"></i> Add Profile Photo
+                <input type="file" id="profile_image" name="profile_image" class="d-none" accept="image/*">
+            </label>
+        </div>
             <div class="form-section">
                 <h5><i class="fas fa-id-card provider-icon"></i>Provider Details</h5>
                 <div class="row">
@@ -266,6 +298,15 @@
     </div>
 
     <script>
+        
+        document.getElementById('profile_image').addEventListener('change', function(event) {
+        const [file] = event.target.files;
+        if (file) {
+            const preview = document.getElementById('profileImagePreview');
+            preview.src = URL.createObjectURL(file);
+        }
+    });
+
         function togglePassword(fieldId) {
             const field = document.getElementById(fieldId);
             const icon = field.nextElementSibling;

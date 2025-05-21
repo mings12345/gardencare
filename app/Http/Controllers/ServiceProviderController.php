@@ -22,30 +22,36 @@ class ServiceProviderController extends Controller
     }
 
     // Store a new service provider in the database
-    public function store(Request $request)
+   public function store(Request $request)
 {
-    // Validate with password fields
-    $validated = $request->validate([
+    $request->validate([
         'name' => 'required|string|max:255',
         'email' => 'required|email|unique:users,email',
+        'phone' => 'required|string|max:20',
+        'address' => 'required|string|max:255',
         'password' => 'required|string|min:8|confirmed',
-        'phone' => 'nullable|string|max:20',
-        'address' => 'nullable|string|max:255',
+        'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
 
-    // Create user with hashed password
-    User::create([
-        'name' => $validated['name'],
-        'email' => $validated['email'],
-        'password' => bcrypt($validated['password']), // Hash password
-        'phone' => $validated['phone'],
-        'address' => $validated['address'],
-        'user_type' => 'service_provider', // Must match your enum/database
-    ]);
+    $data = [
+        'name' => $request->name,
+        'email' => $request->email,
+        'phone' => $request->phone,
+        'address' => $request->address,
+        'password' => Hash::make($request->password),
+        'user_type' => 'service_provider',
+    ];
 
-    return redirect()->route('admin.manageServiceProviders')
-                   ->with('success', 'Service provider added successfully.');
+    if ($request->hasFile('profile_image')) {
+        $path = $request->file('profile_image')->store('profile_images', 'public');
+        $data['profile_image'] = $path;
+    }
+
+    User::create($data);
+
+    return redirect()->route('admin.manageServiceProviders')->with('success', 'Service provider added successfully.');
 }
+
 
     // Show the details of a specific service provider
     public function show($id)
@@ -66,31 +72,43 @@ class ServiceProviderController extends Controller
     {
         $serviceProvider = User::findOrFail($id);
 
-        // Validate the request data
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $serviceProvider->id,
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:255',
+            'password' => 'nullable|string|min:8',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Update the service provider's details
-        $serviceProvider->update([
+        $data = [
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
-        ]);
+            'password' => $request->password ? Hash::make($request->password) : $serviceProvider->password,
+        ];
 
-        return redirect()->route('admin.manageServiceProviders')->with('success', 'Service Provider updated successfully.');
+        if ($request->hasFile('profile_image')) {
+            // Delete old image if exists
+            if ($serviceProvider->profile_image) {
+                Storage::delete('public/' . $serviceProvider->profile_image);
+            }
+            
+            $path = $request->file('profile_image')->store('profile_images', 'public');
+            $data['profile_image'] = $path;
+        }
+
+        $serviceProvider->update($data);
+
+        return redirect()->route('admin.manageServiceProviders')->with('success', 'Service provider updated successfully.');
     }
-
     // Delete the specified service provider from the database
-    public function destroy($id)
-    {
-        $serviceProvider = User::findOrFail($id);
-        $serviceProvider->delete();
+            public function destroy($id)
+        {
+            $serviceProvider = User::findOrFail($id);
+            $serviceProvider->delete();
 
-        return redirect()->route('admin.manageServiceProviders')->with('success', 'Service Provider deleted successfully.');
-    }
+            return redirect()->route('admin.manageServiceProviders')->with('success', 'Service Provider deleted successfully.');
+        }
 }
