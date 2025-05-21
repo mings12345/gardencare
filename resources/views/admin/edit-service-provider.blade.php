@@ -56,20 +56,6 @@
         .btn-outline-greenspace:hover {
             background-color: var(--greenspace-light);
         }
-        .profile-image-container {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 3px solid var(--greenspace-secondary);
-            margin-bottom: 1rem;
-        }
-
-        .profile-image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
     </style>
 </head>
 <body>
@@ -101,21 +87,7 @@
                             </div>
                         @endif
 
-                        <div class="text-center mb-4">
-                        <div class="profile-image-container mx-auto">
-                            @if($serviceProvider->profile_image)
-                                <img src="{{ asset('storage/' . $serviceProvider->profile_image) }}" alt="Profile Image" id="profileImagePreview">
-                            @else
-                                <img src="{{ asset('images/default-profile.png') }}" alt="Default Profile" id="profileImagePreview">
-                            @endif
-                        </div>
-                        <label for="profile_image" class="btn btn-outline-greenspace btn-sm mt-2">
-                            <i class="bi bi-camera me-1"></i> Change Photo
-                            <input type="file" id="profile_image" name="profile_image" class="d-none" accept="image/*">
-                        </label>
-                    </div>
-
-                        <form method="POST" action="{{ route('admin.updateServiceProvider', $serviceProvider->id) }}" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('admin.updateServiceProvider', $serviceProvider->id) }}">
                             @csrf
                             @method('PUT')
                             <div class="mb-4">
@@ -152,17 +124,6 @@
             </div>
         </div>
     </div>
-    
-    <script>
-    // Preview image before upload
-    document.getElementById('profile_image').addEventListener('change', function(event) {
-        const [file] = event.target.files;
-        if (file) {
-            const preview = document.getElementById('profileImagePreview');
-            preview.src = URL.createObjectURL(file);
-        }
-    });
-</script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
