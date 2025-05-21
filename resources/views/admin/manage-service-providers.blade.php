@@ -187,6 +187,32 @@
                 justify-content: center;
             }
         }
+
+         .profile-image-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-color);
+        }
+
+        @media (max-width: 768px) {
+            .profile-image-cell {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .profile-image-cell::before {
+                content: 'ID & Photo';
+            }
+        }
     </style>
 </head>
 <body>
@@ -228,7 +254,7 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>ID & Photo</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
@@ -239,6 +265,13 @@
                     <tbody>
                         @foreach ($serviceProviders as $serviceProvider)
                         <tr>
+                            <td data-label="ID & Photo" class="profile-image-cell">
+                                <span>{{ $serviceProvider->id }}</span>
+                                @if($serviceProvider->profile_image)
+                                    <img src="{{ asset('storage/' . $serviceProvider->profile_image) }}" alt="Profile Image" class="profile-image">
+                                @else
+                                    <img src="{{ asset('images/default-profile.png') }}" alt="Default Profile" class="profile-image">
+                                @endif
                             <td data-label="ID">{{ $serviceProvider->id }}</td>
                             <td data-label="Name">{{ $serviceProvider->name }}</td>
                             <td data-label="Email">{{ $serviceProvider->email }}</td>
