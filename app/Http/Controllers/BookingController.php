@@ -322,6 +322,34 @@ protected function handleCompletedStatus($booking, $admin_fee_percent, $admin_wa
     }
 }
     
+            public function getBookingsByDateRange(Request $request, $userId)
+        {
+            $request->validate([
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+            ]);
+
+            $user = User::findOrFail($userId);
+            
+            $bookings = Booking::with(['homeowner', 'gardener', 'serviceProvider', 'services'])
+                ->when($user->user_type === 'gardener', function($q) use ($userId) {
+                    return $q->where('gardener_id', $userId);
+                })
+                ->when($user->user_type === 'service_provider', function($q) use ($userId) {
+                    return $q->where('serviceprovider_id', $userId);
+                })
+                ->when($user->user_type === 'homeowner', function($q) use ($userId) {
+                    return $q->where('homeowner_id', $userId);
+                })
+                ->whereBetween('date', [$request->start_date, $request->end_date])
+                ->get();
+
+            return response()->json([
+                'bookings' => $bookings,
+                'message' => 'Bookings retrieved successfully'
+            ], 200);
+        }
+
 public function getAllBookings($userId)
 {
     $user = User::findOrFail($userId);
