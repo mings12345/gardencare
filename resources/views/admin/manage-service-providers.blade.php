@@ -272,7 +272,6 @@
                                 @else
                                     <img src="{{ asset('images/default-profile.png') }}" alt="Default Profile" class="profile-image">
                                 @endif
-                            <td data-label="ID">{{ $serviceProvider->id }}</td>
                             <td data-label="Name">{{ $serviceProvider->name }}</td>
                             <td data-label="Email">{{ $serviceProvider->email }}</td>
                             <td data-label="Phone">{{ $serviceProvider->phone ?? 'N/A' }}</td>
