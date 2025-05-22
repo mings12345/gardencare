@@ -72,6 +72,7 @@ Route::get('/homeowners', [AuthController::class, 'getHomeowners']);
 Route::middleware(['auth:sanctum'])->group(function () {
 
     // Bookings Routes
+    Route::post('/services/provider', [ServiceController::class, 'createServiceForProvider']);
     Route::get('/bookings/by-date-range/{userId}', [BookingController::class, 'getBookingsByDateRange']);
     Route::get('bookings/all/{userId}', [BookingController::class, 'getAllBookings']);
     Route::get('/bookings/count/{userId}', [BookingController::class, 'countBookings']);

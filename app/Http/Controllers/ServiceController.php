@@ -131,4 +131,38 @@ class ServiceController extends Controller
         ]);
     }
 
+    // Add this method to ServiceController.php
+        public function createServiceForProvider(Request $request)
+        {
+            $validated = $request->validate([
+                'type' => 'required|in:Gardening,Landscaping',
+                'name' => 'required|string|max:255',
+                'price' => 'required|numeric|min:0',
+                'description' => 'nullable|string',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'user_id' => 'required|exists:users,id' // Ensure the user exists
+            ]);
+
+            // Verify the user is a gardener or service provider
+            $user = User::findOrFail($validated['user_id']);
+            if (!$user->hasRole('gardener') && !$user->hasRole('service_provider')) {
+                return response()->json(['error' => 'Only gardeners or service providers can add services'], 403);
+            }
+
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = time().'.'.$image->getClientOriginalExtension();
+                $image->move(public_path('images/services'), $imageName);
+                $validated['image'] = $imageName;
+            }
+
+            $service = Service::create($validated);
+
+            return response()->json([
+                'message' => 'Service added successfully',
+                'service' => $service
+            ], 201);
+        }
+
 }
