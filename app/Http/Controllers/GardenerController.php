@@ -123,12 +123,4 @@ class GardenerController extends Controller
         return redirect()->route('admin.manageGardeners')
             ->with('success', 'Gardener deleted successfully.');
     }
-
-    public function getProfileImageUrlAttribute()
-    {
-        if ($this->profile_image) {
-            return asset('storage/' . $this->profile_image);
-        }
-        return null;
-    }
 }
