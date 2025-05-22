@@ -288,7 +288,6 @@
                             <th>Payment</th>
                             <th>Total</th>
                             <th>Status</th>
-                            <th>Actions</th>
                         </tr>
                     </thead> 
                     <tbody>
@@ -363,19 +362,6 @@
                                     <span class="status-badge status-{{ $booking->status }}">
                                         {{ ucfirst($booking->status) }}
                                     </span>
-                                </td>
-                                <td data-label="Actions">
-                                    <div class="btn-group" role="group">
-                                        <button class="btn btn-sm btn-outline-primary" title="View Details">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-success" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger" title="Cancel">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </div>
                                 </td>
                             </tr>
                         @endforeach
