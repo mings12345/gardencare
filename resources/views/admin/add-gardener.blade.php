@@ -265,9 +265,9 @@
                         <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" placeholder="Enter gardener's full name" required>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" placeholder="Enter email address" required>
-                    </div>
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" placeholder="Enter email address" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$" title="Please enter a valid .com email address" required>
+                </div>
                 </div>
                 
                 <div class="row">
