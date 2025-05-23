@@ -63,7 +63,7 @@
                 <h1 class="h4 mb-0"><i class="bi bi-tools"></i> Service Provider Details</h1>
             </div>
             <div class="card-body p-4">
-                <div class="row">
+                 <div class="row">
                     <div class="col-md-8 mx-auto">
                         <div class="detail-item">
                             <h5 class="d-flex align-items-center">
