@@ -272,6 +272,7 @@
                         <th>Service Name</th>
                         <th>Description</th>
                         <th>Type</th>
+                        <th>Owner</th>
                         <th>Image</th>
                         <th>Price</th>
                         <th>Actions</th>
@@ -294,6 +295,13 @@
                                 <span class="badge badge-landscaping rounded-pill">
                                     <i class="fas fa-tree me-1"></i> Landscaping
                                 </span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($service->user)
+                                {{ $service->user->name }} (ID: {{ $service->user_id }})
+                            @else
+                                <span class="text-muted">System</span>
                             @endif
                         </td>
                         <td>
