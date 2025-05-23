@@ -12,87 +12,105 @@ use Illuminate\Support\Facades\Storage;
 class AuthController extends Controller
 {
     public function register(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|unique:users|max:50',
-            'email' => 'required|string|email|unique:users|max:255',
-            'password' => 'required|string|min:6|confirmed',
-            'phone' => 'required|string|max:15',
-            'address' => 'required|string|max:255',
-            'user_type' => 'required|in:homeowner,gardener,service_provider,admin',
-            'fcm_token' => 'nullable|string', // Allow FCM token
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|unique:users|max:50',
+        'email' => 'required|string|email|unique:users|max:255',
+        'password' => 'required|string|min:6|confirmed',
+        'phone' => 'required|string|max:15',
+        'address' => 'required|string|max:255',
+        'user_type' => 'required|in:homeowner,gardener,service_provider,admin',
+        'fcm_token' => 'nullable|string',
+        'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240', // Add this
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation Error',
-                'errors' => $validator->errors(),
-            ], 422);
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Validation Error',
+            'errors' => $validator->errors(),
+        ], 422);
+    }
+
+    $userData = [
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'phone' => $request->phone,
+        'address' => $request->address,
+        'user_type' => $request->user_type,
+    ];
+
+    // Handle profile image upload
+    if ($request->hasFile('profile_image')) {
+        $path = $request->file('profile_image')->store('profile_images', 'public');
+        $userData['profile_image'] = $path;
+    }
+
+    $user = User::create($userData);
+
+    if ($request->filled('fcm_token')) {
+        $user->update(['fcm_token' => $request->fcm_token]);
+    }
+
+    return response()->json([
+        'message' => 'User registered successfully.',
+        'user' => $user->makeHidden(['password']), // Hide password
+        'profile_image_url' => $user->profile_image 
+            ? asset("storage/$user->profile_image")
+            : null,
+    ], 201);
+}
+
+    public function login(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|string|email',
+        'password' => 'required|string',
+        'fcm_token' => 'nullable|string',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Validation Error',
+            'errors' => $validator->errors(),
+        ], 422);
+    }
+
+    $credentials = $request->only('email', 'password');
+
+    try {
+        if (!auth()->attempt($credentials)) {
+            return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'user_type' => $request->user_type,
-        ]);
+        $user = auth()->user();
+        $token = $user->createToken('Access Token', ['broadcast'])->plainTextToken;
 
         if ($request->filled('fcm_token')) {
             $user->update(['fcm_token' => $request->fcm_token]);
         }
 
         return response()->json([
-            'message' => 'User registered successfully.',
-            'user' => $user,
-        ], 201);
+            'message' => 'Login successful.',
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'address' => $user->address,
+                'user_type' => $user->user_type,
+                'profile_image_url' => $user->profile_image 
+                    ? asset("storage/$user->profile_image")
+                    : null,
+            ],
+        ], 200);
+
+    } catch (\Exception $e) {
+        \Log::error('Login error: ' . $e->getMessage());
+        return response()->json(['error' => 'An unexpected error occurred.'], 500);
     }
-
-    public function login(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-            'fcm_token' => 'nullable|string', // Accept FCM token
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation Error',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $credentials = $request->only('email', 'password');
-
-        try {
-            if (!auth()->attempt($credentials)) {
-                return response()->json(['error' => 'Invalid credentials'], 401);
-            }
-
-            $user = auth()->user();
-            $token = $user->createToken('Access Token', ['broadcast'])->plainTextToken;
-
-            // Store or update FCM token
-            if ($request->filled('fcm_token')) {
-                $user->update(['fcm_token' => $request->fcm_token]);
-            }
-
-            // Explicitly include user details with user_type
-            return response()->json([
-                'message' => 'Login successful.',
-                'token' => $token,
-                'user' => $user,
-            ], 200);
-
-        } catch (\Exception $e) {
-            // Log the exception for debugging
-            \Log::error('Login error: ' . $e->getMessage());
-
-            return response()->json(['error' => 'An unexpected error occurred.'], 500);
-        }
-    }
+}
 
     // Add the updateFcmToken method here
     public function updateFcmToken(Request $request)
@@ -106,26 +124,24 @@ class AuthController extends Controller
     }
 
     public function getProfileData($userId)
-    {
-        \Log::info('Fetching profile data for user ID: ' . $userId); // Debugging line
+{
+    $user = User::find($userId);
 
-        $user = User::find($userId);
-
-        if (!$user) {
-            \Log::error('User not found for ID: ' . $userId); // Debugging line
-            return response()->json(['message' => 'User not found'], 404);
-        }
-
-        \Log::info('User found: ' . json_encode($user)); // Debugging line
-
-        return response()->json([
-            'name' => $user->name,
-            'email' => $user->email,
-            'phone' => $user->phone,
-            'address' => $user->address,
-            'account' => $user->account,
-        ]);
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
     }
+
+    return response()->json([
+        'name' => $user->name,
+        'email' => $user->email,
+        'phone' => $user->phone,
+        'address' => $user->address,
+        'account' => $user->account,
+        'profile_image_url' => $user->profile_image 
+            ? asset("storage/$user->profile_image")
+            : null,
+    ]);
+}
 
     public function updateProfile(Request $request)
 {
@@ -149,9 +165,10 @@ class AuthController extends Controller
 
     $data = $request->only(['name', 'email', 'phone', 'address', 'account']);
 
+    // Handle profile image upload
     if ($request->hasFile('profile_image')) {
-        // Delete old image
-        if ($user->profile_image) {
+        // Delete old image if exists
+        if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
             Storage::disk('public')->delete($user->profile_image);
         }
         
@@ -164,7 +181,7 @@ class AuthController extends Controller
 
     return response()->json([
         'message' => 'Profile updated successfully',
-        'user' => $user,
+        'user' => $user->makeHidden(['password']),
         'profile_image_url' => $user->profile_image 
             ? asset("storage/$user->profile_image")
             : null,
