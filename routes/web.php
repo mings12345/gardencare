@@ -83,8 +83,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/{id}/edit', [ServiceController::class, 'edit'])->name('admin.editService');
         Route::put('/{id}', [WebServiceController::class, 'update'])->name('admin.updateService');
         Route::delete('/{id}', [WebServiceController::class, 'destroy'])->name('admin.deleteService');
-        Route::get('/users/{userId}/services', [ServiceController::class, 'showUserServices'])
-    ->name('admin.userServices');
     });
     
     // Feedback Management

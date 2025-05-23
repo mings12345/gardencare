@@ -223,32 +223,5 @@ class ServiceController extends Controller
         'service' => $service
     ], 201);
 }
-
-    public function showUserServices($userId)
-    {
-        $user = User::findOrFail($userId);
         
-        // Check if user is gardener or service provider
-        if (!in_array($user->user_type, ['gardener', 'service_provider'])) {
-            abort(403, 'Only gardeners and service providers can have services');
-        }
-
-        $services = Service::where('user_id', $userId)->get();
-        
-        // Transform image paths to full URLs
-        $services->transform(function ($service) {
-            if ($service->image) {
-                $service->image = asset('images/services/' . $service->image);
-            }
-            return $service;
-        });
-
-        // Determine which view to return based on user type
-        $view = $user->user_type === 'gardener' ? 'admin.view-gardener' : 'admin.view-service-provider';
-
-        return view($view, [
-            $user->user_type => $user,
-            'services' => $services
-        ]);
-    }
 }
