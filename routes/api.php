@@ -68,7 +68,8 @@ Route::get('/homeowners', [AuthController::class, 'getHomeowners']);
 
 // Protected Routes (Require Authentication)
 Route::middleware(['auth:sanctum'])->group(function () {
-
+    Route::put('/services/{id}', [ServiceController::class, 'update']);
+    Route::delete('/services/{id}', [ServiceController::class, 'destroy']);
     // Bookings Routes
       Route::get('/services/user/{userId}', [ServiceController::class, 'getServicesByUser']);
 

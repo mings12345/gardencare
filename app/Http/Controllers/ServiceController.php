@@ -58,30 +58,58 @@ class ServiceController extends Controller
 
     // Update a service
     public function update(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'type' => 'required|in:Gardening,Landscaping',
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'description' => 'nullable|string'
-        ]);
+{
+    $validated = $request->validate([
+        'type' => 'required|in:Gardening,Landscaping',
+        'name' => 'required|string|max:255',
+        'price' => 'required|numeric|min:0',
+        'description' => 'nullable|string',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240' // 10MB max
+    ]);
 
-        $service = Service::findOrFail($id);
-        $service->update($validated);
+    $service = Service::findOrFail($id);
 
-        return redirect()->route('admin.manageServices')
-            ->with('success', 'Service updated successfully.');
+    // Handle image upload if new image is provided
+    if ($request->hasFile('image')) {
+        // Delete old image if exists
+        if ($service->image && Storage::exists('public/images/services/' . $service->image)) {
+            Storage::delete('public/images/services/' . $service->image);
+        }
+
+        $image = $request->file('image');
+        $imageName = time().'.'.$image->getClientOriginalExtension();
+        $image->move(public_path('images/services'), $imageName);
+        $validated['image'] = $imageName;
     }
+
+    $service->update($validated);
+
+    // Return the updated service with full image URL
+    if ($service->image) {
+        $service->image = asset('images/services/' . $service->image);
+    }
+
+    return response()->json([
+        'message' => 'Service updated successfully',
+        'service' => $service
+    ]);
+}
+
 
     // Delete a service
     public function destroy($id)
-    {
-        $service = Service::findOrFail($id);
-        $service->delete();
+{
+    $service = Service::findOrFail($id);
 
-        return redirect()->route('admin.manageServices')
-            ->with('success', 'Service deleted successfully.');
+    // Delete associated image if exists
+    if ($service->image && file_exists(public_path('images/services/' . $service->image))) {
+        unlink(public_path('images/services/' . $service->image));
     }
+
+    $service->delete();
+
+    return response()->json(['message' => 'Service deleted successfully']);
+}
 
     // Fetch all services for API
     public function getServices()
