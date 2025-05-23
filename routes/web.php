@@ -11,6 +11,7 @@ use App\Http\Controllers\HomeownerController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceRequestController;
+use App\Http\Controllers\WebServiceController;
 
 
 Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
@@ -80,7 +81,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/create', [ServiceController::class, 'create'])->name('admin.addService');
         Route::post('/', [ServiceController::class, 'store'])->name('admin.storeService');
         Route::get('/{id}/edit', [ServiceController::class, 'edit'])->name('admin.editService');
-        Route::put('/{id}', [ServiceController::class, 'update'])->name('admin.updateService');
+        Route::put('/{id}', [WebServiceController::class, 'update'])->name('admin.updateService');
         Route::delete('/{id}', [ServiceController::class, 'destroy'])->name('admin.deleteService');
     });
     
