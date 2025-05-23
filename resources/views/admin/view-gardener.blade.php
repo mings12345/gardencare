@@ -49,10 +49,29 @@
         .service-card {
             border-left: 4px solid var(--greenspace-primary);
             margin-bottom: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(46, 125, 50, 0.08);
         }
         .service-type-badge {
             background-color: var(--greenspace-secondary);
             color: #000;
+        }
+        .service-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+        .price-tag {
+            color: var(--greenspace-primary);
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .services-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--greenspace-light);
         }
     </style>
 </head>
@@ -89,9 +108,55 @@
                                 <strong>Address:</strong> &nbsp;{{ $gardener->address }}
                             </p>
                         </div>
-                       
                     </div>
                 </div>
+
+                @if(isset($services) && $services->count() > 0)
+                <div class="services-section">
+                    <div class="row">
+                        <div class="col-md-10 mx-auto">
+                            <h5 class="mb-4 d-flex align-items-center">
+                                <i class="bi bi-gear-fill detail-icon"></i>
+                                Services Offered ({{ $services->count() }})
+                            </h5>
+                            
+                            @foreach($services as $service)
+                            <div class="service-card p-3 mb-3">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2 text-center">
+                                        @if($service->image)
+                                            <img src="{{ $service->image }}" alt="{{ $service->name }}" class="service-image">
+                                        @else
+                                            <div class="service-image bg-light d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-image text-muted"></i>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-7">
+                                        <h6 class="mb-2">{{ $service->name }}</h6>
+                                        <span class="badge service-type-badge mb-2">{{ $service->type }}</span>
+                                        @if($service->description)
+                                            <p class="text-muted mb-0 small">{{ $service->description }}</p>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-3 text-end">
+                                        <div class="price-tag">${{ number_format($service->price, 2) }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @else
+                <div class="services-section">
+                    <div class="text-center text-muted">
+                        <i class="bi bi-info-circle detail-icon"></i>
+                        No services available for this gardener.
+                    </div>
+                </div>
+                @endif
+
                 <div class="text-center mt-4">
                     <a href="{{ route('admin.manageGardeners') }}" class="btn btn-greenspace px-4">
                         <i class="bi bi-arrow-left"></i> Back to List
