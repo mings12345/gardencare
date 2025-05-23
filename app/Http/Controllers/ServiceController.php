@@ -165,7 +165,7 @@ class ServiceController extends Controller
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // 2MB max
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240' // 2MB max
         ]);
 
         // Verify user is gardener or service provider
