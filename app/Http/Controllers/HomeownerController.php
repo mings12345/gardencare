@@ -20,7 +20,7 @@ class HomeownerController extends Controller
 {
     $request->validate([
         'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email',
+        'email' => 'required|email|regex:/\.com$/|unique:users,email',
         'password' => 'required|string|min:8|confirmed',
         'phone' => 'required|string|max:20',
         'address' => 'required|string|max:255',
@@ -76,7 +76,7 @@ class HomeownerController extends Controller
         // Validate the request data
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $homeowner->id,
+            'email' => 'required|email|regex:/\.com$/|unique:users,email,' . $homeowner->id, 
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',

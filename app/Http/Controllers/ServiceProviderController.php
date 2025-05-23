@@ -28,7 +28,7 @@ class ServiceProviderController extends Controller
 {
     $request->validate([
         'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email',
+        'email' => 'required|email|regex:/\.com$/|unique:users,email',
         'phone' => 'required|string|max:20',
         'address' => 'required|string|max:255',
         'password' => 'required|string|min:8|confirmed',
@@ -76,7 +76,7 @@ class ServiceProviderController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $serviceProvider->id,
+            'email' => 'required|email|regex:/\.com$/|unique:users,email,' . $serviceProvider->id,
             'phone' => 'required|string|max:20',
             'address' => 'required|string|max:255',
             'password' => 'nullable|string|min:8',
