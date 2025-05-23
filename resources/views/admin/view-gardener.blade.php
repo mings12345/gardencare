@@ -92,6 +92,38 @@
                        
                     </div>
                 </div>
+
+                @if($services->count() > 0)
+                <div class="detail-item">
+                    <h5 class="d-flex align-items-center">
+                        <i class="bi bi-list-check detail-icon"></i>
+                        Services Offered
+                    </h5>
+                    <div class="mt-3">
+                        @foreach($services as $service)
+                            <div class="card service-card mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <h5>{{ $service->name }}</h5>
+                                        <span class="badge service-type-badge">{{ $service->type }}</span>
+                                    </div>
+                                    <p class="mb-1"><strong>Price:</strong> ${{ number_format($service->price, 2) }}</p>
+                                    @if($service->description)
+                                        <p class="mb-1"><strong>Description:</strong> {{ $service->description }}</p>
+                                    @endif
+                                    @if($service->image)
+                                        <img src="{{ $service->image }}" alt="{{ $service->name }}" class="img-fluid mt-2" style="max-height: 150px;">
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @else
+                <div class="detail-item">
+                    <p class="text-muted">This gardener hasn't added any services yet.</p>
+                </div>
+            @endif
                 <div class="text-center mt-4">
                     <a href="{{ route('admin.manageGardeners') }}" class="btn btn-greenspace px-4">
                         <i class="bi bi-arrow-left"></i> Back to List
