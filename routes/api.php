@@ -57,9 +57,7 @@ Route::get('/plants', [PlantController::class, 'index']);
 Route::get('/plants/{id}', [PlantController::class, 'show']);
 Route::post('/plants', [PlantController::class, 'store']);
 
-// Payment Routes
-Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
-Route::post('/stripe/webhook', [PaymentController::class, 'handleWebhook']);
+
 
 // Fetch all users by type
 Route::get('/gardeners', [AuthController::class, 'getGardeners']); 

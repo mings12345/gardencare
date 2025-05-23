@@ -127,49 +127,54 @@ class AuthController extends Controller
         ]);
     }
 
-    public function updateProfile(Request $request)
-{
-    $user = auth()->user();
+            public function updateProfile(Request $request)
+        {
+            $user = auth()->user();
 
-    $validator = Validator::make($request->all(), [
-        'name' => 'sometimes|string|max:50',
-        'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
-        'phone' => 'sometimes|string|max:15',
-        'address' => 'sometimes|string|max:255',
-        'account' => 'sometimes|string|max:11|unique:users,account,' . $user->id,
-        'profile_image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:10240',
-    ]);
+            $validator = Validator::make($request->all(), [
+                'name' => 'sometimes|string|max:50',
+                'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+                'phone' => 'sometimes|string|max:15',
+                'address' => 'sometimes|string|max:255',
+                'account' => 'sometimes|string|max:11|unique:users,account,' . $user->id,
+                'profile_image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:10240', // 10MB max
+            ]);
 
-    if ($validator->fails()) {
-        return response()->json([
-            'message' => 'Validation Error',
-            'errors' => $validator->errors(),
-        ], 422);
-    }
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Validation Error',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
 
-    $data = $request->only(['name', 'email', 'phone', 'address', 'account']);
+            $data = $request->only(['name', 'email', 'phone', 'address', 'account']);
 
-    if ($request->hasFile('profile_image')) {
-        // Delete old image
-        if ($user->profile_image) {
-            Storage::disk('public')->delete($user->profile_image);
+            // Handle image upload - Store in public/images/profile
+            if ($request->hasFile('profile_image')) {
+                // Delete old image if exists
+                if ($user->profile_image) {
+                    $oldImagePath = public_path('images/profile_images/' . basename($user->profile_image));
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath);
+                    }
+                }
+                
+                $image = $request->file('profile_image');
+                $imageName = time().'.'.$image->getClientOriginalExtension();
+                $image->move(public_path('images/profile_images'), $imageName);
+                $data['profile_image'] = 'images/profile_images/' . $imageName;
+            }
+
+            $user->update($data);
+
+            return response()->json([
+                'message' => 'Profile updated successfully',
+                'user' => $user,
+                'profile_image_url' => $user->profile_image 
+                    ? asset($user->profile_image)
+                    : null,
+            ], 200);
         }
-        
-        // Store new image
-        $path = $request->file('profile_image')->store('profile_images', 'public');
-        $data['profile_image'] = $path;
-    }
-
-    $user->update($data);
-
-    return response()->json([
-        'message' => 'Profile updated successfully',
-        'user' => $user,
-        'profile_image_url' => $user->profile_image 
-            ? asset("storage/$user->profile_image")
-            : null,
-    ], 200);
-}
     public function logout(Request $request)
     {
         // Revoke the current user's token
