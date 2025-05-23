@@ -272,7 +272,7 @@
                         <th>Service Name</th>
                         <th>Description</th>
                         <th>Type</th>
-                        <th>Owner</th>
+                        <th>Provider</th>
                         <th>Image</th>
                         <th>Price</th>
                         <th>Actions</th>
