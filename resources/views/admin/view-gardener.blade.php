@@ -89,39 +89,7 @@
                                 <strong>Address:</strong> &nbsp;{{ $gardener->address }}
                             </p>
                         </div>
-
-                        <!-- Services Section -->
-                        <div class="detail-item">
-                            <h5 class="d-flex align-items-center mb-3">
-                                <i class="bi bi-list-check detail-icon"></i>
-                                Services Offered
-                            </h5>
-                            @if($gardener->services && $gardener->services->count() > 0)
-                                @foreach($gardener->services as $service)
-                                    <div class="card service-card mb-2">
-                                        <div class="card-body">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <div>
-                                                    <h5 class="card-title mb-1">{{ $service->name }}</h5>
-                                                    <span class="badge service-type-badge mb-2">{{ $service->type }}</span>
-                                                    <p class="card-text mb-1"><strong>Price:</strong> ${{ number_format($service->price, 2) }}</p>
-                                                    @if($service->description)
-                                                        <p class="card-text">{{ $service->description }}</p>
-                                                    @endif
-                                                </div>
-                                                @if($service->image)
-                                                    <img src="{{ asset('images/services/' . $service->image) }}" alt="{{ $service->name }}" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @else
-                                <div class="alert alert-info">
-                                    This gardener hasn't added any services yet.
-                                </div>
-                            @endif
-                        </div>
+                       
                     </div>
                 </div>
                 <div class="text-center mt-4">
