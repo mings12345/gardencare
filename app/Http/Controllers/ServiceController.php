@@ -148,7 +148,7 @@ class ServiceController extends Controller
         // Transform image paths to full URLs
         $services->transform(function ($service) {
             if ($service->image) {
-                $service->image = asset('storage/services/' . $service->image);
+                $service->image = asset('images/services/' . $service->image);
             }
             return $service;
         });
@@ -186,7 +186,7 @@ class ServiceController extends Controller
 
         // Return the created service with full image URL
         if ($service->image) {
-            $service->image = asset('storage/services/' . $service->image);
+            $service->image = asset('images/services/' . $service->image);
         }
 
         return response()->json([
