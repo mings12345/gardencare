@@ -82,7 +82,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::post('/', [ServiceController::class, 'store'])->name('admin.storeService');
         Route::get('/{id}/edit', [ServiceController::class, 'edit'])->name('admin.editService');
         Route::put('/{id}', [WebServiceController::class, 'update'])->name('admin.updateService');
-        Route::delete('/{id}', [ServiceController::class, 'destroy'])->name('admin.deleteService');
+        Route::delete('/{id}', [WebServiceController::class, 'destroy'])->name('admin.deleteService');
     });
     
     // Feedback Management
