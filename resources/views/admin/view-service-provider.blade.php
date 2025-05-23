@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Service Provider | GardenCare   </title>
+    <title>View Service Provider | GardenCare</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -46,6 +46,14 @@
             color: var(--greenspace-primary);
             margin-right: 10px;
         }
+        .service-card {
+            border-left: 4px solid var(--greenspace-primary);
+            margin-bottom: 1rem;
+        }
+        .service-type-badge {
+            background-color: var(--greenspace-secondary);
+            color: #000;
+        }
     </style>
 </head>
 <body>
@@ -80,6 +88,39 @@
                                 <i class="bi bi-geo-alt-fill detail-icon"></i>
                                 <strong>Address:</strong> &nbsp;{{ $serviceProvider->address }}
                             </p>
+                        </div>
+
+                        <!-- Services Section -->
+                        <div class="detail-item">
+                            <h5 class="d-flex align-items-center mb-3">
+                                <i class="bi bi-list-check detail-icon"></i>
+                                Services Offered
+                            </h5>
+                            @if($serviceProvider->services && $serviceProvider->services->count() > 0)
+                                @foreach($serviceProvider->services as $service)
+                                    <div class="card service-card mb-2">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h5 class="card-title mb-1">{{ $service->name }}</h5>
+                                                    <span class="badge service-type-badge mb-2">{{ $service->type }}</span>
+                                                    <p class="card-text mb-1"><strong>Price:</strong> ${{ number_format($service->price, 2) }}</p>
+                                                    @if($service->description)
+                                                        <p class="card-text">{{ $service->description }}</p>
+                                                    @endif
+                                                </div>
+                                                @if($service->image)
+                                                    <img src="{{ asset('images/services/' . $service->image) }}" alt="{{ $service->name }}" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="alert alert-info">
+                                    This service provider hasn't added any services yet.
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
