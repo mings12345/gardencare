@@ -293,7 +293,7 @@ class AdminDashboardController extends Controller
         }
 
          elseif ($type === 'services') {
-            fputcsv($file, ['Service ID', 'Type', 'Name', 'Price', 'Description']);
+              fputcsv($file, ['Service ID', 'Type', 'Name', 'Price', 'Price Description', 'Description']);
             
             $services = Service::all();
             
@@ -303,6 +303,7 @@ class AdminDashboardController extends Controller
                     $service->type,
                     $service->name,
                     '₱' . number_format($service->price, 2),
+                     $service->price_description ?? 'N/A',
                     $service->description ?? 'No description'
                 ]);
             }

@@ -30,6 +30,7 @@ class ServiceController extends Controller
         'type' => 'required|in:Gardening,Landscaping',
         'name' => 'required|string|max:255',
         'price' => 'required|numeric|min:0',
+        'price_description' => 'nullable|string|max:255',
         'description' => 'nullable|string',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // 2MB max
     ]);
@@ -63,6 +64,7 @@ class ServiceController extends Controller
         'type' => 'required|in:Gardening,Landscaping',
         'name' => 'required|string|max:255',
         'price' => 'required|numeric|min:0',
+        'price_description' => 'nullable|string|max:255',
         'description' => 'nullable|string',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240' // 10MB max
     ]);
@@ -191,6 +193,7 @@ class ServiceController extends Controller
         'type' => 'required|in:Gardening,Landscaping',
         'name' => 'required|string|max:255',
         'price' => 'required|numeric|min:0',
+        'price_description' => 'nullable|string|max:255',
         'description' => 'nullable|string',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240'
     ]);
