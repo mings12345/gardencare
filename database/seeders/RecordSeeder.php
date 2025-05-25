@@ -100,7 +100,7 @@ class RecordSeeder extends Seeder
             'name' => 'Plant Care',
             'type' => 'Gardening',
             'description' => 'Professional care for your plants including pruning, fertilizing, and overall health assessment.',
-            'price' => 500,
+            'price' => 500-1000,
             'image' => 'plant_care.jpg'
         ]);
         Service::create([
