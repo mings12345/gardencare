@@ -100,8 +100,7 @@ class RecordSeeder extends Seeder
             'name' => 'Plant Care',
             'type' => 'Gardening',
             'description' => 'Professional care for your plants including pruning, fertilizing, and overall health assessment.',
-            'min_price' => 500.00,
-            'max_price' => 5000.00,
+            'price' => 500,
             'price_description' => 'Per Sesion',
             'image' => 'plant_care.jpg'
         ]);
@@ -109,8 +108,7 @@ class RecordSeeder extends Seeder
             'name' => 'Watering',
             'type' => 'Gardening',
             'description' => 'Regular watering service to keep your plants hydrated and healthy, with customized schedules.',
-            'min_price' => 500.00,
-            'max_price' => 1000.00,
+            'price' => 500,
             'price_description' => 'Per visit',
             'image' => 'watering.jpg'
         ]);
@@ -118,16 +116,14 @@ class RecordSeeder extends Seeder
             'name' => 'Pest Control',
             'type' => 'Gardening',
             'description' => 'Eco-friendly pest control solutions to protect your plants from harmful insects and diseases.',
-            'min_price' => 500.00,
-            'max_price' => 1000.00,
+            'price' => 500,
             'image' => 'pest_control.jpg'
         ]);
         Service::create([
             'name' => 'Lawn Mowing',
             'type' => 'Gardening',
             'description' => 'Professional lawn mowing service to keep your grass at the perfect height and looking neat.',
-            'min_price' => 500.00,
-            'max_price' => 2000.00,
+            'price' => 500,
             'image' => 'lawn mowing.jpg'
         ]);
         
@@ -135,8 +131,7 @@ class RecordSeeder extends Seeder
             'name' => 'Garden Design',
             'type' => 'Landscaping',
             'description' => 'Custom garden design services to create beautiful and functional outdoor spaces.',
-            'min_price' => 5000.00,
-            'max_price' => 15000.00,
+            'price' => 500,
             'image' => 'garden_design.jpg'
         ]);
 
@@ -144,8 +139,7 @@ class RecordSeeder extends Seeder
             'name' => 'Pathway Construction',
             'type' => 'Landscaping',
             'description' => 'Design and construction of beautiful pathways using various materials like stone, brick, or gravel.',
-            'min_price' => 10000.00,
-            'max_price' => 25000.00,
+            'price' => 500,
             'image' => 'pathway.jpg'
         ]);
         
@@ -153,9 +147,7 @@ class RecordSeeder extends Seeder
             'name' => 'Fencing',
             'type' => 'Landscaping',
             'description' => 'Installation of durable and attractive fences to enhance privacy and security in your garden.',
-            'min_price' => 80000.00,
-            'max_price' => 25000.00,
-            'price_description' => 'Per meter',
+            'price' => 500,
             'image' => 'fencing.jpg'
         ]);
         
@@ -163,8 +155,7 @@ class RecordSeeder extends Seeder
             'name' => 'Outdoor Furniture',
             'type' => 'Landscaping',
             'description' => 'Selection and installation of weather-resistant outdoor furniture to complement your garden design.',
-            'min_price' => 15000.00,
-            'max_price' => 50000.00,
+            'price' => 500,
             'image' => 'outdoor.jpg'
         ]);
     }

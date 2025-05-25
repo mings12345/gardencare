@@ -17,8 +17,7 @@ return new class extends Migration
             $table->enum('type',['Landscaping','Gardening']);
             $table->string('name'); // e.g., Lawn Mowing, Tree Trimming
             $table->text('description')->nullable();
-            $table->decimal('min_price', 8, 2)->nullable();
-            $table->decimal('max_price', 8, 2)->nullable();
+            $table->decimal('price', 8, 2); // Price of the service
             $table->string('price_description')->nullable();
             $table->string('image')->nullable();
             $table->timestamps();
