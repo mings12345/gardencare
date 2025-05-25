@@ -76,6 +76,16 @@
             color: #721C24;
         }
 
+        .status-accepted {
+            background-color: #D4EDDA;
+            color: #155724;
+        }
+
+        .status-declined {
+            background-color: #F8D7DA;
+            color: #721C24;
+        }
+
         .table-responsive {
             border-radius: 10px;
             overflow: hidden;
@@ -198,6 +208,53 @@
             box-shadow: 0 0 0 0.25rem rgba(139, 195, 74, 0.25);
         }
 
+        .search-input {
+            position: relative;
+        }
+
+        .search-input i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        .search-input input {
+            padding-left: 45px;
+        }
+
+        .clear-filters-btn {
+            background-color: var(--accent-color);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .clear-filters-btn:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .results-info {
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .results-count {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
         @media (max-width: 992px) {
             .table-responsive {
                 overflow-x: auto;
@@ -234,6 +291,12 @@
             .table tbody td:last-child {
                 border-bottom: none;
             }
+
+            .results-info {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -245,9 +308,20 @@
 
         <!-- Filter Section -->
         <div class="filter-section">
-            <h5 class="filter-title"><i class="fas fa-filter me-2"></i>Filter Bookings</h5>
-            <div class="row">
-                <div class="col-md-6">
+            <h5 class="filter-title"><i class="fas fa-filter me-2"></i>Filter & Search Bookings</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="searchInput" class="form-label">Search by Booking ID</label>
+                    <div class="search-input">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Enter Booking ID (e.g., No-123)">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label for="monthFilter" class="form-label">Month/Year</label>
+                    <input type="month" class="form-control" id="monthFilter">
+                </div>
+                <div class="col-md-4">
                     <label for="statusFilter" class="form-label">Status</label>
                     <select class="form-select" id="statusFilter">
                         <option value="">All Status</option>
@@ -257,7 +331,7 @@
                         <option value="declined">Declined</option>
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="typeFilter" class="form-label">Service Type</label>
                     <select class="form-select" id="typeFilter">
                         <option value="">All Types</option>
@@ -265,7 +339,21 @@
                         <option value="landscaping">Landscaping</option>
                     </select>
                 </div>
+                <div class="col-md-4">
+                    <label class="form-label">&nbsp;</label>
+                    <div>
+                        <button type="button" class="btn clear-filters-btn w-100" id="clearFilters">
+                            <i class="fas fa-times me-2"></i>Clear All Filters
+                        </button>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- Results Info -->
+        <div class="results-info" id="resultsInfo">
+            <span class="results-count" id="resultsCount">Showing all bookings</span>
+            <small class="text-muted" id="filterStatus"></small>
         </div>
 
         @if($bookings->isEmpty())
@@ -288,11 +376,12 @@
                             <th>Payment</th>
                             <th>Total</th>
                             <th>Status</th>
+                            <th>Created</th>
                         </tr>
                     </thead> 
-                    <tbody>
+                    <tbody id="bookingsTableBody">
                         @foreach($bookings as $booking)
-                            <tr>
+                            <tr data-booking-id="No-{{ $booking->id }}" data-created-date="{{ $booking->created_at }}">
                                 <td data-label="ID">No-{{ $booking->id }}</td>
                                 <td data-label="Type">
                                 @if(strtolower($booking->type) == 'gardening')
@@ -363,6 +452,10 @@
                                         {{ ucfirst($booking->status) }}
                                     </span>
                                 </td>
+                                <td data-label="Created">
+                                    <strong>{{ \Carbon\Carbon::parse($booking->created_at)->format('M d, Y') }}</strong>
+                                    <div class="text-muted small">{{ \Carbon\Carbon::parse($booking->created_at)->format('h:i A') }}</div>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -374,35 +467,129 @@
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Simple filter functionality
         document.addEventListener('DOMContentLoaded', function() {
-            // Status filter
-            document.getElementById('statusFilter').addEventListener('change', function() {
-                const status = this.value;
-                const rows = document.querySelectorAll('tbody tr');
+            const searchInput = document.getElementById('searchInput');
+            const monthFilter = document.getElementById('monthFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            const typeFilter = document.getElementById('typeFilter');
+            const clearFiltersBtn = document.getElementById('clearFilters');
+            const resultsCount = document.getElementById('resultsCount');
+            const filterStatus = document.getElementById('filterStatus');
+            const tableRows = document.querySelectorAll('#bookingsTableBody tr');
+            
+            let totalBookings = tableRows.length;
+            
+            function updateResultsInfo(visibleCount, activeFilters) {
+                resultsCount.textContent = `Showing ${visibleCount} of ${totalBookings} bookings`;
                 
-                rows.forEach(row => {
-                    if (!status || row.querySelector('.status-badge').classList.contains(`status-${status}`)) {
+                if (activeFilters.length > 0) {
+                    filterStatus.textContent = `Filtered by: ${activeFilters.join(', ')}`;
+                } else {
+                    filterStatus.textContent = '';
+                }
+            }
+            
+            function getActiveFilters() {
+                const filters = [];
+                
+                if (searchInput.value.trim()) {
+                    filters.push(`ID: "${searchInput.value.trim()}"`);
+                }
+                
+                if (monthFilter.value) {
+                    const date = new Date(monthFilter.value + '-01');
+                    const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                    filters.push(`Month: ${monthName}`);
+                }
+                
+                if (statusFilter.value) {
+                    filters.push(`Status: ${statusFilter.options[statusFilter.selectedIndex].text}`);
+                }
+                
+                if (typeFilter.value) {
+                    filters.push(`Type: ${typeFilter.options[typeFilter.selectedIndex].text}`);
+                }
+                
+                return filters;
+            }
+            
+            function applyFilters() {
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                const selectedMonth = monthFilter.value;
+                const selectedStatus = statusFilter.value;
+                const selectedType = typeFilter.value;
+                
+                let visibleCount = 0;
+                
+                tableRows.forEach(row => {
+                    let showRow = true;
+                    
+                    // Search by Booking ID
+                    if (searchTerm) {
+                        const bookingId = row.getAttribute('data-booking-id').toLowerCase();
+                        if (!bookingId.includes(searchTerm)) {
+                            showRow = false;
+                        }
+                    }
+                    
+                    // Filter by Month/Year
+                    if (selectedMonth && showRow) {
+                        const createdDate = row.getAttribute('data-created-date');
+                        if (createdDate) {
+                            const bookingMonth = createdDate.substring(0, 7); // Format: YYYY-MM
+                            if (bookingMonth !== selectedMonth) {
+                                showRow = false;
+                            }
+                        }
+                    }
+                    
+                    // Filter by Status
+                    if (selectedStatus && showRow) {
+                        const statusBadge = row.querySelector('.status-badge');
+                        if (!statusBadge || !statusBadge.classList.contains(`status-${selectedStatus}`)) {
+                            showRow = false;
+                        }
+                    }
+                    
+                    // Filter by Type
+                    if (selectedType && showRow) {
+                        const typeCell = row.querySelector('td:nth-child(2)');
+                        if (!typeCell || !typeCell.textContent.toLowerCase().includes(selectedType)) {
+                            showRow = false;
+                        }
+                    }
+                    
+                    // Show/hide row
+                    if (showRow) {
                         row.style.display = '';
+                        visibleCount++;
                     } else {
                         row.style.display = 'none';
                     }
                 });
+                
+                // Update results info
+                const activeFilters = getActiveFilters();
+                updateResultsInfo(visibleCount, activeFilters);
+            }
+            
+            // Event listeners
+            searchInput.addEventListener('input', applyFilters);
+            monthFilter.addEventListener('change', applyFilters);
+            statusFilter.addEventListener('change', applyFilters);
+            typeFilter.addEventListener('change', applyFilters);
+            
+            // Clear all filters
+            clearFiltersBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                monthFilter.value = '';
+                statusFilter.value = '';
+                typeFilter.value = '';
+                applyFilters();
             });
             
-            // Type filter
-            document.getElementById('typeFilter').addEventListener('change', function() {
-                const type = this.value;
-                const rows = document.querySelectorAll('tbody tr');
-                
-                rows.forEach(row => {
-                    if (!type || row.querySelector('td:nth-child(2)').textContent.toLowerCase().includes(type)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
+            // Initialize results info
+            updateResultsInfo(totalBookings, []);
         });
     </script>
 </body>
