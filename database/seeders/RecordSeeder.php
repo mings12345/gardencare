@@ -126,7 +126,8 @@ class RecordSeeder extends Seeder
             'name' => 'Lawn Mowing',
             'type' => 'Gardening',
             'description' => 'Professional lawn mowing service to keep your grass at the perfect height and looking neat.',
-            'price' => 500,
+            'min_price' => 500,
+            'max_price' => null,
             'image' => 'lawn mowing.jpg'
         ]);
         
@@ -134,7 +135,8 @@ class RecordSeeder extends Seeder
             'name' => 'Garden Design',
             'type' => 'Landscaping',
             'description' => 'Custom garden design services to create beautiful and functional outdoor spaces.',
-            'price' => 500,
+            'min_price' => 5000,
+            'max_price' => 15000,
             'image' => 'garden_design.jpg'
         ]);
 
@@ -142,7 +144,8 @@ class RecordSeeder extends Seeder
             'name' => 'Pathway Construction',
             'type' => 'Landscaping',
             'description' => 'Design and construction of beautiful pathways using various materials like stone, brick, or gravel.',
-            'price' => 500,
+            'min_price' => 10000,
+            'max_price' => 25000,
             'image' => 'pathway.jpg'
         ]);
         
@@ -150,7 +153,9 @@ class RecordSeeder extends Seeder
             'name' => 'Fencing',
             'type' => 'Landscaping',
             'description' => 'Installation of durable and attractive fences to enhance privacy and security in your garden.',
-            'price' => 500,
+            'min_price' => 80000,
+            'max_price' => 25000,
+            'price_description' => 'Per meter',
             'image' => 'fencing.jpg'
         ]);
         
@@ -158,7 +163,8 @@ class RecordSeeder extends Seeder
             'name' => 'Outdoor Furniture',
             'type' => 'Landscaping',
             'description' => 'Selection and installation of weather-resistant outdoor furniture to complement your garden design.',
-            'price' => 500,
+            'min_price' => 15000,
+            'max_price' => 50000,
             'image' => 'outdoor.jpg'
         ]);
     }
