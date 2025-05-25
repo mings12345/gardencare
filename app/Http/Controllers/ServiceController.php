@@ -25,29 +25,30 @@ class ServiceController extends Controller
 
     // Store a new service
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'type' => 'required|in:Gardening,Landscaping',
-        'name' => 'required|string|max:255',
-        'price' => 'required|numeric|min:0',
-        'price_description' => 'nullable|string|max:255',
-        'description' => 'nullable|string',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // 2MB max
-    ]);
+    {
+        $validated = $request->validate([
+            'type' => 'required|in:Gardening,Landscaping',
+            'name' => 'required|string|max:255',
+            'min_price' => 'required|numeric|min:0',
+            'max_price' => 'nullable|numeric|min:0|gte:min_price',
+            'price_description' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
 
-    // Handle image upload
-    if ($request->hasFile('image')) {
-        $image = $request->file('image');
-        $imageName = time().'.'.$image->getClientOriginalExtension();
-        $image->move(public_path('images/services'), $imageName);
-        $validated['image'] = $imageName;
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time().'.'.$image->getClientOriginalExtension();
+            $image->move(public_path('images/services'), $imageName);
+            $validated['image'] = $imageName;
+        }
+
+        Service::create($validated);
+
+        return redirect()->route('admin.manageServices')
+            ->with('success', 'Service added successfully.');
     }
-
-    Service::create($validated);
-
-    return redirect()->route('admin.manageServices')
-        ->with('success', 'Service added successfully.');
-}
 
     // Show the form to edit a service
     public function edit($id)
@@ -59,59 +60,59 @@ class ServiceController extends Controller
 
     // Update a service
     public function update(Request $request, $id)
-{
-    $validated = $request->validate([
-        'type' => 'required|in:Gardening,Landscaping',
-        'name' => 'required|string|max:255',
-        'price' => 'required|numeric|min:0',
-        'price_description' => 'nullable|string|max:255',
-        'description' => 'nullable|string',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240' // 10MB max
-    ]);
+    {
+        $validated = $request->validate([
+            'type' => 'required|in:Gardening,Landscaping',
+            'name' => 'required|string|max:255',
+            'min_price' => 'required|numeric|min:0',
+            'max_price' => 'nullable|numeric|min:0|gte:min_price',
+            'price_description' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240'
+        ]);
 
-    $service = Service::findOrFail($id);
+        $service = Service::findOrFail($id);
 
-    // Handle image upload if new image is provided
-    if ($request->hasFile('image')) {
-        // Delete old image if exists
-        if ($service->image && Storage::exists('public/images/services/' . $service->image)) {
-            Storage::delete('public/images/services/' . $service->image);
+        // Handle image upload if new image is provided
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($service->image && Storage::exists('public/images/services/' . $service->image)) {
+                Storage::delete('public/images/services/' . $service->image);
+            }
+
+            $image = $request->file('image');
+            $imageName = time().'.'.$image->getClientOriginalExtension();
+            $image->move(public_path('images/services'), $imageName);
+            $validated['image'] = $imageName;
         }
 
-        $image = $request->file('image');
-        $imageName = time().'.'.$image->getClientOriginalExtension();
-        $image->move(public_path('images/services'), $imageName);
-        $validated['image'] = $imageName;
+        $service->update($validated);
+
+        // Return the updated service with full image URL
+        if ($service->image) {
+            $service->image = asset('images/services/' . $service->image);
+        }
+
+        return response()->json([
+            'message' => 'Service updated successfully',
+            'service' => $service
+        ]);
     }
-
-    $service->update($validated);
-
-    // Return the updated service with full image URL
-    if ($service->image) {
-        $service->image = asset('images/services/' . $service->image);
-    }
-
-    return response()->json([
-        'message' => 'Service updated successfully',
-        'service' => $service
-    ]);
-}
-
 
     // Delete a service
     public function destroy($id)
-{
-    $service = Service::findOrFail($id);
+    {
+        $service = Service::findOrFail($id);
 
-    // Delete associated image if exists
-    if ($service->image && file_exists(public_path('images/services/' . $service->image))) {
-        unlink(public_path('images/services/' . $service->image));
+        // Delete associated image if exists
+        if ($service->image && file_exists(public_path('images/services/' . $service->image))) {
+            unlink(public_path('images/services/' . $service->image));
+        }
+
+        $service->delete();
+
+        return response()->json(['message' => 'Service deleted successfully']);
     }
-
-    $service->delete();
-
-    return response()->json(['message' => 'Service deleted successfully']);
-}
 
     // Fetch all services for API
     public function getServices()
@@ -124,11 +125,15 @@ class ServiceController extends Controller
     {
         $gardeningServices = Service::where('type', 'Gardening')->get();
         
-        // Transform the image paths to full URLs
+        // Transform the services to include formatted price
         $gardeningServices->transform(function ($service) {
             if ($service->image) {
                 $service->image = asset('images/services/' . basename($service->image));
             }
+            
+            // Add formatted price
+            $service->formatted_price = $this->formatPrice($service);
+            
             return $service;
         });
 
@@ -139,92 +144,77 @@ class ServiceController extends Controller
     {
         $landscapingServices = Service::where('type', 'Landscaping')->get();
         
-        // Transform the image paths to full URLs
+        // Transform the services to include formatted price
         $landscapingServices->transform(function ($service) {
             if ($service->image) {
                 $service->image = asset('images/services/' . basename($service->image));
             }
+            
+            // Add formatted price
+            $service->formatted_price = $this->formatPrice($service);
+            
             return $service;
         });
 
         return response()->json(['services' => $landscapingServices]);
     }
 
-    public function countServices()
+    // Helper method to format price
+    private function formatPrice($service)
     {
-        $gardeningCount = Service::where('type', 'Gardening')->count();
-        $landscapingCount = Service::where('type', 'Landscaping')->count();
-
-        return response()->json([
-            'gardening_count' => $gardeningCount,
-            'landscaping_count' => $landscapingCount,
-            'total_services' => $gardeningCount + $landscapingCount
-        ]);
-    }
-
-      public function getServicesByUser($userId)
-{
-    $user = User::findOrFail($userId);
-    
-    if (!in_array($user->user_type, ['gardener', 'service_provider'])) {
-        return response()->json([
-            'message' => 'Only gardeners and service providers can have services'
-        ], 403);
-    }
-
-    $services = Service::where('user_id', $userId)->get();
-    
-    // Transform image paths to full URLs
-    $services->transform(function ($service) {
-        if ($service->image) {
-            $service->image = asset('images/services/' . $service->image);
+        $price = '₱' . number_format($service->min_price, 2);
+        
+        if ($service->max_price && $service->max_price > $service->min_price) {
+            $price .= ' - ₱' . number_format($service->max_price, 2);
         }
-        return $service;
-    });
-
-    return response()->json(['services' => $services]);
-}
+        
+        if ($service->price_description) {
+            $price .= ' ' . $service->price_description;
+        }
+        
+        return $price;
+    }
 
     // Store a new service with image upload
     public function storeWithImage(Request $request)
-{
-    $validated = $request->validate([
-        'user_id' => 'required|exists:users,id',
-        'type' => 'required|in:Gardening,Landscaping',
-        'name' => 'required|string|max:255',
-        'price' => 'required|numeric|min:0',
-        'price_description' => 'nullable|string|max:255',
-        'description' => 'nullable|string',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240'
-    ]);
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'type' => 'required|in:Gardening,Landscaping',
+            'name' => 'required|string|max:255',
+            'min_price' => 'required|numeric|min:0',
+            'max_price' => 'nullable|numeric|min:0|gte:min_price',
+            'price_description' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240'
+        ]);
 
-    // Verify user is gardener or service provider
-    $user = User::findOrFail($validated['user_id']);
-    if (!in_array($user->user_type, ['gardener', 'service_provider'])) {
+        // Verify user is gardener or service provider
+        $user = User::findOrFail($validated['user_id']);
+        if (!in_array($user->user_type, ['gardener', 'service_provider'])) {
+            return response()->json([
+                'message' => 'Only gardeners and service providers can add services'
+            ], 403);
+        }
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time().'.'.$image->getClientOriginalExtension();
+            $image->move(public_path('images/services'), $imageName);
+            $validated['image'] = $imageName;
+        }
+
+        $service = Service::create($validated);
+
+        // Return the created service with full image URL
+        if ($service->image) {
+            $service->image = asset('images/services/' . $service->image);
+        }
+
         return response()->json([
-            'message' => 'Only gardeners and service providers can add services'
-        ], 403);
+            'message' => 'Service created successfully',
+            'service' => $service
+        ], 201);
     }
-
-    // Handle image upload - Store in public/images/services
-    if ($request->hasFile('image')) {
-        $image = $request->file('image');
-        $imageName = time().'.'.$image->getClientOriginalExtension();
-        $image->move(public_path('images/services'), $imageName);
-        $validated['image'] = $imageName;
-    }
-
-    $service = Service::create($validated);
-
-    // Return the created service with full image URL
-    if ($service->image) {
-        $service->image = asset('images/services/' . $service->image);
-    }
-
-    return response()->json([
-        'message' => 'Service created successfully',
-        'service' => $service
-    ], 201);
-}
-        
 }

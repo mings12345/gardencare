@@ -100,7 +100,8 @@ class RecordSeeder extends Seeder
             'name' => 'Plant Care',
             'type' => 'Gardening',
             'description' => 'Professional care for your plants including pruning, fertilizing, and overall health assessment.',
-            'price' => 500,
+            'min_price' => 500,
+            'max_price' => 5000,
             'price_description' => 'Per Sesion',
             'image' => 'plant_care.jpg'
         ]);
@@ -108,7 +109,8 @@ class RecordSeeder extends Seeder
             'name' => 'Watering',
             'type' => 'Gardening',
             'description' => 'Regular watering service to keep your plants hydrated and healthy, with customized schedules.',
-            'price' => 500,
+            'min_price' => 500,
+            'max_price' => 1000,
             'price_description' => 'Per visit',
             'image' => 'watering.jpg'
         ]);
@@ -116,7 +118,8 @@ class RecordSeeder extends Seeder
             'name' => 'Pest Control',
             'type' => 'Gardening',
             'description' => 'Eco-friendly pest control solutions to protect your plants from harmful insects and diseases.',
-            'price' => 500,
+            'min_price' => 500,
+            'max_price' => null,
             'image' => 'pest_control.jpg'
         ]);
         Service::create([
