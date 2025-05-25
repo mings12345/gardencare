@@ -293,7 +293,7 @@
                     <tbody>
                         @foreach($bookings as $booking)
                             <tr>
-                                <td data-label="ID">NO-{{ $booking->id }}</td>
+                                <td data-label="ID">#{{ $booking->id }}</td>
                                 <td data-label="Type">
                                 @if(strtolower($booking->type) == 'gardening')
                                         <span class="badge badge-gardening">Gardening</span>
