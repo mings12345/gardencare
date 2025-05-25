@@ -279,9 +279,9 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Booking ID</th>
                             <th>Type</th>
-                            <th>Homeowner</th>
+                            <th>Client</th>
                             <th>Professional</th>
                             <th>Date & Time</th>
                             <th>Services</th>
@@ -293,7 +293,7 @@
                     <tbody>
                         @foreach($bookings as $booking)
                             <tr>
-                                <td data-label="ID">#{{ $booking->id }}</td>
+                                <td data-label="ID">NO-{{ $booking->id }}</td>
                                 <td data-label="Type">
                                 @if(strtolower($booking->type) == 'gardening')
                                         <span class="badge badge-gardening">Gardening</span>
