@@ -119,7 +119,7 @@ class RecordSeeder extends Seeder
             'type' => 'Gardening',
             'description' => 'Eco-friendly pest control solutions to protect your plants from harmful insects and diseases.',
             'min_price' => 500,
-            'max_price' => null,
+            'max_price' => 1000,
             'image' => 'pest_control.jpg'
         ]);
         Service::create([
@@ -127,7 +127,7 @@ class RecordSeeder extends Seeder
             'type' => 'Gardening',
             'description' => 'Professional lawn mowing service to keep your grass at the perfect height and looking neat.',
             'min_price' => 500,
-            'max_price' => null,
+            'max_price' => 2000,
             'image' => 'lawn mowing.jpg'
         ]);
         
