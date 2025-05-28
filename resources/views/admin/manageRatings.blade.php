@@ -130,10 +130,12 @@
     <div class="main-content">
         <div class="container-fluid">
              <!-- Back Button -->
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
-            </a>
+         <div class="row mb-4">
+            <div class="col-12">
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-light border">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+                </a>
+            </div>
         </div>
             <!-- Page Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
