@@ -12,7 +12,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\WebServiceController;
-
+use App\Http\Controllers\RatingController;
 
 Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
 
