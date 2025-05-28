@@ -21,7 +21,7 @@ class RecordSeeder extends Seeder
             'email' => 'admin@gardencare.com',
             'password' => bcrypt('LLCC@2025'),
             'user_type' => 'admin'
-        ]);
+        ]); 
         Setting::create([
             'admin_user_wallet' => $admin->id,
             'admin_fee_percentage' => 3,
@@ -97,12 +97,12 @@ class RecordSeeder extends Seeder
         ]);
 
         Service::create([
-            'name' => 'Plant Care',
+            'name' => 'Pruning & Trimming	',
             'type' => 'Gardening',
-            'description' => 'Professional care for your plants including pruning, fertilizing, and overall health assessment.',
-            'price' => 500,
-            'price_description' => 'Per Sesion',
-            'image' => 'plant_care.jpg'
+            'description' => 'Requires skill to avoid damaging the plant. Takes around 1 hour depending on size/quantity. Includes tool sanitization and cleanup.',
+            'price' => 300,
+            'price_description' => 'Per Plant',
+            'image' => 'trimming.jpg'
         ]);
         Service::create([
             'name' => 'Watering',
@@ -110,21 +110,32 @@ class RecordSeeder extends Seeder
             'description' => 'Regular watering service to keep your plants hydrated and healthy, with customized schedules.',
             'price' => 500,
             'price_description' => 'Per visit',
-            'image' => 'watering.jpg'
+            'image' => 'water.jpg'
         ]);
         Service::create([
             'name' => 'Pest Control',
             'type' => 'Gardening',
-            'description' => 'Eco-friendly pest control solutions to protect your plants from harmful insects and diseases.',
-            'price' => 500,
+            'description' => 'For treating up to 10 plants or a small garden. Includes site inspection and full application.',
+            'price' => 1000,
+            'price_description' => 'Per Session',
             'image' => 'pest_control.jpg'
         ]);
         Service::create([
-            'name' => 'Lawn Mowing',
+            'name' => 'Fertilizing',
             'type' => 'Gardening',
-            'description' => 'Professional lawn mowing service to keep your grass at the perfect height and looking neat.',
-            'price' => 500,
-            'image' => 'lawn mowing.jpg'
+            'description' => 'Covers general fertilizer and 1-hour work.',
+            'price' => 1000,
+            'price_description' => 'Per Session',
+            'image' => 'feltirizing.jpg'
+        ]);
+
+        Service::create([
+            'name' => 'Soil Replacement',
+            'type' => 'Gardening',
+            'description' => 'Covers new soil and labor per plant.',
+            'price' => 100,
+            'price_description' => 'Per Pot (depending on size)',
+            'image' => 'soil.jpg'
         ]);
         
         Service::create([
