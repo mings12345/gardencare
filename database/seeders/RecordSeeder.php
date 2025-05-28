@@ -167,10 +167,11 @@ class RecordSeeder extends Seeder
         Service::create([
             'name' => 'Lawn Installation',
             'type' => 'Landscaping',
-            'description' => 'Selection and installation of weather-resistant outdoor furniture to complement your garden design.',
+            'description' => 'Heavily depends on grass type, land condition, and irrigation.
+            Includes: Delivery and laying of sod, Basic site cleaning and debris removal, Light leveling of soil, Initial watering.',
             'price' => 150,
             'price_description' => 'Per Square Meter',
-            'image' => 'outdoor.jpg'
+            'image' => 'lawn installation.jpg'
         ]);
     }
 }
