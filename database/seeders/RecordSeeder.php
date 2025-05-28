@@ -139,34 +139,37 @@ class RecordSeeder extends Seeder
         ]);
         
         Service::create([
-            'name' => 'Garden Design',
+            'name' => 'Garden Bed Construction',
             'type' => 'Landscaping',
             'description' => 'Custom garden design services to create beautiful and functional outdoor spaces.',
-            'price' => 500,
-            'image' => 'garden_design.jpg'
+            'price' => 1000,
+            'price_description' => 'Small Raised Bed',
+            'image' => 'garden bed.jpg'
         ]);
 
         Service::create([
-            'name' => 'Pathway Construction',
+            'name' => 'Landscape Design Consultation',
             'type' => 'Landscaping',
-            'description' => 'Design and construction of beautiful pathways using various materials like stone, brick, or gravel.',
-            'price' => 500,
-            'image' => 'pathway.jpg'
+            'description' => 'One-time, fixed service for site visit and planning.',
+            'price' => 1500,
+            'image' => 'planning.jpg'
         ]);
         
         Service::create([
-            'name' => 'Fencing',
+            'name' => 'Tree Trimming',
             'type' => 'Landscaping',
-            'description' => 'Installation of durable and attractive fences to enhance privacy and security in your garden.',
-            'price' => 500,
-            'image' => 'fencing.jpg'
+            'description' => 'Fixed for small trees, variable for height and hazard level. ₱1,000 - ₱2,000 (for large trees)',
+            'price' => 800,
+            'price_description' => 'Per Tree',
+            'image' => 'tree.jpg'
         ]);
         
         Service::create([
-            'name' => 'Outdoor Furniture',
+            'name' => 'Lawn Installation',
             'type' => 'Landscaping',
             'description' => 'Selection and installation of weather-resistant outdoor furniture to complement your garden design.',
-            'price' => 500,
+            'price' => 150,
+            'price_description' => 'Per Square Meter',
             'image' => 'outdoor.jpg'
         ]);
     }
