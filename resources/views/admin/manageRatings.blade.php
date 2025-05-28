@@ -130,17 +130,17 @@
     <div class="main-content">
         <div class="container-fluid">
             <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="d-flex align-items-center">
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary me-3">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
-                    <h1>Manage Ratings & Feedback</h1>
-                </div>
-                <div class="badge bg-primary fs-5">
-                    Total Ratings: {{ $totalRatings }}
-                </div>
-            </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-success">
+            <i class="fas fa-chevron-left me-2"></i> Dashboard
+        </a>
+        <h1 class="mb-0">Manage Ratings & Feedback</h1>
+    </div>
+    <div class="badge bg-primary fs-5">
+        Total Ratings: {{ $totalRatings }}
+    </div>
+</div>
 
             <!-- Filters Row -->
             <div class="row mb-4">
