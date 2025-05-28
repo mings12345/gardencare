@@ -12,7 +12,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\WebServiceController;
-use App\Http\Controllers\RatingController;
+
 
 Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
 
@@ -86,14 +86,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     });
     
     // Feedback Management
-    Route::prefix('ratings')->group(function() {
     Route::get('/admin/manageRatings', [AdminDashboardController::class, 'manageRatings'])
     ->name('admin.manageRatings');
-     Route::get('/{id}', [RatingController::class, 'show'])->name('admin.ratings.show');
-    Route::delete('/{id}', [RatingController::class, 'destroy'])->name('admin.ratings.delete');
-    Route::post('/bulk-delete', [RatingController::class, 'bulkDelete'])->name('admin.ratings.bulkDelete');
-    Route::get('/export', [RatingController::class, 'adminIndex'])->name('admin.ratings.export');
-    });
+    
     // Reports
     Route::get('/admin/reports', [AdminDashboardController::class, 'reports'])->name('admin.reports');
     Route::post('/admin/export-reports', [AdminDashboardController::class, 'exportReports'])->name('admin.exportReports');
