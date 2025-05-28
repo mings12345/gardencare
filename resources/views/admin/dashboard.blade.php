@@ -305,7 +305,7 @@
         <a href="{{ route('admin.manageServices') }}">
             <i class="fas fa-tools"></i> <span>Manage Services</span>
         </a>
-        <a href="{{ route('admin.manageRatings') }}">
+        <a href="{{ route('admin.ratings.index') }}">
             <i class="fas fa-comments"></i> <span>Manage Ratings</span>
         </a>
         <a href="{{ route('admin.reports') }}">
