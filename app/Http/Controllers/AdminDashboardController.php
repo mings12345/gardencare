@@ -52,17 +52,53 @@ class AdminDashboardController extends Controller
     }
 
     // Add this new method for managing ratings/feedback
-    public function manageRatings()
-    {
-        $ratings = Rating::with(['booking.gardener', 'booking.homeowner', 'booking.serviceProvider'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+    public function manageRatings(Request $request)
+{
+    $query = Rating::with(['booking.gardener', 'booking.homeowner', 'booking.serviceProvider'])
+        ->orderBy('created_at', 'desc');
 
-        return view('admin.manage-ratings', [
-            'ratings' => $ratings,
-            'totalRatings' => Rating::count(),
+    // Filter by star ratings
+    if ($request->has('stars')) {
+        $query->whereIn('rating', $request->stars);
+    }
+
+    // Filter by user type
+    if ($request->user_type) {
+        switch ($request->user_type) {
+            case 'homeowner':
+                $query->whereHas('booking.homeowner');
+                break;
+            case 'gardener':
+                $query->whereHas('booking.gardener');
+                break;
+            case 'service_provider':
+                $query->whereHas('booking.serviceProvider');
+                break;
+        }
+    }
+
+    // Filter by date range
+    if ($request->date_range) {
+        $dates = explode(' to ', $request->date_range);
+        $query->whereBetween('created_at', [
+            \Carbon\Carbon::parse($dates[0])->startOfDay(),
+            \Carbon\Carbon::parse($dates[1] ?? $dates[0])->endOfDay()
         ]);
     }
+
+    // Search feedback
+    if ($request->search) {
+        $query->where('feedback', 'like', '%' . $request->search . '%');
+    }
+
+    $ratings = $query->paginate(10);
+    $totalRatings = Rating::count();
+
+    return view('admin.manage-ratings', [
+        'ratings' => $ratings,
+        'totalRatings' => $totalRatings,
+    ]);
+}
 
     /**
      * Show the admin profile page
