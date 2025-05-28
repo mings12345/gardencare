@@ -1,330 +1,371 @@
+<!-- resources/views/admin/manage-ratings.blade.php -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Ratings</title>
+    <title>Manage Ratings - Admin Dashboard</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome for Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Datepicker CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
-        /* Sidebar styling */
-        .sidebar {
-            height: 100vh;
-            width: 250px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #4CAF50; /* Green theme */
-            padding-top: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        :root {
+            --primary-green: #2e7d32;
+            --light-green: #81c784;
+            --lighter-green: #e8f5e9;
+            --accent-green: #4caf50;
+            --dark-green: #1b5e20;
         }
-
-        .sidebar a {
-            padding: 15px 20px;
-            text-decoration: none;
-            font-size: 18px;
-            color: #fff;
+        
+        body {
+            background-color: #f5f9f5;
+            padding-top: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .card {
+            box-shadow: 0 0.25rem 1rem rgba(46, 125, 50, 0.15);
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            font-weight: 600;
+            background-color: var(--primary-green);
+            color: white;
+            border-bottom: none;
+            padding: 1.25rem 1.5rem;
+        }
+        
+        .card-title {
+            margin: 0;
+            font-size: 1.4rem;
+        }
+        
+        .rating-display {
             display: flex;
             align-items: center;
-            transition: background-color 0.3s;
         }
-
-        .sidebar a:hover {
-            background-color: #45a049; /* Darker green on hover */
+        
+        .rating-display i {
+            font-size: 1rem;
+            color: #ffc107;
         }
-
-        .sidebar a i {
-            margin-right: 10px;
-            font-size: 20px;
+        
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
         }
-
-        /* Main content styling */
-        .main-content {
-            margin-left: 250px; /* Same as sidebar width */
-            padding: 20px;
-            background-color: #f5f5f5; /* Light background */
+        
+        .table {
+            margin-bottom: 0;
         }
-
-        /* Star ratings styling */
-        .star-rating {
-            color: #ffc107; /* Bootstrap yellow */
-            font-size: 1.2rem;
+        
+        .table thead {
+            background-color: var(--lighter-green);
+            color: var(--dark-green);
         }
-
-        .rating-card {
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            background-color: #fff;
-            transition: transform 0.2s;
+        
+        .table th {
+            border-bottom: 2px solid var(--light-green);
+            padding: 12px 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
         }
-
-        .rating-card:hover {
-            transform: scale(1.02);
+        
+        .table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-top: 1px solid #e0e0e0;
         }
-
-        /* Gardening-themed background */
-        body {
-            background-image: url('https://www.transparenttextures.com/patterns/leaves.png'); /* Subtle leaf pattern */
-            background-repeat: repeat;
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(129, 199, 132, 0.1);
         }
-
-        /* Status badges */
-        .badge-pending {
-            background-color: #ffc107;
-            color: #212529;
-        }
-
-        .badge-completed {
-            background-color: #28a745;
-            color: #fff;
-        }
-
-        .badge-cancelled {
-            background-color: #dc3545;
-            color: #fff;
-        }
-
-        /* Pagination styling */
+        
         .pagination {
             justify-content: center;
             margin-top: 20px;
         }
-
+        
         .page-item.active .page-link {
-            background-color: #4CAF50;
-            border-color: #4CAF50;
+            background-color: var(--primary-green);
+            border-color: var(--primary-green);
         }
-
+        
         .page-link {
-            color: #4CAF50;
+            color: var(--primary-green);
         }
-
-        .page-link:hover {
-            color: #45a049;
+        
+        .card-footer {
+            background-color: white;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .badge-green {
+            background-color: var(--light-green);
+            color: var(--dark-green);
+        }
+        
+        .empty-state {
+            padding: 3rem;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--light-green);
+            margin-bottom: 1rem;
+        }
+        
+        .filter-section {
+            background-color: var(--lighter-green);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-row {
+            align-items: flex-end;
+        }
+        
+        .filter-group {
+            margin-bottom: 1rem;
+        }
+        
+        .filter-label {
+            font-weight: 500;
+            color: var(--dark-green);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .star-filter .form-check {
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        
+        .star-filter .form-check-input {
+            display: none;
+        }
+        
+        .star-filter .form-check-label {
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .star-filter .form-check-input:checked + .form-check-label {
+            background-color: var(--accent-green);
+            color: white;
+        }
+        
+        .reset-filters {
+            margin-left: auto;
         }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <a href="{{ route('admin.dashboard') }}">
-            <i class="fas fa-home"></i> Dashboard
-        </a>
-        <a href="{{ route('admin.manageBookings') }}">
-            <i class="fas fa-calendar-alt"></i> Manage Bookings
-        </a>
-        <a href="{{ route('admin.manageUsers') }}">
-            <i class="fas fa-users"></i> Manage Users
-        </a>
-        <a href="{{ route('admin.manageServices') }}">
-            <i class="fas fa-tools"></i> Manage Services
-        </a>
-        <a href="{{ route('admin.manageRatings') }}" class="active">
-            <i class="fas fa-comments"></i> Manage Ratings
-        </a>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <div class="container-fluid">
-            <!-- Page Header -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div class="d-flex align-items-center gap-3">
-        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-success">
-            <i class="fas fa-chevron-left me-2"></i> Dashboard
-        </a>
-        <h1 class="mb-0">Manage Ratings & Feedback</h1>
-    </div>
-    <div class="badge bg-primary fs-5">
-        Total Ratings: {{ $totalRatings }}
-    </div>
-</div>
-
-            <!-- Filters Row -->
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <form action="{{ route('admin.manageRatings') }}" method="GET" class="row g-3">
-                                <div class="col-md-3">
-                                    <label for="rating" class="form-label">Filter by Rating</label>
-                                    <select name="rating" id="rating" class="form-select">
-                                        <option value="">All Ratings</option>
-                                        <option value="5" {{ request()->rating == 5 ? 'selected' : '' }}>5 Stars</option>
-                                        <option value="4" {{ request()->rating == 4 ? 'selected' : '' }}>4 Stars</option>
-                                        <option value="3" {{ request()->rating == 3 ? 'selected' : '' }}>3 Stars</option>
-                                        <option value="2" {{ request()->rating == 2 ? 'selected' : '' }}>2 Stars</option>
-                                        <option value="1" {{ request()->rating == 1 ? 'selected' : '' }}>1 Star</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="search" class="form-label">Search Comments</label>
-                                    <input type="text" class="form-control" id="search" name="search" value="{{ request()->search }}">
-                                </div>
-                                <div class="col-md-3">
-                                    <label for="sort" class="form-label">Sort By</label>
-                                    <select name="sort" id="sort" class="form-select">
-                                        <option value="latest" {{ request()->sort == 'latest' ? 'selected' : '' }}>Latest First</option>
-                                        <option value="oldest" {{ request()->sort == 'oldest' ? 'selected' : '' }}>Oldest First</option>
-                                        <option value="highest" {{ request()->sort == 'highest' ? 'selected' : '' }}>Highest Rating</option>
-                                        <option value="lowest" {{ request()->sort == 'lowest' ? 'selected' : '' }}>Lowest Rating</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-success w-100">Apply Filters</button>
-                                </div>
-                            </form>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <a href="{{ url()->previous() }}" class="btn btn-sm btn-outline-light me-2">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                            <h3 class="card-title mb-0">Manage Ratings <span class="badge badge-green bg-light text-dark ms-2">{{ $totalRatings }} total</span></h3>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Ratings List -->
-            <div class="row">
-                <div class="col-md-12">
-                    @if($ratings->count() > 0)
-                        @foreach($ratings as $rating)
-                            <div class="card rating-card">
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-8">
-                                            <div class="d-flex justify-content-between">
-                                                <h5 class="card-title">
-                                                    Booking #{{ $rating->booking->id }}
-                                                    <span class="badge {{ $rating->booking->status == 'pending' ? 'badge-pending' : ($rating->booking->status == 'completed' ? 'badge-completed' : 'badge-cancelled') }}">
-                                                        {{ ucfirst($rating->booking->status) }}
-                                                    </span>
-                                                </h5>
-                                                <span class="star-rating">
-                                                    @for($i = 1; $i <= 5; $i++)
-                                                        @if($i <= $rating->rating)
+                    
+                    <!-- Filter Section -->
+                    <div class="card-body">
+                        <form action="{{ route('admin.ratings.index') }}" method="GET" id="filter-form">
+                            <div class="filter-section">
+                                <div class="row filter-row">
+                                    <div class="col-md-3 filter-group">
+                                        <label class="filter-label">Rating Stars</label>
+                                        <div class="star-filter">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="stars[]" id="star-{{ $i }}" value="{{ $i }}" 
+                                                        {{ in_array($i, request('stars', [])) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="star-{{ $i }}">
+                                                        @for($j = 1; $j <= $i; $j++)
                                                             <i class="fas fa-star"></i>
-                                                        @else
-                                                            <i class="far fa-star"></i>
-                                                        @endif
-                                                    @endfor
-                                                </span>
-                                            </div>
-                                            <p class="text-muted">
-                                                @if(isset($rating->booking->homeowner))
-                                                    From: {{ $rating->booking->homeowner->name ?? 'Unknown Homeowner' }}
-                                                @endif
-                                                @if(isset($rating->booking->gardener)) 
-                                                    | To: {{ $rating->booking->gardener->name ?? 'Unknown Gardener' }}
-                                                @endif
-                                            </p>
-                                            <div class="mt-3">
-                                                <strong>Comment:</strong>
-                                                <p>{{ $rating->comment ?? 'No comment provided' }}</p>
-                                            </div>
+                                                        @endfor
+                                                    </label>
+                                                </div>
+                                            @endfor
                                         </div>
-                                        <div class="col-md-4 text-end">
-                                            <p class="text-muted">{{ $rating->created_at->format('M d, Y H:i') }}</p>
-                                            <div class="mt-4">
-                                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteRatingModal{{ $rating->id }}">
-                                                    <i class="fas fa-trash"></i> Remove
-                                                </button>
-                                                <a href="#" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#viewBookingModal{{ $rating->booking->id }}">
-                                                    <i class="fas fa-eye"></i> View Booking
-                                                </a>
-                                            </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3 filter-group">
+                                        <label class="filter-label">User Type</label>
+                                        <select class="form-select" name="user_type">
+                                            <option value="">All Users</option>
+                                            <option value="homeowner" {{ request('user_type') == 'homeowner' ? 'selected' : '' }}>Homeowners</option>
+                                            <option value="gardener" {{ request('user_type') == 'gardener' ? 'selected' : '' }}>Gardeners</option>
+                                            <option value="service_provider" {{ request('user_type') == 'service_provider' ? 'selected' : '' }}>Service Providers</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-3 filter-group">
+                                        <label class="filter-label">Date Range</label>
+                                        <input type="text" class="form-control date-range" name="date_range" placeholder="Select date range"
+                                            value="{{ request('date_range') }}" data-toggle="date-range">
+                                    </div>
+                                    
+                                    <div class="col-md-3 filter-group">
+                                        <label class="filter-label">Search Feedback</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="search" placeholder="Search feedback..." 
+                                                value="{{ request('search') }}">
+                                            <button class="btn btn-outline-secondary" type="button" id="clear-search">
+                                                <i class="fas fa-times"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <!-- Delete Rating Modal -->
-                            <div class="modal fade" id="deleteRatingModal{{ $rating->id }}" tabindex="-1" aria-labelledby="deleteRatingModalLabel{{ $rating->id }}" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="deleteRatingModalLabel{{ $rating->id }}">Confirm Delete</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            Are you sure you want to delete this rating? This action cannot be undone.
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <form action="{{ route('admin.deleteRating', $rating->id) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger">Delete Rating</button>
-                                            </form>
-                                        </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-12 d-flex">
+                                        <button type="submit" class="btn btn-primary me-2">
+                                            <i class="fas fa-filter me-1"></i> Apply Filters
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary reset-filters">
+                                            <i class="fas fa-sync-alt me-1"></i> Reset Filters
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- View Booking Modal -->
-                            <div class="modal fade" id="viewBookingModal{{ $rating->booking->id }}" tabindex="-1" aria-labelledby="viewBookingModalLabel{{ $rating->booking->id }}" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="viewBookingModalLabel{{ $rating->booking->id }}">Booking Details #{{ $rating->booking->id }}</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="row mb-3">
-                                                <div class="col-md-6">
-                                                    <strong>Service:</strong> {{ $rating->booking->service->name ?? 'N/A' }}
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <strong>Status:</strong> 
-                                                    <span class="badge {{ $rating->booking->status == 'pending' ? 'badge-pending' : ($rating->booking->status == 'completed' ? 'badge-completed' : 'badge-cancelled') }}">
-                                                        {{ ucfirst($rating->booking->status) }}
-                                                    </span>
-                                                </div>
+                        </form>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Booking ID</th>
+                                        <th>Rating</th>
+                                        <th>Feedback</th>
+                                        <th>Homeowner</th>
+                                        <th>Gardener</th>
+                                        <th>Service Provider</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($ratings as $rating)
+                                    <tr>
+                                        <td>{{ $rating->id }}</td>
+                                        <td>{{ $rating->booking_id }}</td>
+                                        <td>
+                                            <div class="rating-display">
+                                                @for ($i = 1; $i <= 5; $i++)
+                                                    @if ($i <= $rating->rating)
+                                                        <i class="fas fa-star"></i>
+                                                    @else
+                                                        <i class="far fa-star"></i>
+                                                    @endif
+                                                @endfor
+                                                <span class="ms-2">{{ number_format($rating->rating, 1) }}</span>
                                             </div>
-                                            <div class="row mb-3">
-                                                <div class="col-md-6">
-                                                    <strong>Homeowner:</strong> {{ $rating->booking->homeowner->name ?? 'N/A' }}
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <strong>Gardener:</strong> {{ $rating->booking->gardener->name ?? 'N/A' }}
-                                                </div>
+                                        </td>
+                                        <td>{{ Str::limit($rating->feedback, 50) }}</td>
+                                        <td>
+                                            @if ($rating->booking->homeowner)
+                                                {{ $rating->booking->homeowner->name }}
+                                            @else
+                                                <span class="text-muted">N/A</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($rating->booking->gardener)
+                                                {{ $rating->booking->gardener->name }}
+                                            @else
+                                                <span class="text-muted">N/A</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($rating->booking->serviceProvider)
+                                                {{ $rating->booking->serviceProvider->name }}
+                                            @else
+                                                <span class="text-muted">N/A</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $rating->created_at->format('M d, Y H:i') }}</td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4">
+                                            <div class="empty-state">
+                                                <i class="far fa-star"></i>
+                                                <h4>No ratings found</h4>
+                                                <p class="text-muted">When ratings are submitted, they will appear here.</p>
                                             </div>
-                                            <div class="row mb-3">
-                                                <div class="col-md-6">
-                                                    <strong>Scheduled Date:</strong> {{ $rating->booking->scheduled_date ?? 'N/A' }}
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <strong>Price:</strong> ${{ number_format($rating->booking->price ?? 0, 2) }}
-                                                </div>
-                                            </div>
-                                            <div class="row mb-3">
-                                                <div class="col-12">
-                                                    <strong>Description:</strong>
-                                                    <p>{{ $rating->booking->description ?? 'No description provided' }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            <a href="{{ route('admin.manageBookings') }}" class="btn btn-primary">View All Bookings</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-
-                        <!-- Pagination Links -->
-                        <div class="d-flex justify-content-center mt-4">
-                            {{ $ratings->links() }}
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
-                    @else
-                        <div class="alert alert-info text-center">
-                            <i class="fas fa-info-circle me-2"></i> No ratings found.
-                        </div>
-                    @endif
+                    </div>
+                    <div class="card-footer">
+                        {{ $ratings->appends(request()->query())->links() }}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
+    <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Flatpickr for date range -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize date range picker
+            flatpickr('.date-range', {
+                mode: 'range',
+                dateFormat: 'Y-m-d',
+                allowInput: true
+            });
+            
+            // Clear search input
+            document.getElementById('clear-search').addEventListener('click', function() {
+                document.querySelector('input[name="search"]').value = '';
+                document.getElementById('filter-form').submit();
+            });
+            
+            // Reset all filters
+            document.querySelector('.reset-filters').addEventListener('click', function() {
+                // Clear all form inputs
+                const form = document.getElementById('filter-form');
+                form.reset();
+                
+                // Remove query parameters from URL
+                const url = new URL(window.location.href);
+                url.search = '';
+                window.location.href = url.toString();
+            });
+            
+            // Submit form when star rating is clicked
+            document.querySelectorAll('.star-filter .form-check-input').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    document.getElementById('filter-form').submit();
+                });
+            });
+        });
+    </script>
 </body>
 </html>
