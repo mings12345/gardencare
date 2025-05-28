@@ -397,7 +397,7 @@
             </a>
 
             <!-- Feedback Management Card -->
-            <a href="{{ route('admin.manageRatings') }}" class="text-decoration-none">
+            <a href="{{ route('admin.ratings.index') }}" class="text-decoration-none">
                 <div class="card card-ratings">
                     <div class="card-body">
                         <i class="fas fa-star card-icon"></i>
