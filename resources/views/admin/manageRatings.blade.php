@@ -131,7 +131,12 @@
         <div class="container-fluid">
             <!-- Page Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>Manage Ratings & Feedback</h1>
+                <div class="d-flex align-items-center">
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary me-3">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <h1>Manage Ratings & Feedback</h1>
+                </div>
                 <div class="badge bg-primary fs-5">
                     Total Ratings: {{ $totalRatings }}
                 </div>
