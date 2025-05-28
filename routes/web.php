@@ -12,7 +12,6 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\WebServiceController;
-use App\Http\Controllers\RatingController;
 
 
 Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
@@ -86,15 +85,15 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::delete('/{id}', [WebServiceController::class, 'destroy'])->name('admin.deleteService');
     });
     
-    // Ratings Management
+    // Feedback Management
     Route::prefix('ratings')->group(function() {
-        Route::get('/', [RatingController::class, 'adminIndex'])->name('admin.ratings');
-        Route::get('/{id}', [RatingController::class, 'show'])->name('admin.ratings.show');
-        Route::delete('/{id}', [RatingController::class, 'destroy'])->name('admin.ratings.delete');
-        Route::post('/bulk-delete', [RatingController::class, 'bulkDelete'])->name('admin.ratings.bulkDelete');
-        Route::get('/export', [RatingController::class, 'adminIndex'])->name('admin.ratings.export');
+    Route::get('/admin/manageRatings', [AdminDashboardController::class, 'manageRatings'])
+    ->name('admin.manageRatings');
+     Route::get('/{id}', [RatingController::class, 'show'])->name('admin.ratings.show');
+    Route::delete('/{id}', [RatingController::class, 'destroy'])->name('admin.ratings.delete');
+    Route::post('/bulk-delete', [RatingController::class, 'bulkDelete'])->name('admin.ratings.bulkDelete');
+    Route::get('/export', [RatingController::class, 'adminIndex'])->name('admin.ratings.export');
     });
-    
     // Reports
     Route::get('/admin/reports', [AdminDashboardController::class, 'reports'])->name('admin.reports');
     Route::post('/admin/export-reports', [AdminDashboardController::class, 'exportReports'])->name('admin.exportReports');
@@ -104,9 +103,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 Route::get('/', function () {
     return ['Laravel' => app()->version()];
 });
-
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Process\Process;
+
 
 Route::get('/update-app', function () {
     $artisanPath = base_path('artisan');
@@ -161,5 +160,4 @@ Route::get('/reset-app', function () {
     
     return '<pre style="background:#f0f0f0;padding:20px;">'.htmlspecialchars($output).'</pre>';
 });
-
 require __DIR__.'/auth.php';
