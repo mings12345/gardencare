@@ -86,8 +86,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     });
     
     // Feedback Management
-    Route::get('/admin/manageRatings', [AdminDashboardController::class, 'manageRatings'])
-    ->name('admin.manageRatings');
+    Route::get('/ratings', [AdminDashboardController::class, 'manageRatings'])
+    ->name('admin.ratings.index');
     
     // Reports
     Route::get('/admin/reports', [AdminDashboardController::class, 'reports'])->name('admin.reports');
