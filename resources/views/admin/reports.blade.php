@@ -268,6 +268,14 @@
                                 value="{{ date('Y-m-d') }}">
                         </div>
                     </div>
+                    <div class="me-3">
+                        <select class="form-select form-select-sm" id="userFilter">
+                            <option value="">All Users</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }} ({{ ucfirst(str_replace('_', ' ', $user->user_type)) }})</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <button class="btn btn-sm btn-outline-secondary no-print" onclick="window.print()">
                         <i class="fas fa-print me-1"></i> Print
                     </button>
@@ -290,7 +298,9 @@
                             </thead>
                             <tbody id="bookingsReportBody">
                                 @foreach($bookings as $booking)
-                                <tr data-booking-date="{{ $booking->date ? date('Y-m-d', strtotime($booking->date)) : '' }}">
+                                <tr data-booking-date="{{ $booking->date ? date('Y-m-d', strtotime($booking->date)) : '' }}"
+                                    data-homeowner-id="{{ $booking->homeowner->id }}"
+                                    data-provider-id="{{ $booking->gardener_id ?? $booking->serviceprovider_id ?? '' }}">
                                     <td>{{ $booking->id }}</td>
                                     <td>{{ $booking->date ? date('M d, Y', strtotime($booking->date)) : 'N/A' }}</td>
                                     <td>{{ $booking->homeowner->name }}</td>
@@ -523,13 +533,15 @@
             // Date range filtering for bookings report
             const reportStartDate = document.getElementById('reportStartDate');
             const reportEndDate = document.getElementById('reportEndDate');
+            const userFilter = document.getElementById('userFilter');
             const bookingsReportBody = document.getElementById('bookingsReportBody');
             const dateRangeStatus = document.getElementById('dateRangeStatus');
             const bookingRows = bookingsReportBody.querySelectorAll('tr');
 
-            function filterBookingsByDate() {
+            function filterBookings() {
                 const startDate = reportStartDate.value;
                 const endDate = reportEndDate.value;
+                const userId = userFilter.value;
                 
                 // Validate date range
                 if (startDate && endDate && startDate > endDate) {
@@ -542,12 +554,20 @@
                 
                 bookingRows.forEach(row => {
                     const bookingDate = row.getAttribute('data-booking-date');
+                    const homeownerId = row.getAttribute('data-homeowner-id');
+                    const providerId = row.getAttribute('data-provider-id');
                     let showRow = true;
                     
+                    // Date filtering
                     if (startDate && bookingDate < startDate) {
                         showRow = false;
                     }
                     if (endDate && bookingDate > endDate) {
+                        showRow = false;
+                    }
+                    
+                    // User filtering
+                    if (userId && homeownerId !== userId && providerId !== userId) {
                         showRow = false;
                     }
                     
@@ -558,15 +578,17 @@
                 // Update date range status
                 const start = startDate ? new Date(startDate).toLocaleDateString() : 'Start';
                 const end = endDate ? new Date(endDate).toLocaleDateString() : 'End';
-                dateRangeStatus.textContent = `Showing ${visibleCount} bookings from ${start} to ${end}`;
+                const userText = userId ? ` for selected user` : '';
+                dateRangeStatus.textContent = `Showing ${visibleCount} bookings from ${start} to ${end}${userText}`;
             }
 
             // Add event listeners
-            reportStartDate.addEventListener('change', filterBookingsByDate);
-            reportEndDate.addEventListener('change', filterBookingsByDate);
+            reportStartDate.addEventListener('change', filterBookings);
+            reportEndDate.addEventListener('change', filterBookings);
+            userFilter.addEventListener('change', filterBookings);
 
             // Initialize filtering
-            filterBookingsByDate();
+            filterBookings();
 
             // Toggle between report types
             document.getElementById('type').addEventListener('change', function() {
