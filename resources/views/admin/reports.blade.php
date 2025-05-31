@@ -272,7 +272,9 @@
                         <select class="form-select form-select-sm" id="userFilter">
                             <option value="">All Users</option>
                             @foreach($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }} ({{ ucfirst(str_replace('_', ' ', $user->user_type)) }})</option>
+                                @if($user->user_type !== 'admin')
+                                    <option value="{{ $user->id }}">{{ $user->name }} ({{ ucfirst(str_replace('_', ' ', $user->user_type)) }})</option>
+                                @endif
                             @endforeach
                         </select>
                     </div>
@@ -452,7 +454,7 @@
                             borderColor: '#6A1B9A',
                             borderWidth: 3,
                             type: 'line',
-                            yAxisID: 'y1',
+                            yAxisID: 'y',
                             tension: 0.3,
                             pointRadius: 5,
                             pointHoverRadius: 7,
@@ -468,20 +470,9 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Number of Bookings'
+                                text: 'Number of Bookings / Earnings (₱)'
                             },
                             stacked: false
-                        },
-                        y1: {
-                            position: 'right',
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Earnings (₱)'
-                            },
-                            grid: {
-                                drawOnChartArea: false
-                            }
                         },
                         x: {
                             stacked: false,
