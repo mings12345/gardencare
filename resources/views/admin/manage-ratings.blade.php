@@ -187,22 +187,6 @@
                         <form action="{{ route('admin.ratings.index') }}" method="GET" id="filter-form">
                             <div class="filter-section">
                                 <div class="row filter-row">
-                                    <div class="col-md-3 filter-group">
-                                        <label class="filter-label">Rating Stars</label>
-                                        <div class="star-filter">
-                                            @for($i = 1; $i <= 5; $i++)
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="stars[]" id="star-{{ $i }}" value="{{ $i }}" 
-                                                        {{ in_array($i, request('stars', [])) ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="star-{{ $i }}">
-                                                        @for($j = 1; $j <= $i; $j++)
-                                                            <i class="fas fa-star"></i>
-                                                        @endfor
-                                                    </label>
-                                                </div>
-                                            @endfor
-                                        </div>
-                                    </div>
                                     
                                     <div class="col-md-3 filter-group">
                                         <label class="filter-label">User Type</label>
