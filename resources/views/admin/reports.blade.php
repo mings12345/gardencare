@@ -9,7 +9,7 @@
     <!-- Add Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-           .chart-card {
+        .chart-card {
             margin-top: 1.5rem;
         }
         .chart-container {
@@ -70,6 +70,39 @@
             font-size: 0.9rem;
         }
 
+        /* Date range filter styles */
+        .date-range-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .date-range-item {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .date-range-status {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        @media (max-width: 768px) {
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .date-range-container {
+                margin-top: 10px;
+                width: 100%;
+            }
+            
+            .date-range-item {
+                flex: 1;
+            }
+        }
+
         @media print {
             .no-print {
                 display: none !important;
@@ -81,6 +114,9 @@
             .card {
                 box-shadow: none;
                 border: 1px solid #ddd;
+            }
+            .date-range-container {
+                display: none !important;
             }
         }
     </style>
@@ -115,7 +151,7 @@
             </div>
         </div>
         
-         <!-- Add a new Chart Card -->
+        <!-- Bookings Overview Chart -->
         <div class="card chart-card">
             <div class="card-header">
                 <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i> Bookings Overview</h5>
@@ -156,71 +192,86 @@
             </div>
         </div>
         
-        <!-- Add the Users Report section -->
-<div id="usersReport" style="display:none;">
-    <div class="table-responsive">
-        <table class="table table-bordered">
-            <thead class="table-light">
-                <tr>
-                    <th>User ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Type</th>
-                    <th>Registration Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($users as $user)
-                <tr>
-                    <td>{{ $user->id }}</td>
-                    <td>{{ $user->name }}</td>
-                    <td>{{ $user->email }}</td>
-                    <td>{{ $user->phone ?? 'N/A' }}</td>
-                    <td>{{ ucfirst(str_replace('_', ' ', $user->user_type)) }}</td>
-                    <td>{{ $user->created_at->format('M d, Y') }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
+        <!-- Users Report (hidden) -->
+        <div id="usersReport" style="display:none;">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>User ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Type</th>
+                            <th>Registration Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($users as $user)
+                        <tr>
+                            <td>{{ $user->id }}</td>
+                            <td>{{ $user->name }}</td>
+                            <td>{{ $user->email }}</td>
+                            <td>{{ $user->phone ?? 'N/A' }}</td>
+                            <td>{{ ucfirst(str_replace('_', ' ', $user->user_type)) }}</td>
+                            <td>{{ $user->created_at->format('M d, Y') }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-<!-- Add the Services Report section -->
-<div id="servicesReport" style="display:none;">
-    <div class="table-responsive">
-        <table class="table table-bordered">
-            <thead class="table-light">
-                <tr>
-                    <th>Service ID</th>
-                    <th>Type</th>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($services as $service)
-                <tr>
-                    <td>{{ $service->id }}</td>
-                    <td>{{ $service->type }}</td>
-                    <td>{{ $service->name }}</td>
-                    <td>₱{{ number_format($service->price, 2) }}</td>
-                    <td>{{ $service->description ?? 'No description' }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
+        <!-- Services Report (hidden) -->
+        <div id="servicesReport" style="display:none;">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Service ID</th>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($services as $service)
+                        <tr>
+                            <td>{{ $service->id }}</td>
+                            <td>{{ $service->type }}</td>
+                            <td>{{ $service->name }}</td>
+                            <td>₱{{ number_format($service->price, 2) }}</td>
+                            <td>{{ $service->description ?? 'No description' }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
         <!-- Report Content -->
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0" id="reportTitle">Bookings Report</h5>
-                <button class="btn btn-sm btn-outline-secondary no-print" onclick="window.print()">
-                    <i class="fas fa-print me-1"></i> Print
-                </button>
+                <div>
+                    <h5 class="mb-0" id="reportTitle">Bookings Report</h5>
+                    <small class="date-range-status" id="dateRangeStatus"></small>
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="date-range-container me-3">
+                        <div class="date-range-item">
+                            <input type="date" class="form-control form-control-sm" id="reportStartDate" 
+                                value="{{ date('Y-m-01') }}">
+                        </div>
+                        <div class="date-range-item">
+                            <input type="date" class="form-control form-control-sm" id="reportEndDate" 
+                                value="{{ date('Y-m-d') }}">
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary no-print" onclick="window.print()">
+                        <i class="fas fa-print me-1"></i> Print
+                    </button>
+                </div>
             </div>
             <div class="card-body">
                 <!-- Bookings Report -->
@@ -237,9 +288,9 @@
                                     <th>Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="bookingsReportBody">
                                 @foreach($bookings as $booking)
-                                <tr>
+                                <tr data-booking-date="{{ $booking->date ? date('Y-m-d', strtotime($booking->date)) : '' }}">
                                     <td>{{ $booking->id }}</td>
                                     <td>{{ $booking->date ? date('M d, Y', strtotime($booking->date)) : 'N/A' }}</td>
                                     <td>{{ $booking->homeowner->name }}</td>
@@ -335,157 +386,203 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
-
-          // Initialize and render the chart
-document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('bookingsChart').getContext('2d');
-    
-    // Get the last 6 months for labels
-    const months = [];
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const currentDate = new Date();
-    
-    for (let i = 5; i >= 0; i--) {
-        const date = new Date();
-        date.setMonth(currentDate.getMonth() - i);
-        months.push(monthNames[date.getMonth()] + ' ' + date.getFullYear());
-    }
-    
-    // Create the chart
-    const bookingsChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: months,
-            datasets: [
-                {
-                    label: 'Completed Bookings',
-                    data: [{{ implode(',', $completedBookingsByMonth) }}],
-                    backgroundColor: '#4CAF50', // Green
-                    borderColor: '#2E7D32',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Accepted Bookings',
-                    data: [{{ implode(',', $acceptedBookingsByMonth) }}],
-                    backgroundColor: '#2196F3', // Blue
-                    borderColor: '#0D47A1',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Pending Bookings',
-                    data: [{{ implode(',', $pendingBookingsByMonth) }}],
-                    backgroundColor: '#FFC107', // Yellow
-                    borderColor: '#FFA000',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Declined Bookings',
-                    data: [{{ implode(',', $declinedBookingsByMonth) }}],
-                    backgroundColor: '#F44336', // Red
-                    borderColor: '#C62828',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Total Earnings (₱)',
-                    data: [{{ implode(',', $earningsByMonth) }}],
-                    backgroundColor: '#9C27B0', // Purple
-                    borderColor: '#6A1B9A',
-                    borderWidth: 3,
-                    type: 'line',
-                    yAxisID: 'y1',
-                    tension: 0.3,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                    fill: false
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Bookings'
-                    },
-                    stacked: false // Set to true for stacked bars
-                },
-                y1: {
-                    position: 'right',
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Earnings (₱)'
-                    },
-                    grid: {
-                        drawOnChartArea: false
-                    }
-                },
-                x: {
-                    stacked: false, // Should match y.stacked value
-                    grid: {
-                        display: false
-                    }
-                }
-            },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label.includes('Earnings')) {
-                                return label + ': ₱' + context.raw.toLocaleString();
-                            }
-                            return label + ': ' + context.raw;
+        // Initialize and render the chart
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('bookingsChart').getContext('2d');
+            
+            // Get the last 6 months for labels
+            const months = [];
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const currentDate = new Date();
+            
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date();
+                date.setMonth(currentDate.getMonth() - i);
+                months.push(monthNames[date.getMonth()] + ' ' + date.getFullYear());
+            }
+            
+            // Create the chart
+            const bookingsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Completed Bookings',
+                            data: [{{ implode(',', $completedBookingsByMonth) }}],
+                            backgroundColor: '#4CAF50',
+                            borderColor: '#2E7D32',
+                            borderWidth: 1
                         },
-                        footer: function(tooltipItems) {
-                            let sum = 0;
-                            tooltipItems.forEach(function(tooltipItem) {
-                                // Don't include earnings in the total
-                                if (!tooltipItem.dataset.label.includes('Earnings')) {
-                                    sum += tooltipItem.parsed.y;
-                                }
-                            });
-                            return 'Total Bookings: ' + sum;
+                        {
+                            label: 'Accepted Bookings',
+                            data: [{{ implode(',', $acceptedBookingsByMonth) }}],
+                            backgroundColor: '#2196F3',
+                            borderColor: '#0D47A1',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Pending Bookings',
+                            data: [{{ implode(',', $pendingBookingsByMonth) }}],
+                            backgroundColor: '#FFC107',
+                            borderColor: '#FFA000',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Declined Bookings',
+                            data: [{{ implode(',', $declinedBookingsByMonth) }}],
+                            backgroundColor: '#F44336',
+                            borderColor: '#C62828',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Total Earnings (₱)',
+                            data: [{{ implode(',', $earningsByMonth) }}],
+                            backgroundColor: '#9C27B0',
+                            borderColor: '#6A1B9A',
+                            borderWidth: 3,
+                            type: 'line',
+                            yAxisID: 'y1',
+                            tension: 0.3,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Bookings'
+                            },
+                            stacked: false
+                        },
+                        y1: {
+                            position: 'right',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Earnings (₱)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        x: {
+                            stacked: false,
+                            grid: {
+                                display: false
+                            }
                         }
                     },
-                    mode: 'index',
-                    intersect: false
-                },
-                legend: {
-                    position: 'top',
-                    labels: {
-                        boxWidth: 12,
-                        padding: 20,
-                        usePointStyle: true,
-                        pointStyle: 'circle'
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label.includes('Earnings')) {
+                                        return label + ': ₱' + context.raw.toLocaleString();
+                                    }
+                                    return label + ': ' + context.raw;
+                                },
+                                footer: function(tooltipItems) {
+                                    let sum = 0;
+                                    tooltipItems.forEach(function(tooltipItem) {
+                                        if (!tooltipItem.dataset.label.includes('Earnings')) {
+                                            sum += tooltipItem.parsed.y;
+                                        }
+                                    });
+                                    return 'Total Bookings: ' + sum;
+                                }
+                            },
+                            mode: 'index',
+                            intersect: false
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
                     }
                 }
-            },
-            interaction: {
-                mode: 'index',
-                intersect: false
-            }
-        }
-    });
-});
+            });
 
-        // Toggle between report types
-        document.getElementById('type').addEventListener('change', function() {
-            const type = this.value;
-            document.getElementById('reportTitle').textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} Report`;
-            
-            // Hide all reports
-            document.getElementById('bookingsReport').style.display = 'none';
-            document.getElementById('earningsReport').style.display = 'none';
-            document.getElementById('ratingsReport').style.display = 'none';
-            document.getElementById('usersReport').style.display = 'none';
-            document.getElementById('servicesReport').style.display = 'none';
-            
-            // Show selected report
-            document.getElementById(`${type}Report`).style.display = 'block';
+            // Date range filtering for bookings report
+            const reportStartDate = document.getElementById('reportStartDate');
+            const reportEndDate = document.getElementById('reportEndDate');
+            const bookingsReportBody = document.getElementById('bookingsReportBody');
+            const dateRangeStatus = document.getElementById('dateRangeStatus');
+            const bookingRows = bookingsReportBody.querySelectorAll('tr');
+
+            function filterBookingsByDate() {
+                const startDate = reportStartDate.value;
+                const endDate = reportEndDate.value;
+                
+                // Validate date range
+                if (startDate && endDate && startDate > endDate) {
+                    alert('End date cannot be before start date');
+                    reportEndDate.value = startDate;
+                    return;
+                }
+
+                let visibleCount = 0;
+                
+                bookingRows.forEach(row => {
+                    const bookingDate = row.getAttribute('data-booking-date');
+                    let showRow = true;
+                    
+                    if (startDate && bookingDate < startDate) {
+                        showRow = false;
+                    }
+                    if (endDate && bookingDate > endDate) {
+                        showRow = false;
+                    }
+                    
+                    row.style.display = showRow ? '' : 'none';
+                    if (showRow) visibleCount++;
+                });
+                
+                // Update date range status
+                const start = startDate ? new Date(startDate).toLocaleDateString() : 'Start';
+                const end = endDate ? new Date(endDate).toLocaleDateString() : 'End';
+                dateRangeStatus.textContent = `Showing ${visibleCount} bookings from ${start} to ${end}`;
+            }
+
+            // Add event listeners
+            reportStartDate.addEventListener('change', filterBookingsByDate);
+            reportEndDate.addEventListener('change', filterBookingsByDate);
+
+            // Initialize filtering
+            filterBookingsByDate();
+
+            // Toggle between report types
+            document.getElementById('type').addEventListener('change', function() {
+                const type = this.value;
+                document.getElementById('reportTitle').textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} Report`;
+                
+                // Hide all reports
+                document.getElementById('bookingsReport').style.display = 'none';
+                document.getElementById('earningsReport').style.display = 'none';
+                document.getElementById('ratingsReport').style.display = 'none';
+                document.getElementById('usersReport').style.display = 'none';
+                document.getElementById('servicesReport').style.display = 'none';
+                
+                // Show selected report
+                document.getElementById(`${type}Report`).style.display = 'block';
+            });
         });
 
         // Generate PDF
@@ -502,36 +599,10 @@ document.addEventListener('DOMContentLoaded', function() {
             html2pdf().from(element).set(opt).save();
         }
 
-        // Date range validation
-        document.getElementById('end_date').addEventListener('change', function() {
-            const startDate = document.getElementById('start_date').value;
-            if (startDate && this.value < startDate) {
-                alert('End date must be after start date');
-                this.value = '';
-            }
-        });
-
+        // Form submission handling
         document.getElementById('reportForm').addEventListener('submit', function(e) {
-    // For PDF generation, we prevent the default form submission
-    e.preventDefault();
-});
-
-function exportReport(format) {
-    if (format === 'pdf') {
-        const element = document.getElementById('reportTitle').parentElement.parentElement;
-        const opt = {
-            margin: 10,
-            filename: `${document.getElementById('type').value}_report.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        html2pdf().from(element).set(opt).save();
-    } else if (format === 'csv') {
-        // Submit the form for CSV export
-        document.getElementById('reportForm').submit();
-    }
-}
+            e.preventDefault();
+        });
     </script>
 </body>
 </html>
