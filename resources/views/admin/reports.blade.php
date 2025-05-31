@@ -484,7 +484,7 @@
                                 ) * 1.2 // Add 20% padding
                             },
                             y1: {
-                                position: 'left',
+                                position: 'right',
                                 beginAtZero: true,
                                 title: {
                                     display: true,
