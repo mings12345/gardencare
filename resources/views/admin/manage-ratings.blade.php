@@ -1,4 +1,3 @@
-<!-- resources/views/admin/manage-ratings.blade.php -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,8 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Datepicker CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         :root {
             --primary-green: #2e7d32;
@@ -171,6 +168,21 @@
         .reset-filters {
             margin-left: auto;
         }
+        
+        .date-range-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .date-range-item {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .date-range-container {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
@@ -187,7 +199,6 @@
                         <form action="{{ route('admin.ratings.index') }}" method="GET" id="filter-form">
                             <div class="filter-section">
                                 <div class="row filter-row">
-                                    
                                     <div class="col-md-3 filter-group">
                                         <label class="filter-label">User Type</label>
                                         <select class="form-select" name="user_type">
@@ -198,10 +209,18 @@
                                         </select>
                                     </div>
                                     
-                                    <div class="col-md-3 filter-group">
+                                    <div class="col-md-4 filter-group">
                                         <label class="filter-label">Date Range</label>
-                                        <input type="text" class="form-control date-range" name="date_range" placeholder="Select date range"
-                                            value="{{ request('date_range') }}" data-toggle="date-range">
+                                        <div class="date-range-container">
+                                            <div class="date-range-item">
+                                                <input type="date" class="form-control" name="start_date" id="startDateFilter" 
+                                                    value="{{ request('start_date') }}" placeholder="Start date">
+                                            </div>
+                                            <div class="date-range-item">
+                                                <input type="date" class="form-control" name="end_date" id="endDateFilter" 
+                                                    value="{{ request('end_date') }}" placeholder="End date">
+                                            </div>
+                                        </div>
                                     </div>
                                     
                                     <div class="col-md-3 filter-group">
@@ -309,16 +328,21 @@
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Flatpickr for date range -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize date range picker
-            flatpickr('.date-range', {
-                mode: 'range',
-                dateFormat: 'Y-m-d',
-                allowInput: true
-            });
+            // Set default date range to current month
+            const today = new Date();
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            
+            const startDateFilter = document.getElementById('startDateFilter');
+            const endDateFilter = document.getElementById('endDateFilter');
+            
+            // If no dates are set in the URL, use current month as default
+            if (!startDateFilter.value && !endDateFilter.value) {
+                startDateFilter.valueAsDate = firstDayOfMonth;
+                endDateFilter.valueAsDate = lastDayOfMonth;
+            }
             
             // Clear search input
             document.getElementById('clear-search').addEventListener('click', function() {
@@ -328,21 +352,27 @@
             
             // Reset all filters
             document.querySelector('.reset-filters').addEventListener('click', function() {
-                // Clear all form inputs
-                const form = document.getElementById('filter-form');
-                form.reset();
+                // Reset form
+                document.getElementById('filter-form').reset();
                 
-                // Remove query parameters from URL
-                const url = new URL(window.location.href);
-                url.search = '';
-                window.location.href = url.toString();
+                // Set default date range
+                startDateFilter.valueAsDate = firstDayOfMonth;
+                endDateFilter.valueAsDate = lastDayOfMonth;
+                
+                // Submit form
+                document.getElementById('filter-form').submit();
             });
             
-            // Submit form when star rating is clicked
-            document.querySelectorAll('.star-filter .form-check-input').forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    document.getElementById('filter-form').submit();
-                });
+            // Validate date range before form submission
+            document.getElementById('filter-form').addEventListener('submit', function(e) {
+                const startDate = startDateFilter.value;
+                const endDate = endDateFilter.value;
+                
+                if (startDate && endDate && startDate > endDate) {
+                    alert('End date cannot be before start date');
+                    e.preventDefault();
+                    endDateFilter.value = startDate;
+                }
             });
         });
     </script>
