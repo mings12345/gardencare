@@ -255,6 +255,15 @@
             color: var(--primary-color);
         }
 
+        .date-range-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .date-range-item {
+            flex: 1;
+        }
+
         @media (max-width: 992px) {
             .table-responsive {
                 overflow-x: auto;
@@ -297,6 +306,10 @@
                 gap: 10px;
                 text-align: center;
             }
+
+            .date-range-container {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -318,12 +331,15 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <label for="startMonthFilter" class="form-label">Start Month/Year</label>
-                    <input type="month" class="form-control" id="startMonthFilter">
-                </div>
-                <div class="col-md-4">
-                    <label for="endMonthFilter" class="form-label">End Month/Year</label>
-                    <input type="month" class="form-control" id="endMonthFilter">
+                    <label class="form-label">Date Range</label>
+                    <div class="date-range-container">
+                        <div class="date-range-item">
+                            <input type="date" class="form-control" id="startDateFilter">
+                        </div>
+                        <div class="date-range-item">
+                            <input type="date" class="form-control" id="endDateFilter">
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <label for="statusFilter" class="form-label">Status</label>
@@ -385,7 +401,9 @@
                     </thead> 
                     <tbody id="bookingsTableBody">
                         @foreach($bookings as $booking)
-                            <tr data-booking-id="{{ date('y') }}-{{ $booking->type == 'gardening' ? '001' : '002' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}" data-created-date="{{ $booking->created_at }}">
+                            <tr data-booking-id="{{ date('y') }}-{{ $booking->type == 'gardening' ? '001' : '002' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}" 
+                                data-booking-date="{{ $booking->date }}" 
+                                data-created-date="{{ $booking->created_at }}">
                                 <td data-label="ID">{{ date('y') }}-{{ $booking->type == 'gardening' ? '001' : '002' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}</td>
                                 <td data-label="Type">
                                 @if(strtolower($booking->type) == 'gardening')
@@ -473,8 +491,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
-            const startMonthFilter = document.getElementById('startMonthFilter');
-            const endMonthFilter = document.getElementById('endMonthFilter');
+            const startDateFilter = document.getElementById('startDateFilter');
+            const endDateFilter = document.getElementById('endDateFilter');
             const statusFilter = document.getElementById('statusFilter');
             const typeFilter = document.getElementById('typeFilter');
             const clearFiltersBtn = document.getElementById('clearFilters');
@@ -484,10 +502,19 @@
             
             let totalBookings = tableRows.length;
             
-            // Set default date range to current year
-            const currentYear = new Date().getFullYear();
-            startMonthFilter.value = `${currentYear}-01`;
-            endMonthFilter.value = `${currentYear}-12`;
+            // Set default date range to current month
+            const today = new Date();
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            
+            startDateFilter.valueAsDate = firstDayOfMonth;
+            endDateFilter.valueAsDate = lastDayOfMonth;
+            
+            function formatDateForDisplay(dateString) {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            }
             
             function updateResultsInfo(visibleCount, activeFilters) {
                 resultsCount.textContent = `Showing ${visibleCount} of ${totalBookings} bookings`;
@@ -506,9 +533,9 @@
                     filters.push(`ID: "${searchInput.value.trim()}"`);
                 }
                 
-                if (startMonthFilter.value || endMonthFilter.value) {
-                    const start = startMonthFilter.value ? new Date(startMonthFilter.value + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Start';
-                    const end = endMonthFilter.value ? new Date(endMonthFilter.value + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'End';
+                if (startDateFilter.value || endDateFilter.value) {
+                    const start = startDateFilter.value ? formatDateForDisplay(startDateFilter.value) : 'Start';
+                    const end = endDateFilter.value ? formatDateForDisplay(endDateFilter.value) : 'End';
                     filters.push(`Date: ${start} to ${end}`);
                 }
                 
@@ -525,15 +552,15 @@
             
             function applyFilters() {
                 const searchTerm = searchInput.value.trim().toLowerCase();
-                const startMonth = startMonthFilter.value;
-                const endMonth = endMonthFilter.value;
+                const startDate = startDateFilter.value;
+                const endDate = endDateFilter.value;
                 const selectedStatus = statusFilter.value;
                 const selectedType = typeFilter.value;
                 
                 // Validate date range
-                if (startMonth && endMonth && startMonth > endMonth) {
+                if (startDate && endDate && startDate > endDate) {
                     alert("End date cannot be before start date");
-                    endMonthFilter.value = startMonth;
+                    endDateFilter.value = startDate;
                     return;
                 }
                 
@@ -583,16 +610,16 @@
                         }
                     }
                     
-                    // Filter by Date Range
-                    if ((startMonth || endMonth) && showRow) {
-                        const createdDate = row.getAttribute('data-created-date');
-                        if (createdDate) {
-                            const bookingDate = createdDate.substring(0, 7); // YYYY-MM format
+                    // Filter by Date Range (booking date)
+                    if ((startDate || endDate) && showRow) {
+                        const bookingDateStr = row.getAttribute('data-booking-date');
+                        if (bookingDateStr) {
+                            const bookingDate = bookingDateStr.split(' ')[0]; // Get just the date part
                             
-                            if (startMonth && bookingDate < startMonth) {
+                            if (startDate && bookingDate < startDate) {
                                 showRow = false;
                             }
-                            if (endMonth && bookingDate > endMonth) {
+                            if (endDate && bookingDate > endDate) {
                                 showRow = false;
                             }
                         } else {
@@ -628,16 +655,16 @@
             
             // Event listeners
             searchInput.addEventListener('input', applyFilters);
-            startMonthFilter.addEventListener('change', applyFilters);
-            endMonthFilter.addEventListener('change', applyFilters);
+            startDateFilter.addEventListener('change', applyFilters);
+            endDateFilter.addEventListener('change', applyFilters);
             statusFilter.addEventListener('change', applyFilters);
             typeFilter.addEventListener('change', applyFilters);
             
             // Clear all filters
             clearFiltersBtn.addEventListener('click', function() {
                 searchInput.value = '';
-                startMonthFilter.value = `${currentYear}-01`;
-                endMonthFilter.value = `${currentYear}-12`;
+                startDateFilter.valueAsDate = firstDayOfMonth;
+                endDateFilter.valueAsDate = lastDayOfMonth;
                 statusFilter.value = '';
                 typeFilter.value = '';
                 applyFilters();
