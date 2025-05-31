@@ -488,25 +488,26 @@
                                 beginAtZero: true,
                                 title: {
                                     display: true,
-                                    text: 'Earnings (₱)',
-                                    // Do NOT add rotation
+                                    text: 'Earnings (₱)'
                                 },
                                 grid: {
                                     drawOnChartArea: false
                                 },
+                                // Mirror the left axis scale
                                 ticks: {
                                     callback: function(value) {
                                         return value;
                                     },
+                                    // Calculate the same scale as left axis but for earnings
                                     min: 0,
                                     max: Math.max(
                                         Math.max(...[{{ implode(',', $completedBookingsByMonth) }}]),
                                         Math.max(...[{{ implode(',', $acceptedBookingsByMonth) }}]),
                                         Math.max(...[{{ implode(',', $pendingBookingsByMonth) }}]),
                                         Math.max(...[{{ implode(',', $declinedBookingsByMonth) }}])
-                                    ) * 1000 * 1.2
+                                    ) * 1000 * 1.2 // Multiply by 1000 (or your earnings factor) and add padding
                                 }
-                            }
+                            },
                             x: {
                                 stacked: false,
                                 grid: {
