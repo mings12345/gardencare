@@ -490,7 +490,6 @@
                                 display: true,
                                 text: 'Earnings (₱)',
                                 rotation: -90, // Rotate to face left
-                                align: 'center' // Optional: Adjusts vertical alignment
                             },
                             grid: {
                                 drawOnChartArea: false
