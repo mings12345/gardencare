@@ -536,7 +536,8 @@
         mode: 'index',
         intersect: false
     }
-});
+}
+            });
 
             // Date range filtering for bookings report
             const reportStartDate = document.getElementById('reportStartDate');
