@@ -311,12 +311,12 @@
             <h5 class="filter-title"><i class="fas fa-filter me-2"></i>Filter & Search Bookings</h5>
             <div class="row g-3">
                 <div class="col-md-4">
-                    <label for="searchInput" class="form-label">Search by Booking ID</label>
-                    <div class="search-input">
-                        <i class="fas fa-search"></i>
-                        <input type="text" class="form-control" id="searchInput" placeholder="Enter Booking ID (e.g., No-123)">
-                    </div>
+                <label for="searchInput" class="form-label">Search by Booking ID</label>
+                <div class="search-input">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Enter Booking ID (e.g., 25-001-01)">
                 </div>
+            </div>
                 <div class="col-md-4">
                     <label for="monthFilter" class="form-label">Month/Year</label>
                     <input type="month" class="form-control" id="monthFilter">
@@ -382,7 +382,9 @@
                     <tbody id="bookingsTableBody">
                         @foreach($bookings as $booking)
                             <tr data-booking-id="No-{{ $booking->id }}" data-created-date="{{ $booking->created_at }}">
-                                <td data-label="ID">No-{{ $booking->id }}</td>
+                                <td data-label="ID">
+    {{ date('y') }}-{{ $booking->type == 'gardening' ? '001' : '002' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}
+</td>
                                 <td data-label="Type">
                                 @if(strtolower($booking->type) == 'gardening')
                                         <span class="badge badge-gardening">Gardening</span>
@@ -524,11 +526,48 @@
                 tableRows.forEach(row => {
                     let showRow = true;
                     
-                    // Search by Booking ID
+                    // Search by Booking ID (new format: YY-TTT-HH)
                     if (searchTerm) {
-                        const bookingId = row.getAttribute('data-booking-id').toLowerCase();
-                        if (!bookingId.includes(searchTerm)) {
-                            showRow = false;
+                        const bookingId = row.querySelector('td[data-label="ID"]').textContent.toLowerCase();
+                        const idParts = searchTerm.split('-');
+                        
+                        // Check if search term matches the format (YY-TTT-HH)
+                        if (idParts.length === 3) {
+                            const [yearPart, typePart, homeownerPart] = idParts;
+                            
+                            // Get the actual booking ID parts
+                            const actualId = bookingId.replace('no-', ''); // Remove "No-" prefix if exists
+                            const actualParts = actualId.split('-');
+                            
+                            if (actualParts.length === 3) {
+                                const [actualYear, actualType, actualHomeowner] = actualParts;
+                                
+                                // Check year (25 = 2025)
+                                if (yearPart && !actualYear.includes(yearPart)) {
+                                    showRow = false;
+                                }
+                                
+                                // Check service type (001 = Gardening, 002 = Landscaping)
+                                if (typePart === '001' && !row.querySelector('.badge-gardening')) {
+                                    showRow = false;
+                                }
+                                if (typePart === '002' && !row.querySelector('.badge-landscaping')) {
+                                    showRow = false;
+                                }
+                                
+                                // Check homeowner ID
+                                if (homeownerPart && !actualHomeowner.includes(homeownerPart)) {
+                                    showRow = false;
+                                }
+                            } else {
+                                // Doesn't match the format we're looking for
+                                showRow = false;
+                            }
+                        } else {
+                            // Fallback to simple text search if format doesn't match
+                            if (!bookingId.includes(searchTerm)) {
+                                showRow = false;
+                            }
                         }
                     }
                     
