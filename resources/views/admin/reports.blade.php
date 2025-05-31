@@ -471,7 +471,8 @@
                                 beginAtZero: true,
                                 title: {
                                     display: true,
-                                    text: 'Number of Bookings'
+                                    text: 'Number of Bookings',
+                                     align: 'start',
                                 },
                                 stacked: false,
                                 // Add suggested max to align scales
@@ -488,7 +489,9 @@
                                 beginAtZero: true,
                                 title: {
                                     display: true,
-                                    text: 'Earnings (₱)'
+                                    text: 'Earnings (₱)',
+                                    align: 'start', // Force left alignment
+                                    padding: { left: 20 },
                                 },
                                 grid: {
                                     drawOnChartArea: false
