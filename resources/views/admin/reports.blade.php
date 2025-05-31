@@ -415,7 +415,7 @@
             
             // Create the chart
             // Replace the chart configuration in your script section with this:
-               const bookingsChart = new Chart(ctx, {
+                const bookingsChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: months,
@@ -449,12 +449,13 @@
                                 borderWidth: 1
                             },
                             {
-                                label: 'Total Earnings (₱1000s)', // Note: scaled down
-                                data: [{{ implode(',', array_map(function($val) { return $val / 1000; }, $earningsByMonth)) }}], // Scale down by 1000
+                                label: 'Total Earnings (₱)',
+                                data: [{{ implode(',', $earningsByMonth) }}],
                                 backgroundColor: '#9C27B0',
                                 borderColor: '#6A1B9A',
                                 borderWidth: 3,
                                 type: 'line',
+                                yAxisID: 'y1',
                                 tension: 0.3,
                                 pointRadius: 5,
                                 pointHoverRadius: 7,
@@ -470,10 +471,45 @@
                                 beginAtZero: true,
                                 title: {
                                     display: true,
-                                    text: 'Count / Earnings (₱1000s)'
+                                    text: 'Number of Bookings'
+                                },
+                                stacked: false,
+                                // Add suggested max to align scales
+                                suggestedMax: Math.max(
+                                    Math.max(...[{{ implode(',', $completedBookingsByMonth) }}]),
+                                    Math.max(...[{{ implode(',', $acceptedBookingsByMonth) }}]),
+                                    Math.max(...[{{ implode(',', $pendingBookingsByMonth) }}]),
+                                    Math.max(...[{{ implode(',', $declinedBookingsByMonth) }}]),
+                                    Math.max(...[{{ implode(',', $earningsByMonth) }}]) / 1000 // Adjust divisor based on your earnings scale
+                                ) * 1.2 // Add 20% padding
+                            },
+                            y1: {
+                                position: 'right',
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Earnings (₱)'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                },
+                                // Mirror the left axis scale
+                                ticks: {
+                                    callback: function(value) {
+                                        return value;
+                                    },
+                                    // Calculate the same scale as left axis but for earnings
+                                    min: 0,
+                                    max: Math.max(
+                                        Math.max(...[{{ implode(',', $completedBookingsByMonth) }}]),
+                                        Math.max(...[{{ implode(',', $acceptedBookingsByMonth) }}]),
+                                        Math.max(...[{{ implode(',', $pendingBookingsByMonth) }}]),
+                                        Math.max(...[{{ implode(',', $declinedBookingsByMonth) }}])
+                                    ) * 1000 * 1.2 // Multiply by 1000 (or your earnings factor) and add padding
                                 }
                             },
                             x: {
+                                stacked: false,
                                 grid: {
                                     display: false
                                 }
@@ -485,12 +521,22 @@
                                     label: function(context) {
                                         let label = context.dataset.label || '';
                                         if (label.includes('Earnings')) {
-                                            // Multiply back by 1000 for display
-                                            return 'Total Earnings: ₱' + (context.raw * 1000).toLocaleString();
+                                            return label + ': ₱' + context.raw.toLocaleString();
                                         }
                                         return label + ': ' + context.raw;
+                                    },
+                                    footer: function(tooltipItems) {
+                                        let sum = 0;
+                                        tooltipItems.forEach(function(tooltipItem) {
+                                            if (!tooltipItem.dataset.label.includes('Earnings')) {
+                                                sum += tooltipItem.parsed.y;
+                                            }
+                                        });
+                                        return 'Total Bookings: ' + sum;
                                     }
-                                }
+                                },
+                                mode: 'index',
+                                intersect: false
                             },
                             legend: {
                                 position: 'top',
@@ -501,6 +547,10 @@
                                     pointStyle: 'circle'
                                 }
                             }
+                        },
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
                         }
                     }
                 });
