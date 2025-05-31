@@ -484,30 +484,29 @@
                                 ) * 1.2 // Add 20% padding
                             },
                             y1: {
-                                position: 'right',
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Earnings (₱)'
-                                },
-                                grid: {
-                                    drawOnChartArea: false
-                                },
-                                // Mirror the left axis scale
-                                ticks: {
-                                    callback: function(value) {
-                                        return value;
-                                    },
-                                    // Calculate the same scale as left axis but for earnings
-                                    min: 0,
-                                    max: Math.max(
-                                        Math.max(...[{{ implode(',', $completedBookingsByMonth) }}]),
-                                        Math.max(...[{{ implode(',', $acceptedBookingsByMonth) }}]),
-                                        Math.max(...[{{ implode(',', $pendingBookingsByMonth) }}]),
-                                        Math.max(...[{{ implode(',', $declinedBookingsByMonth) }}])
-                                    ) * 1000 * 1.2 // Multiply by 1000 (or your earnings factor) and add padding
-                                }
+                            position: 'right', // Keep axis on the right
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Earnings (₱)',
+                                align: 'start', // Makes the text left-aligned
                             },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value;
+                                },
+                                min: 0,
+                                max: Math.max(
+                                    Math.max(...[{{ implode(',', $completedBookingsByMonth) }}]),
+                                    Math.max(...[{{ implode(',', $acceptedBookingsByMonth) }}]),
+                                    Math.max(...[{{ implode(',', $pendingBookingsByMonth) }}]),
+                                    Math.max(...[{{ implode(',', $declinedBookingsByMonth) }}])
+                                ) * 1000 * 1.2
+                            }
+                        },
                             x: {
                                 stacked: false,
                                 grid: {
