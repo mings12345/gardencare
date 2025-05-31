@@ -448,78 +448,95 @@
                             borderWidth: 1
                         },
                         {
-                            label: 'Total Earnings (₱)',
-                            data: [{{ implode(',', $earningsByMonth) }}],
-                            backgroundColor: '#9C27B0',
-                            borderColor: '#6A1B9A',
-                            borderWidth: 3,
-                            type: 'line',
-                            yAxisID: 'y',
-                            tension: 0.3,
-                            pointRadius: 5,
-                            pointHoverRadius: 7,
-                            fill: false
-                        }
+                        label: 'Total Earnings (₱)',
+                        data: [{{ implode(',', $earningsByMonth) }}],
+                        backgroundColor: '#9C27B0',
+                        borderColor: '#6A1B9A',
+                        borderWidth: 3,
+                        type: 'line',
+                        yAxisID: 'y1',  // Keep this as y1 for right side
+                        tension: 0.3,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        fill: false
+                    }
                     ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Number of Bookings / Earnings (₱)'
-                            },
-                            stacked: false
-                        },
-                        x: {
-                            stacked: false,
-                            grid: {
-                                display: false
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label.includes('Earnings')) {
-                                        return label + ': ₱' + context.raw.toLocaleString();
-                                    }
-                                    return label + ': ' + context.raw;
-                                },
-                                footer: function(tooltipItems) {
-                                    let sum = 0;
-                                    tooltipItems.forEach(function(tooltipItem) {
-                                        if (!tooltipItem.dataset.label.includes('Earnings')) {
-                                            sum += tooltipItem.parsed.y;
-                                        }
-                                    });
-                                    return 'Total Bookings: ' + sum;
-                                }
-                            },
-                            mode: 'index',
-                            intersect: false
-                        },
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                boxWidth: 12,
-                                padding: 20,
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            }
-                        }
-                    },
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    }
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+        y: {
+            beginAtZero: true,
+            title: {
+                display: true,
+                text: 'Number of Bookings'
+            },
+            stacked: false
+        },
+        y1: {
+            position: 'right',
+            beginAtZero: true,
+            title: {
+                display: true,
+                text: 'Earnings (₱)'
+            },
+            // This makes the scale match the primary y-axis
+            grid: {
+                drawOnChartArea: false
+            },
+            // Add this to sync the scales:
+            ticks: {
+                callback: function(value) {
+                    return value;
                 }
-            });
+            }
+        },
+        x: {
+            stacked: false,
+            grid: {
+                display: false
+            }
+        }
+    },
+    plugins: {
+        tooltip: {
+            callbacks: {
+                label: function(context) {
+                    let label = context.dataset.label || '';
+                    if (label.includes('Earnings')) {
+                        return label + ': ₱' + context.raw.toLocaleString();
+                    }
+                    return label + ': ' + context.raw;
+                },
+                footer: function(tooltipItems) {
+                    let sum = 0;
+                    tooltipItems.forEach(function(tooltipItem) {
+                        if (!tooltipItem.dataset.label.includes('Earnings')) {
+                            sum += tooltipItem.parsed.y;
+                        }
+                    });
+                    return 'Total Bookings: ' + sum;
+                }
+            },
+            mode: 'index',
+            intersect: false
+        },
+        legend: {
+            position: 'top',
+            labels: {
+                boxWidth: 12,
+                padding: 20,
+                usePointStyle: true,
+                pointStyle: 'circle'
+            }
+        }
+    },
+    interaction: {
+        mode: 'index',
+        intersect: false
+    }
+});
 
             // Date range filtering for bookings report
             const reportStartDate = document.getElementById('reportStartDate');
