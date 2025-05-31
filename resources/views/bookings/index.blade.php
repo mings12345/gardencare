@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bookings Management | GreenThumb</title>
+    <title>Bookings Management | GardenCare</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -311,15 +311,19 @@
             <h5 class="filter-title"><i class="fas fa-filter me-2"></i>Filter & Search Bookings</h5>
             <div class="row g-3">
                 <div class="col-md-4">
-                <label for="searchInput" class="form-label">Search by Booking ID</label>
-                <div class="search-input">
-                    <i class="fas fa-search"></i>
-                    <input type="text" class="form-control" id="searchInput" placeholder="Enter Booking ID (e.g., 25-001-01)">
+                    <label for="searchInput" class="form-label">Search by Booking ID</label>
+                    <div class="search-input">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Enter Booking ID (e.g., 25-001-01)">
+                    </div>
                 </div>
-            </div>
                 <div class="col-md-4">
-                    <label for="monthFilter" class="form-label">Month/Year</label>
-                    <input type="month" class="form-control" id="monthFilter">
+                    <label for="startMonthFilter" class="form-label">Start Month/Year</label>
+                    <input type="month" class="form-control" id="startMonthFilter">
+                </div>
+                <div class="col-md-4">
+                    <label for="endMonthFilter" class="form-label">End Month/Year</label>
+                    <input type="month" class="form-control" id="endMonthFilter">
                 </div>
                 <div class="col-md-4">
                     <label for="statusFilter" class="form-label">Status</label>
@@ -381,10 +385,8 @@
                     </thead> 
                     <tbody id="bookingsTableBody">
                         @foreach($bookings as $booking)
-                            <tr data-booking-id="No-{{ $booking->id }}" data-created-date="{{ $booking->created_at }}">
-                                <td data-label="ID">
-    {{ date('y') }}-{{ $booking->type == 'gardening' ? '001' : '002' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}
-</td>
+                            <tr data-booking-id="{{ date('y') }}-{{ $booking->type == 'gardening' ? '001' : '002' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}" data-created-date="{{ $booking->created_at }}">
+                                <td data-label="ID">{{ date('y') }}-{{ $booking->type == 'gardening' ? '001' : '002' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}</td>
                                 <td data-label="Type">
                                 @if(strtolower($booking->type) == 'gardening')
                                         <span class="badge badge-gardening">Gardening</span>
@@ -471,7 +473,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
-            const monthFilter = document.getElementById('monthFilter');
+            const startMonthFilter = document.getElementById('startMonthFilter');
+            const endMonthFilter = document.getElementById('endMonthFilter');
             const statusFilter = document.getElementById('statusFilter');
             const typeFilter = document.getElementById('typeFilter');
             const clearFiltersBtn = document.getElementById('clearFilters');
@@ -480,6 +483,11 @@
             const tableRows = document.querySelectorAll('#bookingsTableBody tr');
             
             let totalBookings = tableRows.length;
+            
+            // Set default date range to current year
+            const currentYear = new Date().getFullYear();
+            startMonthFilter.value = `${currentYear}-01`;
+            endMonthFilter.value = `${currentYear}-12`;
             
             function updateResultsInfo(visibleCount, activeFilters) {
                 resultsCount.textContent = `Showing ${visibleCount} of ${totalBookings} bookings`;
@@ -498,10 +506,10 @@
                     filters.push(`ID: "${searchInput.value.trim()}"`);
                 }
                 
-                if (monthFilter.value) {
-                    const date = new Date(monthFilter.value + '-01');
-                    const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-                    filters.push(`Month: ${monthName}`);
+                if (startMonthFilter.value || endMonthFilter.value) {
+                    const start = startMonthFilter.value ? new Date(startMonthFilter.value + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Start';
+                    const end = endMonthFilter.value ? new Date(endMonthFilter.value + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'End';
+                    filters.push(`Date: ${start} to ${end}`);
                 }
                 
                 if (statusFilter.value) {
@@ -517,37 +525,42 @@
             
             function applyFilters() {
                 const searchTerm = searchInput.value.trim().toLowerCase();
-                const selectedMonth = monthFilter.value;
+                const startMonth = startMonthFilter.value;
+                const endMonth = endMonthFilter.value;
                 const selectedStatus = statusFilter.value;
                 const selectedType = typeFilter.value;
+                
+                // Validate date range
+                if (startMonth && endMonth && startMonth > endMonth) {
+                    alert("End date cannot be before start date");
+                    endMonthFilter.value = startMonth;
+                    return;
+                }
                 
                 let visibleCount = 0;
                 
                 tableRows.forEach(row => {
                     let showRow = true;
                     
-                    // Search by Booking ID (new format: YY-TTT-HH)
+                    // Search by Booking ID (format: YY-TTT-HH)
                     if (searchTerm) {
-                        const bookingId = row.querySelector('td[data-label="ID"]').textContent.toLowerCase();
+                        const bookingId = row.getAttribute('data-booking-id').toLowerCase();
                         const idParts = searchTerm.split('-');
                         
-                        // Check if search term matches the format (YY-TTT-HH)
                         if (idParts.length === 3) {
                             const [yearPart, typePart, homeownerPart] = idParts;
-                            
-                            // Get the actual booking ID parts
-                            const actualId = bookingId.replace('no-', ''); // Remove "No-" prefix if exists
+                            const actualId = bookingId;
                             const actualParts = actualId.split('-');
                             
                             if (actualParts.length === 3) {
                                 const [actualYear, actualType, actualHomeowner] = actualParts;
                                 
-                                // Check year (25 = 2025)
+                                // Check year part
                                 if (yearPart && !actualYear.includes(yearPart)) {
                                     showRow = false;
                                 }
                                 
-                                // Check service type (001 = Gardening, 002 = Landscaping)
+                                // Check service type
                                 if (typePart === '001' && !row.querySelector('.badge-gardening')) {
                                     showRow = false;
                                 }
@@ -560,25 +573,30 @@
                                     showRow = false;
                                 }
                             } else {
-                                // Doesn't match the format we're looking for
                                 showRow = false;
                             }
                         } else {
-                            // Fallback to simple text search if format doesn't match
+                            // Simple text search fallback
                             if (!bookingId.includes(searchTerm)) {
                                 showRow = false;
                             }
                         }
                     }
                     
-                    // Filter by Month/Year
-                    if (selectedMonth && showRow) {
+                    // Filter by Date Range
+                    if ((startMonth || endMonth) && showRow) {
                         const createdDate = row.getAttribute('data-created-date');
                         if (createdDate) {
-                            const bookingMonth = createdDate.substring(0, 7); // Format: YYYY-MM
-                            if (bookingMonth !== selectedMonth) {
+                            const bookingDate = createdDate.substring(0, 7); // YYYY-MM format
+                            
+                            if (startMonth && bookingDate < startMonth) {
                                 showRow = false;
                             }
+                            if (endMonth && bookingDate > endMonth) {
+                                showRow = false;
+                            }
+                        } else {
+                            showRow = false;
                         }
                     }
                     
@@ -599,12 +617,8 @@
                     }
                     
                     // Show/hide row
-                    if (showRow) {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
-                    }
+                    row.style.display = showRow ? '' : 'none';
+                    if (showRow) visibleCount++;
                 });
                 
                 // Update results info
@@ -614,21 +628,23 @@
             
             // Event listeners
             searchInput.addEventListener('input', applyFilters);
-            monthFilter.addEventListener('change', applyFilters);
+            startMonthFilter.addEventListener('change', applyFilters);
+            endMonthFilter.addEventListener('change', applyFilters);
             statusFilter.addEventListener('change', applyFilters);
             typeFilter.addEventListener('change', applyFilters);
             
             // Clear all filters
             clearFiltersBtn.addEventListener('click', function() {
                 searchInput.value = '';
-                monthFilter.value = '';
+                startMonthFilter.value = `${currentYear}-01`;
+                endMonthFilter.value = `${currentYear}-12`;
                 statusFilter.value = '';
                 typeFilter.value = '';
                 applyFilters();
             });
             
-            // Initialize results info
-            updateResultsInfo(totalBookings, []);
+            // Initialize
+            applyFilters();
         });
     </script>
 </body>
