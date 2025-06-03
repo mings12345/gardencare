@@ -327,7 +327,7 @@
                     <label for="searchInput" class="form-label">Search by Booking ID</label>
                     <div class="search-input">
                         <i class="fas fa-search"></i>
-                        <input type="text" class="form-control" id="searchInput" placeholder="Enter Booking ID (e.g., 25-001-01)">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Enter Booking ID (e.g., 25-01-01)">
                     </div>
                 </div>
                 <div class="col-md-4">
