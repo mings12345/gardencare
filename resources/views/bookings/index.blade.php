@@ -327,7 +327,7 @@
                     <label for="searchInput" class="form-label">Search by Booking ID</label>
                     <div class="search-input">
                         <i class="fas fa-search"></i>
-                        <input type="text" class="form-control" id="searchInput" placeholder="Enter Booking ID (e.g., 25-01-01)">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Enter Booking ID (e.g., 25-001-01)">
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -376,219 +376,114 @@
             <small class="text-muted" id="filterStatus"></small>
         </div>
 
-        <!-- Sample Data for Demonstration -->
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Booking ID</th>
-                        <th>Type</th>
-                        <th>Client</th>
-                        <th>Professional</th>
-                        <th>Date & Time</th>
-                        <th>Services</th>
-                        <th>Payment</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Created</th>
-                    </tr>
-                </thead> 
-                <tbody id="bookingsTableBody">
-                    <!-- Sample Gardening Bookings -->
-                    <tr data-booking-id="25-01-01" 
-                        data-booking-date="2025-06-15" 
-                        data-created-date="2025-06-01T10:30:00">
-                        <td data-label="ID">25-01-01</td>
-                        <td data-label="Type">
-                            <span class="badge badge-gardening">Gardening</span>
-                        </td>
-                        <td data-label="Homeowner">
-                            <strong>John Smith</strong>
-                            <div class="text-muted small">123 Garden Ave, Cebu City</div>
-                        </td>
-                        <td data-label="Professional">
-                            <span class="badge bg-success">Gardener</span>
-                            Maria Santos
-                        </td>
-                        <td data-label="Date & Time">
-                            <strong>Jun 15, 2025</strong>
-                            <div class="text-muted small">2:00 PM</div>
-                        </td>
-                        <td data-label="Services">
-                            <span class="badge badge-service">Lawn Mowing</span>
-                            <span class="badge badge-service">Pruning</span>
-                        </td>
-                        <td data-label="Payment">
-                            <div class="payment-details mb-2">
-                                <div>
-                                    <strong>Amount:</strong> 
-                                    ₱1,500.00
-                                </div>
-                                <div>
-                                    <strong>Status:</strong> 
-                                    <span class="payment-status-paid">Paid</span>
-                                </div>
-                                <div>
-                                    <strong>Date:</strong> 
-                                    Jun 01, 2025
-                                </div>
-                                <div>
-                                    <strong>Admin Fee:</strong> 
-                                    ₱150.00
-                                </div>
-                            </div>
-                        </td>
-                        <td data-label="Total">₱1,500.00</td>
-                        <td data-label="Status">
-                            <span class="status-badge status-accepted">Accepted</span>
-                        </td>
-                        <td data-label="Created">
-                            <strong>Jun 01, 2025</strong>
-                            <div class="text-muted small">10:30 AM</div>
-                        </td>
-                    </tr>
-
-                    <tr data-booking-id="25-01-02" 
-                        data-booking-date="2025-06-20" 
-                        data-created-date="2025-06-02T14:15:00">
-                        <td data-label="ID">25-01-02</td>
-                        <td data-label="Type">
-                            <span class="badge badge-gardening">Gardening</span>
-                        </td>
-                        <td data-label="Homeowner">
-                            <strong>Lisa Chen</strong>
-                            <div class="text-muted small">456 Rose Street, Cebu City</div>
-                        </td>
-                        <td data-label="Professional">
-                            <span class="badge bg-success">Gardener</span>
-                            Carlos Rivera
-                        </td>
-                        <td data-label="Date & Time">
-                            <strong>Jun 20, 2025</strong>
-                            <div class="text-muted small">9:00 AM</div>
-                        </td>
-                        <td data-label="Services">
-                            <span class="badge badge-service">Weeding</span>
-                            <span class="badge badge-service">Fertilizing</span>
-                        </td>
-                        <td data-label="Payment">
-                            <div class="payment-details mb-2">
-                                <div>
-                                    <strong>Amount:</strong> 
-                                    ₱1,200.00
-                                </div>
-                                <div>
-                                    <strong>Status:</strong> 
-                                    <span class="payment-status-pending">Pending</span>
-                                </div>
-                                <div>
-                                    <strong>Date:</strong> 
-                                    Jun 02, 2025
-                                </div>
-                            </div>
-                        </td>
-                        <td data-label="Total">₱1,200.00</td>
-                        <td data-label="Status">
-                            <span class="status-badge status-pending">Pending</span>
-                        </td>
-                        <td data-label="Created">
-                            <strong>Jun 02, 2025</strong>
-                            <div class="text-muted small">2:15 PM</div>
-                        </td>
-                    </tr>
-
-                    <!-- Sample Landscaping Bookings -->
-                    <tr data-booking-id="25-02-01" 
-                        data-booking-date="2025-06-25" 
-                        data-created-date="2025-06-03T09:45:00">
-                        <td data-label="ID">25-02-01</td>
-                        <td data-label="Type">
-                            <span class="badge badge-landscaping">Landscaping</span>
-                        </td>
-                        <td data-label="Homeowner">
-                            <strong>Robert Johnson</strong>
-                            <div class="text-muted small">789 Landscape Drive, Cebu City</div>
-                        </td>
-                        <td data-label="Professional">
-                            <span class="badge bg-info">Service Provider</span>
-                            Green Valley Landscaping
-                        </td>
-                        <td data-label="Date & Time">
-                            <strong>Jun 25, 2025</strong>
-                            <div class="text-muted small">8:00 AM</div>
-                        </td>
-                        <td data-label="Services">
-                            <span class="badge badge-service">Garden Design</span>
-                            <span class="badge badge-service">Plant Installation</span>
-                        </td>
-                        <td data-label="Payment">
-                            <div class="payment-details mb-2">
-                                <div>
-                                    <strong>Amount:</strong> 
-                                    ₱5,000.00
-                                </div>
-                                <div>
-                                    <strong>Status:</strong> 
-                                    <span class="payment-status-paid">Paid</span>
-                                </div>
-                                <div>
-                                    <strong>Date:</strong> 
-                                    Jun 03, 2025
-                                </div>
-                                <div>
-                                    <strong>Admin Fee:</strong> 
-                                    ₱500.00
-                                </div>
-                            </div>
-                        </td>
-                        <td data-label="Total">₱5,000.00</td>
-                        <td data-label="Status">
-                            <span class="status-badge status-completed">Completed</span>
-                        </td>
-                        <td data-label="Created">
-                            <strong>Jun 03, 2025</strong>
-                            <div class="text-muted small">9:45 AM</div>
-                        </td>
-                    </tr>
-
-                    <tr data-booking-id="25-02-03" 
-                        data-booking-date="2025-06-30" 
-                        data-created-date="2025-06-05T11:20:00">
-                        <td data-label="ID">25-02-03</td>
-                        <td data-label="Type">
-                            <span class="badge badge-landscaping">Landscaping</span>
-                        </td>
-                        <td data-label="Homeowner">
-                            <strong>Sarah Williams</strong>
-                            <div class="text-muted small">321 Park View, Cebu City</div>
-                        </td>
-                        <td data-label="Professional">
-                            <span class="badge bg-info">Service Provider</span>
-                            Nature's Touch Design
-                        </td>
-                        <td data-label="Date & Time">
-                            <strong>Jun 30, 2025</strong>
-                            <div class="text-muted small">10:00 AM</div>
-                        </td>
-                        <td data-label="Services">
-                            <span class="badge badge-service">Hardscaping</span>
-                            <span class="badge badge-service">Water Features</span>
-                        </td>
-                        <td data-label="Payment">
-                            <span class="text-muted">No payments</span>
-                        </td>
-                        <td data-label="Total">₱8,500.00</td>
-                        <td data-label="Status">
-                            <span class="status-badge status-declined">Declined</span>
-                        </td>
-                        <td data-label="Created">
-                            <strong>Jun 05, 2025</strong>
-                            <div class="text-muted small">11:20 AM</div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        @if($bookings->isEmpty())
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>No Bookings Found</h3>
+                <p>There are currently no bookings in the system.</p>
+            </div>
+        @else
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Type</th>
+                            <th>Client</th>
+                            <th>Professional</th>
+                            <th>Date & Time</th>
+                            <th>Services</th>
+                            <th>Payment</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead> 
+                    <tbody id="bookingsTableBody">
+                        @foreach($bookings as $booking)
+                            <tr data-booking-id="{{ date('y') }}-{{ $booking->type == 'gardening' ? '001' : '002' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}" 
+                                data-booking-date="{{ $booking->date }}" 
+                                data-created-date="{{ $booking->created_at }}">
+                                <td data-label="ID">{{ date('y') }}-{{ $booking->type == 'gardening' ? '001' : '002' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}</td>
+                                <td data-label="Type">
+                                @if(strtolower($booking->type) == 'gardening')
+                                        <span class="badge badge-gardening">Gardening</span>
+                                    @else
+                                        <span class="badge badge-landscaping">Landscaping</span>
+                                    @endif
+                                </td>
+                                <td data-label="Homeowner">
+                                    <strong>{{ optional($booking->homeowner)->name ?? 'N/A' }}</strong>
+                                    <div class="text-muted small">{{ $booking->address }}</div>
+                                </td>
+                                <td data-label="Professional">
+                                    @if($booking->gardener)
+                                        <span class="badge bg-success">Gardener</span>
+                                        {{ $booking->gardener->name }}
+                                    @elseif($booking->serviceProvider)
+                                        <span class="badge bg-info">Service Provider</span>
+                                        {{ $booking->serviceProvider->name }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
+                                <td data-label="Date & Time">
+                                    <strong>{{ \Carbon\Carbon::parse($booking->date)->format('M d, Y') }}</strong>
+                                    <div class="text-muted small">{{ $booking->time }}</div>
+                                </td>
+                                <td data-label="Services">
+                                    @foreach($booking->services as $service)
+                                        <span class="badge badge-service">{{ $service->name }}</span>
+                                    @endforeach
+                                </td>
+                                <td data-label="Payment">
+                                    @if($booking->payments->isNotEmpty())
+                                        @foreach($booking->payments as $payment)
+                                            <div class="payment-details mb-2">
+                                                <div>
+                                                    <strong>Amount:</strong> 
+                                                    ₱{{ number_format($payment->amount_paid, 2) }}
+                                                </div>
+                                                <div>
+                                                    <strong>Status:</strong> 
+                                                    <span class="payment-status-{{ $payment->payment_status }}">
+                                                        {{ ucfirst($payment->payment_status) }}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <strong>Date:</strong> 
+                                                    {{ \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') }}
+                                                </div>
+                                                @if($payment->admin_fee)
+                                                <div>
+                                                    <strong>Admin Fee:</strong> 
+                                                    ₱{{ number_format($payment->admin_fee, 2) }}
+                                                </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <span class="text-muted">No payments</span>
+                                    @endif
+                                </td>
+                                <td data-label="Total">
+                                ₱{{ number_format($booking->total_price, 2) }}
+                                </td>
+                                <td data-label="Status">
+                                    <span class="status-badge status-{{ $booking->status }}">
+                                        {{ ucfirst($booking->status) }}
+                                    </span>
+                                </td>
+                                <td data-label="Created">
+                                    <strong>{{ \Carbon\Carbon::parse($booking->created_at)->format('M d, Y') }}</strong>
+                                    <div class="text-muted small">{{ \Carbon\Carbon::parse($booking->created_at)->format('h:i A') }}</div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
     </div>
 
     <!-- Bootstrap JS Bundle with Popper -->
@@ -674,7 +569,7 @@
                 tableRows.forEach(row => {
                     let showRow = true;
                     
-                    // Search by Booking ID (format: 25-01-01)
+                    // Search by Booking ID (format: YY-TTT-HH)
                     if (searchTerm) {
                         const bookingId = row.getAttribute('data-booking-id').toLowerCase();
                         const idParts = searchTerm.split('-');
@@ -687,20 +582,20 @@
                             if (actualParts.length === 3) {
                                 const [actualYear, actualType, actualHomeowner] = actualParts;
                                 
-                                // Check year part (25)
+                                // Check year part
                                 if (yearPart && !actualYear.includes(yearPart)) {
                                     showRow = false;
                                 }
                                 
-                                // Check service type (01 = gardening, 02 = landscaping)
-                                if (typePart === '01' && !row.querySelector('.badge-gardening')) {
+                                // Check service type
+                                if (typePart === '001' && !row.querySelector('.badge-gardening')) {
                                     showRow = false;
                                 }
-                                if (typePart === '02' && !row.querySelector('.badge-landscaping')) {
+                                if (typePart === '002' && !row.querySelector('.badge-landscaping')) {
                                     showRow = false;
                                 }
                                 
-                                // Check homeowner ID (last two digits)
+                                // Check homeowner ID
                                 if (homeownerPart && !actualHomeowner.includes(homeownerPart)) {
                                     showRow = false;
                                 }
