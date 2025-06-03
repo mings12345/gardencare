@@ -327,7 +327,7 @@
                     <label for="searchInput" class="form-label">Search by Booking ID</label>
                     <div class="search-input">
                         <i class="fas fa-search"></i>
-                        <input type="text" class="form-control" id="searchInput" placeholder="Enter Booking ID (e.g., 25-01-01)">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Enter Booking ID (e.g., 25-001-01)">
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -401,10 +401,10 @@
                     </thead> 
                     <tbody id="bookingsTableBody">
                         @foreach($bookings as $booking)
-                            <tr data-booking-id="{{ date('y') }}-{{ $booking->type == 'gardening' ? '01' : '02' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}" 
+                            <tr data-booking-id="{{ date('y') }}-{{ $booking->type == 'gardening' ? '001' : '002' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}" 
                                 data-booking-date="{{ $booking->date }}" 
                                 data-created-date="{{ $booking->created_at }}">
-                                <td data-label="ID">{{ date('y') }}-{{ $booking->type == 'gardening' ? '01' : '02' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}</td>
+                                <td data-label="ID">{{ date('y') }}-{{ $booking->type == 'gardening' ? '001' : '002' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}</td>
                                 <td data-label="Type">
                                 @if(strtolower($booking->type) == 'gardening')
                                         <span class="badge badge-gardening">Gardening</span>
@@ -569,7 +569,7 @@
                 tableRows.forEach(row => {
                     let showRow = true;
                     
-                    // Search by Booking ID (format: 25-01-01)
+                    // Search by Booking ID (format: YY-TTT-HH)
                     if (searchTerm) {
                         const bookingId = row.getAttribute('data-booking-id').toLowerCase();
                         const idParts = searchTerm.split('-');
@@ -582,20 +582,20 @@
                             if (actualParts.length === 3) {
                                 const [actualYear, actualType, actualHomeowner] = actualParts;
                                 
-                                // Check year part (25)
+                                // Check year part
                                 if (yearPart && !actualYear.includes(yearPart)) {
                                     showRow = false;
                                 }
                                 
-                                // Check service type (01 = gardening, 02 = landscaping)
-                                if (typePart === '01' && !row.querySelector('.badge-gardening')) {
+                                // Check service type
+                                if (typePart === '001' && !row.querySelector('.badge-gardening')) {
                                     showRow = false;
                                 }
-                                if (typePart === '02' && !row.querySelector('.badge-landscaping')) {
+                                if (typePart === '002' && !row.querySelector('.badge-landscaping')) {
                                     showRow = false;
                                 }
                                 
-                                // Check homeowner ID (last two digits)
+                                // Check homeowner ID
                                 if (homeownerPart && !actualHomeowner.includes(homeownerPart)) {
                                     showRow = false;
                                 }
