@@ -588,11 +588,16 @@
                                 }
                                 
                                 // Check service type
-                                if (typePart === '001' && !row.querySelector('.badge-gardening')) {
-                                    showRow = false;
-                                }
-                                if (typePart === '002' && !row.querySelector('.badge-landscaping')) {
-                                    showRow = false;
+                                if (typePart === '001') {
+                                    const hasGardening = row.querySelector('.badge-gardening');
+                                    if (!hasGardening) {
+                                        showRow = false;
+                                    }
+                                } else if (typePart === '002') {
+                                    const hasLandscaping = row.querySelector('.badge-landscaping');
+                                    if (!hasLandscaping) {
+                                        showRow = false;
+                                    }
                                 }
                                 
                                 // Check homeowner ID
