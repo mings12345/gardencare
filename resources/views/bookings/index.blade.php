@@ -401,10 +401,10 @@
                     </thead> 
                     <tbody id="bookingsTableBody">
                         @foreach($bookings as $booking)
-                            <tr data-booking-id="{{ date('y') }}-{{ $booking->type == 'gardening' ? '001' : '002' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}" 
+                            <tr data-booking-id="{{ date('y') }}-{{ $booking->type == 'gardening' ? '01' : '02' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}"
                                 data-booking-date="{{ $booking->date }}" 
                                 data-created-date="{{ $booking->created_at }}">
-                                <td data-label="ID">{{ date('y') }}-{{ $booking->type == 'gardening' ? '001' : '002' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}</td>
+                               <td data-label="ID">{{ date('y') }}-{{ $booking->type == 'gardening' ? '01' : '02' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}</td>
                                 <td data-label="Type">
                                 @if(strtolower($booking->type) == 'gardening')
                                         <span class="badge badge-gardening">Gardening</span>
@@ -570,50 +570,43 @@
                     let showRow = true;
                     
                     // Search by Booking ID (format: YY-TTT-HH)
-                    if (searchTerm) {
-                        const bookingId = row.getAttribute('data-booking-id').toLowerCase();
-                        const idParts = searchTerm.split('-');
-                        
-                        if (idParts.length === 3) {
-                            const [yearPart, typePart, homeownerPart] = idParts;
-                            const actualId = bookingId;
-                            const actualParts = actualId.split('-');
-                            
-                            if (actualParts.length === 3) {
-                                const [actualYear, actualType, actualHomeowner] = actualParts;
-                                
-                                // Check year part
-                                if (yearPart && !actualYear.includes(yearPart)) {
-                                    showRow = false;
-                                }
-                                
-                                // Check service type
-                                if (typePart === '001') {
-                                    const hasGardening = row.querySelector('.badge-gardening');
-                                    if (!hasGardening) {
-                                        showRow = false;
-                                    }
-                                } else if (typePart === '002') {
-                                    const hasLandscaping = row.querySelector('.badge-landscaping');
-                                    if (!hasLandscaping) {
-                                        showRow = false;
-                                    }
-                                }
-                                
-                                // Check homeowner ID
-                                if (homeownerPart && !actualHomeowner.includes(homeownerPart)) {
-                                    showRow = false;
-                                }
-                            } else {
-                                showRow = false;
-                            }
-                        } else {
-                            // Simple text search fallback
-                            if (!bookingId.includes(searchTerm)) {
-                                showRow = false;
-                            }
-                        }
-                    }
+                    // In the applyFilters function, replace the searchTerm handling with:
+if (searchTerm) {
+    const bookingId = row.getAttribute('data-booking-id').toLowerCase();
+    const idParts = searchTerm.split('-');
+    
+    if (idParts.length === 3) {
+        const [yearPart, typePart, homeownerPart] = idParts;
+        const actualId = bookingId;
+        const actualParts = actualId.split('-');
+        
+        if (actualParts.length === 3) {
+            const [actualYear, actualType, actualHomeowner] = actualParts;
+            
+            // Check year part (first 2 digits)
+            if (yearPart && !actualYear.startsWith(yearPart)) {
+                showRow = false;
+            }
+            
+            // Check service type (next 2 digits)
+            if (typePart && !actualType.startsWith(typePart)) {
+                showRow = false;
+            }
+            
+            // Check homeowner ID (last 2 digits)
+            if (homeownerPart && !actualHomeowner.startsWith(homeownerPart)) {
+                showRow = false;
+            }
+        } else {
+            showRow = false;
+        }
+    } else {
+        // Simple text search fallback
+        if (!bookingId.includes(searchTerm)) {
+            showRow = false;
+        }
+    }
+}
                     
                     // Filter by Date Range (booking date)
                     if ((startDate || endDate) && showRow) {
