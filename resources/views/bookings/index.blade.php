@@ -661,10 +661,10 @@
             typeFilter.addEventListener('change', applyFilters);
             
             // Clear all filters
-            clearFiltersBtn.addEventListener('click', function() {
+             clearFiltersBtn.addEventListener('click', function() {
                 searchInput.value = '';
-                startDateFilter.valueAsDate = firstDayOfMonth;
-                endDateFilter.valueAsDate = lastDayOfMonth;
+                startDateFilter.value = '';  // Clear start date
+                endDateFilter.value = '';    // Clear end date
                 statusFilter.value = '';
                 typeFilter.value = '';
                 applyFilters();
