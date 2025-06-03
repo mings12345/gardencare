@@ -559,11 +559,26 @@
             const dateRangeStatus = document.getElementById('dateRangeStatus');
             const bookingRows = bookingsReportBody.querySelectorAll('tr');
 
+            function showAllBookings() {
+        bookingRows.forEach(row => {
+            row.style.display = '';
+        });
+        dateRangeStatus.textContent = `Showing all ${bookingRows.length} bookings`;
+    }
+
+    // Initialize by showing all bookings
+    showAllBookings();
+
             function filterBookings() {
     const startDate = reportStartDate.value;
     const endDate = reportEndDate.value;
     const userId = userFilter.value;
     
+     if (!startDate && !endDate && !userId) {
+            showAllBookings();
+            return;
+        }
+        
     // Validate date range
     if (startDate && endDate && startDate > endDate) {
         alert('End date cannot be before start date');
@@ -604,6 +619,11 @@
     const userText = userId ? ` for selected user` : '';
     dateRangeStatus.textContent = `Showing ${visibleCount} bookings from ${start} to ${end}${userText}`;
 }
+              let filterTimeout;
+    function scheduleFilter() {
+        clearTimeout(filterTimeout);
+        filterTimeout = setTimeout(filterBookings, 300);
+    }
 
             // Add event listeners
             reportStartDate.addEventListener('change', filterBookings);
