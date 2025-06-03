@@ -560,48 +560,50 @@
             const bookingRows = bookingsReportBody.querySelectorAll('tr');
 
             function filterBookings() {
-                const startDate = reportStartDate.value;
-                const endDate = reportEndDate.value;
-                const userId = userFilter.value;
-                
-                // Validate date range
-                if (startDate && endDate && startDate > endDate) {
-                    alert('End date cannot be before start date');
-                    reportEndDate.value = startDate;
-                    return;
-                }
+    const startDate = reportStartDate.value;
+    const endDate = reportEndDate.value;
+    const userId = userFilter.value;
+    
+    // Validate date range
+    if (startDate && endDate && startDate > endDate) {
+        alert('End date cannot be before start date');
+        reportEndDate.value = startDate;
+        return;
+    }
 
-                let visibleCount = 0;
-                
-                bookingRows.forEach(row => {
-                    const bookingDate = row.getAttribute('data-booking-date');
-                    const homeownerId = row.getAttribute('data-homeowner-id');
-                    const providerId = row.getAttribute('data-provider-id');
-                    let showRow = true;
-                    
-                    // Date filtering
-                    if (startDate && bookingDate < startDate) {
-                        showRow = false;
-                    }
-                    if (endDate && bookingDate > endDate) {
-                        showRow = false;
-                    }
-                    
-                    // User filtering
-                    if (userId && homeownerId !== userId && providerId !== userId) {
-                        showRow = false;
-                    }
-                    
-                    row.style.display = showRow ? '' : 'none';
-                    if (showRow) visibleCount++;
-                });
-                
-                // Update date range status
-                const start = startDate ? new Date(startDate).toLocaleDateString() : 'Start';
-                const end = endDate ? new Date(endDate).toLocaleDateString() : 'End';
-                const userText = userId ? ` for selected user` : '';
-                dateRangeStatus.textContent = `Showing ${visibleCount} bookings from ${start} to ${end}${userText}`;
-            }
+    let visibleCount = 0;
+    
+    bookingRows.forEach(row => {
+        const bookingDate = row.getAttribute('data-booking-date');
+        const homeownerId = row.getAttribute('data-homeowner-id');
+        const providerId = row.getAttribute('data-provider-id');
+        let showRow = true;
+        
+        // Date filtering
+        if (startDate && bookingDate < startDate) {
+            showRow = false;
+        }
+        if (endDate && bookingDate > endDate) {
+            showRow = false;
+        }
+        
+        // User filtering - Updated to check both homeowner and provider IDs
+        if (userId) {
+            const isHomeownerMatch = homeownerId === userId;
+            const isProviderMatch = providerId === userId;
+            showRow = isHomeownerMatch || isProviderMatch;
+        }
+        
+        row.style.display = showRow ? '' : 'none';
+        if (showRow) visibleCount++;
+    });
+    
+    // Update date range status
+    const start = startDate ? new Date(startDate).toLocaleDateString() : 'Start';
+    const end = endDate ? new Date(endDate).toLocaleDateString() : 'End';
+    const userText = userId ? ` for selected user` : '';
+    dateRangeStatus.textContent = `Showing ${visibleCount} bookings from ${start} to ${end}${userText}`;
+}
 
             // Add event listeners
             reportStartDate.addEventListener('change', filterBookings);
