@@ -406,7 +406,7 @@
                                 data-created-date="{{ $booking->created_at }}">
                                 <td data-label="ID">{{ date('y') }}-{{ $booking->type == 'gardening' ? '01' : '02' }}-{{ str_pad($booking->homeowner_id, 2, '0', STR_PAD_LEFT) }}</td>
                                 <td data-label="Type">
-                                    @if(strtolower($booking->type) == 'gardening')
+                                @if(strtolower($booking->type) == 'gardening')
                                         <span class="badge badge-gardening">Gardening</span>
                                     @else
                                         <span class="badge badge-landscaping">Landscaping</span>
@@ -569,7 +569,7 @@
                 tableRows.forEach(row => {
                     let showRow = true;
                     
-                    // Search by Booking ID (format: YY-TT-HH)
+                    // Search by Booking ID (format: 25-01-01)
                     if (searchTerm) {
                         const bookingId = row.getAttribute('data-booking-id').toLowerCase();
                         const idParts = searchTerm.split('-');
@@ -582,12 +582,12 @@
                             if (actualParts.length === 3) {
                                 const [actualYear, actualType, actualHomeowner] = actualParts;
                                 
-                                // Check year part
+                                // Check year part (25)
                                 if (yearPart && !actualYear.includes(yearPart)) {
                                     showRow = false;
                                 }
                                 
-                                // Check service type (01 for gardening, 02 for landscaping)
+                                // Check service type (01 = gardening, 02 = landscaping)
                                 if (typePart === '01' && !row.querySelector('.badge-gardening')) {
                                     showRow = false;
                                 }
@@ -595,7 +595,7 @@
                                     showRow = false;
                                 }
                                 
-                                // Check homeowner ID
+                                // Check homeowner ID (last two digits)
                                 if (homeownerPart && !actualHomeowner.includes(homeownerPart)) {
                                     showRow = false;
                                 }
